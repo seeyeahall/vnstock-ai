@@ -35,6 +35,7 @@ export default function OutputSettingsPanel() {
   });
   const [notebooklmLoading, setNotebooklmLoading] = useState(false);
   const [n8nLoading, setN8nLoading] = useState(false);
+  const [n8nLastTested, setN8nLastTested] = useState<string | null>(null);
 
   const setTest = (key: string, status: string, message: string) => {
     setTestStatus((prev) => ({ ...prev, [key]: { status, message } }));
@@ -162,10 +163,11 @@ export default function OutputSettingsPanel() {
         }),
       });
       const data = await res.json();
+      setN8nLastTested(new Date().toLocaleString());
       setTest(
         "n8n",
-        data.success ? "success" : "error",
-        data.success ? "Kết nối thành công!" : `Lỗi: ${data.error || "Unknown"}`
+        data.connected ? "success" : "error",
+        data.connected ? `Kết nối thành công! (${data.latency}ms)` : `Lỗi: ${data.error || "Unknown"}`
       );
     } catch (e: any) {
       setTest("n8n", "error", `Lỗi: ${e.message}`);
@@ -577,7 +579,7 @@ export default function OutputSettingsPanel() {
         </CardContent>
       </Card>
 
-      {/* n8n Bridge */}
+      {/* === N8N BRIDGE SECTION === */}
       <Card className="border-l-4 border-l-purple-500">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -601,7 +603,7 @@ export default function OutputSettingsPanel() {
             <div>
               <Label className="text-xs text-gray-500 mb-1 block">n8n Webhook URL</Label>
               <Input
-                placeholder="https://n8n.example.com/webhook/..."
+                placeholder="https://n8n.your-domain.com/webhook/vnstock"
                 value={settings.n8nWebhookUrl || ""}
                 onChange={(e) => updateSetting("n8nWebhookUrl", e.target.value)}
               />
@@ -616,7 +618,7 @@ export default function OutputSettingsPanel() {
               />
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               size="sm"
               onClick={testN8n}
@@ -641,6 +643,11 @@ export default function OutputSettingsPanel() {
               </Badge>
             )}
           </div>
+          {n8nLastTested && (
+            <div className="text-xs text-gray-400">
+              Last tested: {n8nLastTested}
+            </div>
+          )}
         </CardContent>
       </Card>
 

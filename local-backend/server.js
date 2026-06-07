@@ -14,6 +14,7 @@ import { checkApiHealth, checkAllHealth } from './services/healthCheck.js';
 import { runPrecheck } from './services/precheckEngine.js';
 import { router9 } from './services/router9.js';
 import { stateManager } from './services/stateManager.js';
+import { n8nBridge } from './services/n8nBridge.js';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -431,6 +432,71 @@ app.get('/api/state/load', async (req, res) => {
   const { workflow_id } = req.query;
   const result = await stateManager.resumeState(workflow_id);
   res.json({ success: true, ...result });
+});
+
+// ── n8n Bridge ──
+app.post('/api/n8n/send', async (req, res) => {
+  const { taskType, payload } = req.body;
+  if (!taskType) {
+    return res.status(400).json({ success: false, error: 'taskType required' });
+  }
+  const result = await n8nBridge.sendTask(taskType, payload);
+  res.json({ success: result.success, taskId: result.taskId, status: result.success ? 'sent' : 'failed', error: result.error });
+});
+
+app.post('/api/n8n/callback', async (req, res) => {
+  const result = await n8nBridge.receiveResult(req.body);
+  res.json({ success: result.success, taskId: result.taskId, status: result.status });
+});
+
+app.get('/api/n8n/status/:taskId', async (req, res) => {
+  const result = await n8nBridge.getTaskStatus(req.params.taskId);
+  if (!result.success) {
+    return res.status(404).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/api/n8n/test', async (req, res) => {
+  const { webhookUrl, apiKey } = req.body;
+  if (webhookUrl) {
+    n8nBridge.config.webhookUrl = webhookUrl;
+  }
+  if (apiKey) {
+    n8nBridge.config.apiKey = apiKey;
+  }
+  const result = await n8nBridge.testConnection();
+  res.json({ success: result.connected, connected: result.connected, latency: result.latency, error: result.error });
+});
+
+app.get('/api/n8n/config', (req, res) => {
+  const rows = db.prepare("SELECT * FROM settings WHERE key LIKE 'n8n_%'").all();
+  const config = { enabled: false, webhookUrl: '', fallbackMode: 'local' };
+  for (const r of rows) {
+    if (r.key === 'n8n_enabled') config.enabled = r.value === 'true' || r.value === '1';
+    if (r.key === 'n8n_webhook_url') config.webhookUrl = r.value || '';
+    if (r.key === 'n8n_fallback_mode') config.fallbackMode = r.value || 'local';
+  }
+  res.json({ success: true, ...config });
+});
+
+app.post('/api/n8n/config', (req, res) => {
+  const { enabled, webhookUrl, apiKey, fallbackMode } = req.body;
+  const settings = [
+    { key: 'n8n_enabled', value: enabled !== undefined ? String(enabled) : undefined },
+    { key: 'n8n_webhook_url', value: webhookUrl },
+    { key: 'n8n_api_key', value: apiKey },
+    { key: 'n8n_fallback_mode', value: fallbackMode }
+  ];
+  for (const s of settings) {
+    if (s.value !== undefined) {
+      db.prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime("now"))')
+        .run(s.key, s.value);
+    }
+  }
+  // Reload config
+  n8nBridge.loadConfig();
+  res.json({ success: true });
 });
 
 // ── Serve static (fallback for SPA if needed) ──
