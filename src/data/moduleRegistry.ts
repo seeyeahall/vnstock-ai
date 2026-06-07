@@ -1,0 +1,532 @@
+import type { ModuleDef, SystemProfile, WorkflowNode, WorkflowEdge } from "@/types/modules";
+
+// Re-export types for convenience
+export type { ModuleDef, SystemProfile, WorkflowNode, WorkflowEdge };
+
+// ===== INPUT MODULES =====
+export const inputModules: ModuleDef[] = [
+  {
+    module_id: "youtube_ingestion",
+    module_name: "YouTube Ingestion",
+    version: "1.0",
+    category: "input",
+    description: "Thu thập video từ 29+ kênh YouTube chứng khoán Việt Nam. Tự động lấy transcript, phân loại chủ đề.",
+    dependencies: ["youtube_transcript_api", "yt_dlp"],
+    inputs: ["youtube_channel"],
+    outputs: ["transcript", "video_metadata"],
+    icon: "youtube",
+    status: "active",
+    config_schema: [
+      { key: "channels", label: "Danh sách kênh", type: "multiselect", required: true, options: ["DNSE", "SSI", "VNDirect", "Fiin", "dragoncapital", "vina Capital", "Mirae Asset", "MB Securities", "Kim Long", "KBSV"], default: [] },
+      { key: "max_videos_per_channel", label: "Số video tối đa/kênh", type: "number", required: true, default: 10, placeholder: "10" },
+      { key: "date_range", label: "Khoảng thờ gian (ngày)", type: "number", required: true, default: 1, placeholder: "1" },
+      { key: "priority_transcript", label: "Ưu tiên transcript", type: "select", required: true, options: ["auto_subtitle", "yt_dlp_caption", "whisper", "gemini_audio"], default: "auto_subtitle" },
+    ],
+  },
+  {
+    module_id: "stock_market_data",
+    module_name: "Stock Market Data",
+    version: "1.0",
+    category: "input",
+    description: "Lấy dữ liệu thị trường chứng khoán Việt Nam từ VNStock, Yahoo Finance, TCBS, SSI.",
+    dependencies: ["vnstock", "yfinance"],
+    inputs: ["stock_symbols"],
+    outputs: ["price_data", "volume_data", "financial_statements"],
+    icon: "trending-up",
+    status: "active",
+    config_schema: [
+      { key: "symbols", label: "Mã cổ phiếu", type: "multiselect", required: true, options: ["VNINDEX", "HNXINDEX", "UPCOM", "FPT", "VCB", "HPG", "GAS", "VHM", "MSN", "SAB", "GVR", "MWG", "PLX", "VIC", "TCB", "MBB", "ACB", "VPB", "SSB", "TPB"], default: ["VNINDEX", "FPT", "VCB", "HPG"] },
+      { key: "timeframe", label: "Khung thờ gian", type: "select", required: true, options: ["1d", "1w", "1m", "3m", "6m", "1y"], default: "1d" },
+    ],
+  },
+  {
+    module_id: "rss_news",
+    module_name: "RSS News",
+    version: "1.0",
+    category: "input",
+    description: "Thu thập tin tức từ các nguồn RSS về chứng khoán, kinh tế vĩ mô.",
+    dependencies: ["feedparser"],
+    inputs: ["rss_feeds"],
+    outputs: ["news_articles"],
+    icon: "newspaper",
+    status: "active",
+    config_schema: [
+      { key: "feeds", label: "Nguồn RSS", type: "multiselect", required: true, options: ["CafeF", "VnEconomy", "VietStock", "SSI Research", "DNSE Research", "Bloomberg", "Reuters"], default: ["CafeF", "VietStock"] },
+      { key: "max_articles", label: "Số bài tối đa", type: "number", required: true, default: 50, placeholder: "50" },
+    ],
+  },
+  {
+    module_id: "website_scraper",
+    module_name: "Website Scraper",
+    version: "1.0",
+    category: "input",
+    description: "Crawl dữ liệu từ các trang web chứng khoán.",
+    dependencies: ["beautifulsoup4", "selenium"],
+    inputs: ["urls"],
+    outputs: ["web_content"],
+    icon: "globe",
+    status: "inactive",
+    config_schema: [
+      { key: "target_urls", label: "URLs mục tiêu", type: "multiselect", required: true, options: ["cafef.vn", "vneconomy.vn", "vietstock.vn", "ssi.com.vn"], default: [] },
+    ],
+  },
+  {
+    module_id: "pdf_reader",
+    module_name: "PDF Reader",
+    version: "1.0",
+    category: "input",
+    description: "Đọc và trích xuất nội dung từ báo cáo phân tích PDF.",
+    dependencies: ["pymupdf", "pdfplumber"],
+    inputs: ["pdf_files"],
+    outputs: ["pdf_text", "pdf_tables"],
+    icon: "file-text",
+    status: "inactive",
+    config_schema: [
+      { key: "watch_folder", label: "Thư mục theo dõi", type: "string", required: true, default: "./pdfs", placeholder: "./pdfs" },
+    ],
+  },
+  {
+    module_id: "crypto_market_data",
+    module_name: "Crypto Market Data",
+    version: "1.0",
+    category: "input",
+    description: "Dữ liệu thị trường crypto từ Binance, CoinGecko.",
+    dependencies: ["ccxt", "requests"],
+    inputs: ["crypto_symbols"],
+    outputs: ["crypto_prices", "crypto_volume"],
+    icon: "bitcoin",
+    status: "inactive",
+    config_schema: [
+      { key: "crypto_symbols", label: "Mã Crypto", type: "multiselect", required: true, options: ["BTC", "ETH", "BNB", "SOL", "XRP"], default: ["BTC", "ETH"] },
+    ],
+  },
+];
+
+// ===== AI MODULES =====
+export const aiModules: ModuleDef[] = [
+  {
+    module_id: "gemini",
+    module_name: "Google Gemini",
+    version: "2.5",
+    category: "ai",
+    description: "LLM chính cho phân tích, tổng hợp, và sinh báo cáo. Hỗ trợ context window 2M tokens.",
+    dependencies: ["google-generativeai"],
+    inputs: ["prompt", "context"],
+    outputs: ["analysis", "report", "summary"],
+    icon: "brain",
+    status: "active",
+    config_schema: [
+      { key: "model", label: "Model", type: "select", required: true, options: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro", "gemini-2.0-flash"], default: "gemini-2.5-pro" },
+      { key: "api_key", label: "API Key", type: "password", required: true, placeholder: "AIza..." },
+      { key: "temperature", label: "Temperature", type: "number", required: true, default: 0.3, placeholder: "0.3" },
+      { key: "rpm_limit", label: "Requests/min limit", type: "number", required: true, default: 15, placeholder: "15" },
+    ],
+  },
+  {
+    module_id: "groq",
+    module_name: "Groq",
+    version: "1.0",
+    category: "ai",
+    description: "Inference cực nhanh, free-tier hào phóng. Fallback tốt khi Gemini quota hết.",
+    dependencies: ["groq"],
+    inputs: ["prompt"],
+    outputs: ["analysis", "summary"],
+    icon: "zap",
+    status: "active",
+    config_schema: [
+      { key: "model", label: "Model", type: "select", required: true, options: ["llama-3.3-70b", "mixtral-8x7b", "gemma2-9b"], default: "llama-3.3-70b" },
+      { key: "api_key", label: "API Key", type: "password", required: true, placeholder: "gsk_..." },
+    ],
+  },
+  {
+    module_id: "openrouter",
+    module_name: "OpenRouter",
+    version: "1.0",
+    category: "ai",
+    description: "Unified API cho nhiều LLM (Claude, GPT, v.v.). Fallback chain thứ 2.",
+    dependencies: ["openai"],
+    inputs: ["prompt"],
+    outputs: ["analysis", "summary"],
+    icon: "router",
+    status: "active",
+    config_schema: [
+      { key: "model", label: "Model", type: "select", required: true, options: ["anthropic/claude-3.5-sonnet", "openai/gpt-4o", "meta/llama-3.3-70b"], default: "anthropic/claude-3.5-sonnet" },
+      { key: "api_key", label: "API Key", type: "password", required: true, placeholder: "sk-or-..." },
+    ],
+  },
+  {
+    module_id: "ollama",
+    module_name: "Ollama (Local)",
+    version: "1.0",
+    category: "ai",
+    description: "Chạy LLM local hoàn toàn miễn phí. Phù hợp cho phân tích offline.",
+    dependencies: ["ollama"],
+    inputs: ["prompt"],
+    outputs: ["analysis", "summary"],
+    icon: "cpu",
+    status: "inactive",
+    config_schema: [
+      { key: "model", label: "Model", type: "select", required: true, options: ["llama3.3", "qwen2.5", "phi4", "deepseek-r1"], default: "llama3.3" },
+      { key: "host", label: "Ollama Host", type: "string", required: true, default: "http://localhost:11434", placeholder: "http://localhost:11434" },
+    ],
+  },
+];
+
+// ===== MEMORY MODULES =====
+export const memoryModules: ModuleDef[] = [
+  {
+    module_id: "postgres",
+    module_name: "PostgreSQL",
+    version: "16",
+    category: "memory",
+    description: "Operational memory: lưu state, task history, audit logs.",
+    dependencies: ["asyncpg", "psycopg2"],
+    inputs: ["sql_queries"],
+    outputs: ["query_results"],
+    icon: "database",
+    status: "active",
+    config_schema: [
+      { key: "host", label: "Host", type: "string", required: true, default: "localhost", placeholder: "localhost" },
+      { key: "port", label: "Port", type: "number", required: true, default: 5432, placeholder: "5432" },
+      { key: "database", label: "Database", type: "string", required: true, default: "vnstock_ai", placeholder: "vnstock_ai" },
+      { key: "user", label: "User", type: "string", required: true, default: "postgres", placeholder: "postgres" },
+      { key: "password", label: "Password", type: "password", required: true, placeholder: "***" },
+    ],
+  },
+  {
+    module_id: "qdrant",
+    module_name: "Qdrant (Vector DB)",
+    version: "1.0",
+    category: "memory",
+    description: "Vector memory: semantic search, embedding storage cho transcripts và báo cáo.",
+    dependencies: ["qdrant-client"],
+    inputs: ["embeddings"],
+    outputs: ["similarity_results"],
+    icon: "search",
+    status: "active",
+    config_schema: [
+      { key: "host", label: "Host", type: "string", required: true, default: "localhost", placeholder: "localhost" },
+      { key: "port", label: "Port", type: "number", required: true, default: 6333, placeholder: "6333" },
+      { key: "collection", label: "Collection", type: "string", required: true, default: "vnstock_knowledge", placeholder: "vnstock_knowledge" },
+    ],
+  },
+  {
+    module_id: "sqlite",
+    module_name: "SQLite",
+    version: "3",
+    category: "memory",
+    description: "Lightweight SQL database cho máy yếu. Thay thế PostgreSQL khi resource hạn chế.",
+    dependencies: ["sqlite3"],
+    inputs: ["sql_queries"],
+    outputs: ["query_results"],
+    icon: "database",
+    status: "inactive",
+    config_schema: [
+      { key: "db_path", label: "Database Path", type: "string", required: true, default: "./data/vnstock.db", placeholder: "./data/vnstock.db" },
+    ],
+  },
+  {
+    module_id: "notebooklm",
+    module_name: "NotebookLM",
+    version: "1.0",
+    category: "memory",
+    description: "Google NotebookLM cho grounded knowledge. Neo giữ tri thức, không orchestrate.",
+    dependencies: ["notebooklm_api"],
+    inputs: ["documents"],
+    outputs: ["summaries", "podcasts"],
+    icon: "book-open",
+    status: "inactive",
+    config_schema: [
+      { key: "project_id", label: "Project ID", type: "string", required: true, placeholder: "notebook-..." },
+    ],
+  },
+];
+
+// ===== OUTPUT MODULES =====
+export const outputModules: ModuleDef[] = [
+  {
+    module_id: "telegram",
+    module_name: "Telegram",
+    version: "1.0",
+    category: "output",
+    description: "Gửi báo cáo qua Telegram Bot. Hỗ trợ markdown, inline buttons, file attachment.",
+    dependencies: ["python-telegram-bot"],
+    inputs: ["message", "report_file"],
+    outputs: ["delivery_status"],
+    icon: "send",
+    status: "active",
+    config_schema: [
+      { key: "bot_token", label: "Bot Token", type: "password", required: true, placeholder: "7xxxxxx:..." },
+      { key: "chat_id", label: "Chat ID", type: "string", required: true, placeholder: "-100..." },
+      { key: "format", label: "Định dạng", type: "select", required: true, options: ["markdown", "html", "plain"], default: "markdown" },
+    ],
+  },
+  {
+    module_id: "email",
+    module_name: "Email",
+    version: "1.0",
+    category: "output",
+    description: "Gửi báo cáo qua Email với đính kèm PDF/Excel.",
+    dependencies: ["smtplib", "email"],
+    inputs: ["email_content"],
+    outputs: ["delivery_status"],
+    icon: "mail",
+    status: "inactive",
+    config_schema: [
+      { key: "smtp_host", label: "SMTP Host", type: "string", required: true, default: "smtp.gmail.com", placeholder: "smtp.gmail.com" },
+      { key: "smtp_port", label: "SMTP Port", type: "number", required: true, default: 587, placeholder: "587" },
+      { key: "from_email", label: "From Email", type: "string", required: true, placeholder: "your@email.com" },
+      { key: "password", label: "App Password", type: "password", required: true, placeholder: "****" },
+      { key: "to_emails", label: "To Emails", type: "string", required: true, placeholder: "email1@x.com, email2@x.com" },
+    ],
+  },
+  {
+    module_id: "notion",
+    module_name: "Notion",
+    version: "1.0",
+    category: "output",
+    description: "Lưu báo cáo vào Notion Database với rich formatting.",
+    dependencies: ["notion-client"],
+    inputs: ["page_content"],
+    outputs: ["page_url"],
+    icon: "file-plus",
+    status: "active",
+    config_schema: [
+      { key: "token", label: "Integration Token", type: "password", required: true, placeholder: "secret_..." },
+      { key: "database_id", label: "Database ID", type: "string", required: true, placeholder: "..." },
+    ],
+  },
+  {
+    module_id: "discord",
+    module_name: "Discord",
+    version: "1.0",
+    category: "output",
+    description: "Gửi báo cáo vào Discord channel.",
+    dependencies: ["discord.py"],
+    inputs: ["message"],
+    outputs: ["delivery_status"],
+    icon: "message-circle",
+    status: "inactive",
+    config_schema: [
+      { key: "webhook_url", label: "Webhook URL", type: "string", required: true, placeholder: "https://discord.com/api/webhooks/..." },
+    ],
+  },
+  {
+    module_id: "dashboard",
+    module_name: "Web Dashboard",
+    version: "1.0",
+    category: "output",
+    description: "Dashboard web tương tác với biểu đồ, bảng dữ liệu, và lịch sử báo cáo.",
+    dependencies: ["streamlit", "plotly"],
+    inputs: ["report_data"],
+    outputs: ["web_dashboard"],
+    icon: "layout-dashboard",
+    status: "active",
+    config_schema: [
+      { key: "port", label: "Port", type: "number", required: true, default: 8501, placeholder: "8501" },
+      { key: "theme", label: "Theme", type: "select", required: true, options: ["light", "dark"], default: "dark" },
+    ],
+  },
+];
+
+// ===== VALIDATION MODULES =====
+export const validationModules: ModuleDef[] = [
+  {
+    module_id: "health_check",
+    module_name: "API Health Check",
+    version: "1.0",
+    category: "validation",
+    description: "Kiểm tra độ sống của tất cả API trước khi chạy workflow.",
+    dependencies: [],
+    inputs: ["api_list"],
+    outputs: ["health_status"],
+    icon: "heart-pulse",
+    status: "active",
+    config_schema: [],
+  },
+  {
+    module_id: "quota_check",
+    module_name: "Quota Predictor",
+    version: "1.0",
+    category: "validation",
+    description: "Dự báo token quota, tự động chia batch nếu vượt giới hạn.",
+    dependencies: [],
+    inputs: ["estimated_tokens"],
+    outputs: ["quota_status", "batch_plan"],
+    icon: "gauge",
+    status: "active",
+    config_schema: [],
+  },
+  {
+    module_id: "hardware_check",
+    module_name: "Hardware Validator",
+    version: "1.0",
+    category: "validation",
+    description: "Kiểm tra CPU, RAM, Disk trước khi chạy. Tự chuyển profile phù hợp.",
+    dependencies: [],
+    inputs: ["system_info"],
+    outputs: ["hardware_profile"],
+    icon: "hard-hat",
+    status: "active",
+    config_schema: [],
+  },
+  {
+    module_id: "dependency_check",
+    module_name: "Dependency Validator",
+    version: "1.0",
+    category: "validation",
+    description: "Kiểm tra Docker, n8n, PostgreSQL, Qdrant, Redis có sẵn sàng không.",
+    dependencies: [],
+    inputs: ["service_list"],
+    outputs: ["dependency_status"],
+    icon: "check-circle",
+    status: "active",
+    config_schema: [],
+  },
+];
+
+// ===== RECOVERY MODULES =====
+export const recoveryModules: ModuleDef[] = [
+  {
+    module_id: "retry",
+    module_name: "Retry Engine",
+    version: "1.0",
+    category: "recovery",
+    description: "Tự động retry khi API timeout hoặc rate limit.",
+    dependencies: [],
+    inputs: ["failed_task"],
+    outputs: ["retry_result"],
+    icon: "refresh-cw",
+    status: "active",
+    config_schema: [
+      { key: "max_retries", label: "Số lần retry tối đa", type: "number", required: true, default: 3, placeholder: "3" },
+      { key: "backoff", label: "Backoff (giây)", type: "number", required: true, default: 5, placeholder: "5" },
+    ],
+  },
+  {
+    module_id: "fallback_ai",
+    module_name: "AI Fallback",
+    version: "1.0",
+    category: "recovery",
+    description: "Chuyển đổi AI provider khi Gemini/Groq fail: Gemini → Groq → OpenRouter → Ollama.",
+    dependencies: [],
+    inputs: ["failed_request"],
+    outputs: ["fallback_response"],
+    icon: "git-branch",
+    status: "active",
+    config_schema: [],
+  },
+  {
+    module_id: "resume",
+    module_name: "State Resume",
+    version: "1.0",
+    category: "recovery",
+    description: "Lưu và phục hồi trạng thái workflow. Tiếp tục từ % đã chạy khi crash.",
+    dependencies: ["postgres"],
+    inputs: ["state_snapshot"],
+    outputs: ["restored_state"],
+    icon: "play-circle",
+    status: "active",
+    config_schema: [],
+  },
+];
+
+// ===== ALL MODULES =====
+export const allModules: ModuleDef[] = [
+  ...inputModules,
+  ...aiModules,
+  ...memoryModules,
+  ...outputModules,
+  ...validationModules,
+  ...recoveryModules,
+];
+
+// ===== SYSTEM PRESETS =====
+export const systemPresets: SystemProfile[] = [
+  {
+    system_name: "Daily Stock Intelligence",
+    mode: "scheduled",
+    inputs: ["youtube_ingestion", "stock_market_data", "rss_news"],
+    outputs: ["telegram", "notion"],
+    ai: ["gemini", "groq"],
+    memory: ["postgres", "qdrant"],
+    schedule: ["07:00", "20:00"],
+    hardware_profile: "medium",
+  },
+  {
+    system_name: "Quick YouTube Summary",
+    mode: "manual",
+    inputs: ["youtube_ingestion"],
+    outputs: ["telegram"],
+    ai: ["gemini"],
+    memory: ["sqlite"],
+    schedule: [],
+    hardware_profile: "low_end",
+  },
+  {
+    system_name: "Full Market Analysis",
+    mode: "autonomous",
+    inputs: ["youtube_ingestion", "stock_market_data", "rss_news", "website_scraper", "pdf_reader"],
+    outputs: ["telegram", "notion", "email", "dashboard"],
+    ai: ["gemini", "groq", "openrouter"],
+    memory: ["postgres", "qdrant", "notebooklm"],
+    schedule: ["06:00", "12:00", "18:00"],
+    hardware_profile: "high_end",
+  },
+];
+
+// ===== WORKFLOW GRAPH DATA =====
+export const defaultWorkflowNodes: WorkflowNode[] = [
+  // Input Layer
+  { id: "youtube", label: "YouTube\nIngestion", category: "input", x: 50, y: 50, status: "active", inputs: ["channels"], outputs: ["transcript"] },
+  { id: "stock", label: "Stock\nMarket", category: "input", x: 200, y: 50, status: "active", inputs: ["symbols"], outputs: ["price_data"] },
+  { id: "news", label: "RSS\nNews", category: "input", x: 350, y: 50, status: "active", inputs: ["feeds"], outputs: ["articles"] },
+  // Validation Layer
+  { id: "health", label: "Health\nCheck", category: "validation", x: 125, y: 150, status: "active", inputs: ["api_list"], outputs: ["status"] },
+  { id: "quota", label: "Quota\nPredictor", category: "validation", x: 275, y: 150, status: "active", inputs: ["tokens"], outputs: ["plan"] },
+  // AI Layer
+  { id: "gemini", label: "Gemini\nAnalysis", category: "ai", x: 200, y: 250, status: "active", inputs: ["prompt"], outputs: ["analysis"] },
+  // Memory Layer
+  { id: "postgres", label: "PostgreSQL", category: "memory", x: 50, y: 350, status: "active", inputs: ["state"], outputs: ["history"] },
+  { id: "qdrant", label: "Qdrant\nVector", category: "memory", x: 350, y: 350, status: "active", inputs: ["embeddings"], outputs: ["search"] },
+  // Recovery Layer
+  { id: "fallback", label: "AI\nFallback", category: "recovery", x: 50, y: 250, status: "active", inputs: ["fail"], outputs: ["retry"] },
+  // Output Layer
+  { id: "telegram", label: "Telegram", category: "output", x: 125, y: 450, status: "active", inputs: ["report"], outputs: ["sent"] },
+  { id: "notion", label: "Notion", category: "output", x: 275, y: 450, status: "active", inputs: ["report"], outputs: ["saved"] },
+];
+
+export const defaultWorkflowEdges: WorkflowEdge[] = [
+  { from: "youtube", to: "health", label: "validate" },
+  { from: "stock", to: "health", label: "validate" },
+  { from: "news", to: "health", label: "validate" },
+  { from: "health", to: "quota", label: "check" },
+  { from: "quota", to: "gemini", label: "analyze" },
+  { from: "gemini", to: "fallback", label: "on_fail" },
+  { from: "fallback", to: "gemini", label: "retry" },
+  { from: "gemini", to: "postgres", label: "store" },
+  { from: "gemini", to: "qdrant", label: "embed" },
+  { from: "postgres", to: "telegram", label: "deliver" },
+  { from: "postgres", to: "notion", label: "deliver" },
+];
+
+// ===== CATEGORY COLORS =====
+export const categoryColors: Record<string, { bg: string; border: string; text: string }> = {
+  input: { bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  ai: { bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  memory: { bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700" },
+  output: { bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700" },
+  validation: { bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700" },
+  recovery: { bg: "bg-orange-50", border: "border-orange-300", text: "text-orange-700" },
+  workflow: { bg: "bg-gray-50", border: "border-gray-300", text: "text-gray-700" },
+};
+
+export const categoryLabels: Record<string, string> = {
+  input: "Input / Thu thập",
+  ai: "AI / Phân tích",
+  memory: "Memory / Lưu trữ",
+  output: "Output / Xuất báo cáo",
+  validation: "Validation / Kiểm tra",
+  recovery: "Recovery / Phục hồi",
+  workflow: "Workflow / Luồng",
+};
