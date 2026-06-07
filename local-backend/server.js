@@ -13,7 +13,8 @@ import { syncEngine } from './sync.js';
 import { checkApiHealth, checkAllHealth } from './services/healthCheck.js';
 import { runPrecheck } from './services/precheckEngine.js';
 import { router9 } from './services/router9.js';
-import { stateManager } from './services/stateManager.js';
+import { notebooklmSync } from './services/notebooklmSync.js';
+import { notebooklmAudio } from './services/notebooklmAudio.js';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -431,6 +432,42 @@ app.get('/api/state/load', async (req, res) => {
   const { workflow_id } = req.query;
   const result = await stateManager.resumeState(workflow_id);
   res.json({ success: true, ...result });
+});
+
+// ── NotebookLM ──
+app.post('/api/notebooklm/sync', async (req, res) => {
+  const { megaContext, folderName } = req.body;
+  const result = await notebooklmSync.syncToDrive(megaContext, folderName);
+  res.json(result);
+});
+
+app.get('/api/notebooklm/status', (req, res) => {
+  res.json({ success: true, data: notebooklmSync.getStatus() });
+});
+
+app.post('/api/notebooklm/audio/request', async (req, res) => {
+  const { notebookId } = req.body;
+  const result = await notebooklmAudio.requestAudioOverview(notebookId);
+  res.json(result);
+});
+
+app.get('/api/notebooklm/audio/status/:id', async (req, res) => {
+  const { id } = req.params;
+  const result = notebooklmAudio.getJobStatus(id);
+  res.json(result);
+});
+
+app.get('/api/notebooklm/audio/download/:id', async (req, res) => {
+  const { id } = req.params;
+  const { audioUrl } = req.query;
+  const result = await notebooklmAudio.downloadAudio(audioUrl);
+  res.json(result);
+});
+
+app.post('/api/notebooklm/audio/tts', async (req, res) => {
+  const { text, outputPath } = req.body;
+  const result = await notebooklmAudio.generateLocalTTS(text, outputPath);
+  res.json(result);
 });
 
 // ── Serve static (fallback for SPA if needed) ──
