@@ -7,10 +7,49 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, 'data');
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 
-const DB_PATH = join(DATA_DIR, 'vnstock-ai.db');
+const DB_PATH = join(DATA_DIR, 'vnstock.db');
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
+
+// Migration: add V3 tables if they don't exist
+const V3_MIGRATION = `
+CREATE TABLE IF NOT EXISTS report_templates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_id TEXT UNIQUE,
+  name TEXT NOT NULL,
+  preset TEXT,
+  sections TEXT,
+  output_channels TEXT,
+  time_range TEXT,
+  sources TEXT,
+  schedule TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS agent_tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  task_id TEXT UNIQUE NOT NULL,
+  task_type TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  payload TEXT,
+  result TEXT,
+  error TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  completed_at DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS workflow_states (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  state_id TEXT UNIQUE NOT NULL,
+  name TEXT,
+  state_json TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+db.exec(V3_MIGRATION);
 
 // V2 tables
 const V2_SCHEMA = `
