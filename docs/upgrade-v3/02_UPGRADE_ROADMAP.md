@@ -3,6 +3,7 @@
 > **Mục đích**: Tiến trình tuần tự các bước cần thực hiện để nâng cấp từ v2.0 lên v3.0. Mỗi bước có mục tiêu, file cần sửa, và tiêu chí hoàn thành.
 > **Ngày cập nhật**: 2026-06-07
 > **Tổng thời gian ước tính**: 6-8 tuần (1 developer full-time)
+> **Trạng thái**: Pha 0-6,9 ✅ | Pha 7,8,10 ⏳
 
 ---
 
@@ -23,9 +24,9 @@ git checkout -b upgrade-v3.0
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Thư mục backup chứa toàn bộ source v2.0
-- [ ] Git branch `upgrade-v3.0` đã tạo
-- [ ] Có thể checkout về v2.0 bất cứ lúc nào
+- [x] Thư mục backup chứa toàn bộ source v2.0
+- [x] Git branch `upgrade-v3.0` đã tạo
+- [x] Có thể checkout về v2.0 bất cứ lúc nào
 
 ### Bước 0.2: Restore Backend đang thiếu
 
@@ -45,11 +46,11 @@ git checkout -b upgrade-v3.0
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] `node local-backend/server.js` chạy được trên port 3004
-- [ ] `GET /api/health` trả về `{"success": true}`
-- [ ] SQLite 5 tables đã tạo
-- [ ] `POST /api/youtube/analyze` hoạt động
-- [ ] `POST /api/send-email` hoạt động
+- [x] `node local-backend/server.js` chạy được trên port 3004
+- [x] `GET /api/health` trả về `{"success": true}`
+- [x] SQLite 5 tables đã tạo
+- [x] `POST /api/youtube/analyze` hoạt động
+- [x] `POST /api/send-email` hoạt động
 
 ### Bước 0.3: Tạo cấu trúc thư mục mới
 
@@ -70,7 +71,7 @@ mkdir -p docs/upgrade-v3
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Cấu trúc thư mục mới đã tạo xong
+- [x] Cấu trúc thư mục mới đã tạo xong
 
 ---
 
@@ -104,9 +105,9 @@ Tạo registry chứa thông tin tất cả API:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] File `api_registry.json` tạo xong với đầy đủ API
-- [ ] API `GET /api/registry` trả về danh sách API
-- [ ] API `POST /api/registry/:provider` cập nhật API key
+- [x] File `api_registry.json` tạo xong với đầy đủ API
+- [x] API `GET /api/registry` trả về danh sách API
+- [x] API `POST /api/registry/:provider` cập nhật API key
 
 ### Bước 1.2: API Health Check Service
 
@@ -128,9 +129,9 @@ async function checkApiHealth(provider) {
 - `GET /api/health/:provider` — Kiểm tra 1 API
 
 **Tiêu chí hoàn thành**:
-- [ ] Health check chạy được cho Gemini, Groq, Telegram, Email
-- [ ] Trả về latency và quota remaining
-- [ ] Lưu kết quả vào SQLite `api_keys` table
+- [x] Health check chạy được cho Gemini, Groq, Telegram, Email
+- [x] Trả về latency và quota remaining
+- [x] Lưu kết quả vào SQLite `api_keys` table
 
 ### Bước 1.3: Quota Forecast Service
 
@@ -149,9 +150,9 @@ function forecastQuota(inputs) {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Tính đúng estimated tokens cho 29 kênh YouTube
-- [ ] Phát hiện OVERLOAD và đề xuất batch split
-- [ ] Tích hợp vào Precheck Engine
+- [x] Tính đúng estimated tokens cho 29 kênh YouTube
+- [x] Phát hiện OVERLOAD và đề xuất batch split
+- [x] Tích hợp vào Precheck Engine
 
 ### Bước 1.4: Hardware Validator
 
@@ -169,9 +170,9 @@ function checkHardware() {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Đọc được RAM, CPU, Disk trên Windows
-- [ ] So sánh với profile hardware (low/medium/high_end)
-- [ ] Đề xuất điều chỉnh parallel workers
+- [x] Đọc được RAM, CPU, Disk trên Windows
+- [x] So sánh với profile hardware (low/medium/high_end)
+- [x] Đề xuất điều chỉnh parallel workers
 
 ### Bước 1.5: Precheck Engine (Tổng hợp)
 
@@ -203,9 +204,9 @@ async function runPrecheck(workflowConfig) {
 - Nút "Run Precheck" trước khi chạy workflow
 
 **Tiêu chí hoàn thành**:
-- [ ] Precheck chạy đúng 6 bước: API, Quota, Hardware, Dependency, Transcript, Dry-Run
-- [ ] UI hiển thị kết quả rõ ràng
-- [ ] Nếu FAIL → hiển thị lý do và nút "Auto-fix"
+- [x] Precheck chạy đúng 6 bước: API, Quota, Hardware, Dependency, Transcript, Dry-Run
+- [x] UI hiển thị kết quả rõ ràng
+- [x] Nếu FAIL → hiển thị lý do và nút "Auto-fix"
 
 ### Bước 1.6: 9Router (AI Provider Router)
 
@@ -232,9 +233,9 @@ class Router9 {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Tự động chọn provider dựa trên health + quota
-- [ ] Fallback chain: Gemini → Groq → OpenRouter → Ollama
-- [ ] Log lại lựa chọn để audit
+- [x] Tự động chọn provider dựa trên health + quota
+- [x] Fallback chain: Gemini → Groq → OpenRouter → Ollama
+- [x] Log lại lựa chọn để audit
 
 ### Bước 1.7: State Manager
 
@@ -257,9 +258,9 @@ class StateManager {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Lưu state mỗi 10% progress
-- [ ] Phục hồi đúng từ step đã chạy
-- [ ] Không chạy lại từ đầu khi crash
+- [x] Lưu state mỗi 10% progress
+- [x] Phục hồi đúng từ step đã chạy
+- [x] Không chạy lại từ đầu khi crash
 
 ---
 
@@ -289,10 +290,10 @@ class YouTubeWorker {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Worker chạy độc lập, có progress callback
-- [ ] Transcript validation: length check
-- [ ] Fallback chain: subtitle → yt-dlp → Whisper → Gemini audio
-- [ ] Lưu kết quả vào SQLite
+- [x] Worker chạy độc lập, có progress callback
+- [x] Transcript validation: length check
+- [x] Fallback chain: subtitle → yt-dlp → Whisper → Gemini audio
+- [x] Lưu kết quả vào SQLite
 
 ### Bước 2.2: Stock Data Worker (Mới)
 
@@ -317,9 +318,9 @@ class StockWorker {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Lấy được OHLCV cho VNINDEX, FPT, VCB, HPG, ...
-- [ ] Tính đúng 10 chỉ báo (xem Pha 5)
-- [ ] Lưu vào SQLite
+- [x] Lấy được OHLCV cho VNINDEX, FPT, VCB, HPG, ...
+- [x] Tính đúng 10 chỉ báo (xem Pha 5)
+- [x] Lưu vào SQLite
 
 ### Bước 2.3: RSS News Worker (Mới)
 
@@ -340,9 +341,9 @@ class NewsWorker {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Thu thập từ CafeF, VietStock, SSI Research
-- [ ] Extract keywords tự động
-- [ ] Sentiment analysis (positive/negative/neutral)
+- [x] Thu thập từ CafeF, VietStock, SSI Research
+- [x] Extract keywords tự động
+- [x] Sentiment analysis (positive/negative/neutral)
 
 ### Bước 2.4: Data Merge Service
 
@@ -363,9 +364,9 @@ class DataMergeService {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Gom đúng dữ liệu từ tất cả agents
-- [ ] Deduplicate hoạt động
-- [ ] Tạo mega_context đúng format
+- [x] Gom đúng dữ liệu từ tất cả agents
+- [x] Deduplicate hoạt động
+- [x] Tạo mega_context đúng format
 
 ### Bước 2.5: Data Collection Panel (UI)
 
@@ -383,9 +384,9 @@ UI hiển thị tiến trình thu thập:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Hiển thị progress real-time (WebSocket hoặc polling)
-- [ ] Có thể pause/resume từng agent
-- [ ] Hiển thị error nếu agent fail
+- [x] Hiển thị progress real-time (WebSocket hoặc polling)
+- [x] Có thể pause/resume từng agent
+- [x] Hiển thị error nếu agent fail
 
 ---
 
@@ -413,8 +414,8 @@ CREATE TABLE report_templates (
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Bảng tạo xong
-- [ ] API CRUD: GET/POST/PUT/DELETE `/api/report-templates`
+- [x] Bảng tạo xong
+- [x] API CRUD: GET/POST/PUT/DELETE `/api/report-templates`
 
 ### Bước 3.2: Report Builder UI
 
@@ -447,10 +448,10 @@ UI cho phép người dùng thiết lập mẫu báo cáo:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Kéo thả sắp xếp sections
-- [ ] Toggle bật/tắt từng section
-- [ ] Chọn output channel cho từng section
-- [ ] Lưu template vào SQLite
+- [x] Kéo thả sắp xếp sections
+- [x] Toggle bật/tắt từng section
+- [x] Chọn output channel cho từng section
+- [x] Lưu template vào SQLite
 
 ### Bước 3.3: Report Template Presets
 
@@ -484,8 +485,8 @@ Tạo sẵn 3 mẫu mặc định:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] 3 preset tạo sẵn trong DB khi khởi động
-- [ ] Người dùng có thể clone và chỉnh sửa
+- [x] 3 preset tạo sẵn trong DB khi khởi động
+- [x] Người dùng có thể clone và chỉnh sửa
 
 ---
 
@@ -516,8 +517,8 @@ PHẦN 4: Watchlist & Hành động
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] File meta_prompt.md hoàn chỉnh
-- [ ] Có thể nạp động vào Gemini API
+- [x] File meta_prompt.md hoàn chỉnh
+- [x] Có thể nạp động vào Gemini API
 
 ### Bước 4.2: Analysis Worker
 
@@ -540,9 +541,9 @@ class AnalysisWorker {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Chạy đúng 5 bước Meta-Prompt
-- [ ] Trả về structured report với đúng 4 phần
-- [ ] Nhận diện đúng market regime
+- [x] Chạy đúng 5 bước Meta-Prompt
+- [x] Trả về structured report với đúng 4 phần
+- [x] Nhận diện đúng market regime
 
 ### Bước 4.3: Report Renderer
 
@@ -566,9 +567,9 @@ class ReportRenderer {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Render Markdown đúng format
-- [ ] Render HTML có CSS inline
-- [ ] Tích hợp TTS cho audio
+- [x] Render Markdown đúng format
+- [x] Render HTML có CSS inline
+- [x] Tích hợp TTS cho audio
 
 ---
 
@@ -598,8 +599,8 @@ API trả về dữ liệu chart + indicators:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] API trả về OHLCV + indicators
-- [ ] Hỗ trợ multiple timeframes
+- [x] API trả về OHLCV + indicators
+- [x] Hỗ trợ multiple timeframes
 
 ### Bước 5.2: 10 Chỉ báo cơ bản
 
@@ -645,10 +646,10 @@ API trả về dữ liệu chart + indicators:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Tính đúng công thức 10 chỉ báo
-- [ ] Ichimoku 9-17-26-26-26 tính đúng Tenkan, Kijun, Senkou A/B, Chikou
-- [ ] Ichimoku 65-129-5-2-2 tính đúng cho khung dài hạn
-- [ ] Unit test cho từng chỉ báo
+- [x] Tính đúng công thức 10 chỉ báo
+- [x] Ichimoku 9-17-26-26-26 tính đúng Tenkan, Kijun, Senkou A/B, Chikou
+- [x] Ichimoku 65-129-5-2-2 tính đúng cho khung dài hạn
+- [x] Unit test cho từng chỉ báo
 
 ### Bước 5.3: Chart Viewer UI
 
@@ -666,10 +667,10 @@ Tích hợp TradingView Lightweight Charts hoặc Chart.js:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Hiển thị nến OHLCV
-- [ ] Overlay MA, RSI, MACD, Bollinger
-- [ ] Overlay Ichimoku (cả 2 cấu hình)
-- [ ] Tương tác: zoom, pan, crosshair
+- [x] Hiển thị nến OHLCV
+- [x] Overlay MA, RSI, MACD, Bollinger
+- [x] Overlay Ichimoku (cả 2 cấu hình)
+- [x] Tương tác: zoom, pan, crosshair
 
 ---
 
@@ -691,9 +692,9 @@ def generate_audio(text, voice='vi-VN-Standard-A', output_path='report.mp3'):
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Tạo MP3 từ text báo cáo
-- [ ] Hỗ trợ tiếng Việt
-- [ ] Thời lượng 3-5 phút
+- [x] Tạo MP3 từ text báo cáo
+- [x] Hỗ trợ tiếng Việt
+- [x] Thời lượng 3-5 phút
 
 ### Bước 6.2: Audio Player UI
 
@@ -709,9 +710,9 @@ Player nhúng trong Dashboard:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Phát audio trong app
-- [ ] Controls cơ bản
-- [ ] Hiển thị trong báo cáo Dashboard
+- [x] Phát audio trong app
+- [x] Controls cơ bản
+- [x] Hiển thị trong báo cáo Dashboard
 
 ### Bước 6.3: 3D Market Graph
 
@@ -728,9 +729,9 @@ D3.js force-directed graph:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Hiển thị graph tương tác
-- [ ] Node màu theo sentiment
-- [ ] Có thể thêm vào báo cáo
+- [x] Hiển thị graph tương tác
+- [x] Node màu theo sentiment
+- [x] Có thể thêm vào báo cáo
 
 ---
 
@@ -872,9 +873,9 @@ Thay mock data bằng real-time:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Hiển thị tiến trình thực từ DB
-- [ ] Logs real-time qua WebSocket hoặc polling
-- [ ] Không còn mock data
+- [x] Hiển thị tiến trình thực từ DB
+- [x] Logs real-time qua WebSocket hoặc polling
+- [x] Không còn mock data
 
 ### Bước 9.2: Workflow Graph (Nâng tầng)
 
@@ -893,9 +894,9 @@ Thay static SVG bằng dynamic graph:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Graph cập nhật theo trạng thái thực
-- [ ] Animation data flow
-- [ ] Click node xem chi tiết
+- [x] Graph cập nhật theo trạng thái thực
+- [x] Animation data flow
+- [x] Click node xem chi tiết
 
 ### Bước 9.3: Health Check (Nâng cấp)
 
@@ -912,9 +913,9 @@ Thay mock data bằng real API check:
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Health check gọi API thực
-- [ ] Hiển thị latency, quota thực
-- [ ] Cảnh báo khi quota thấp
+- [x] Health check gọi API thực
+- [x] Hiển thị latency, quota thực
+- [x] Cảnh báo khi quota thấp
 
 ### Bước 9.4: Chat AI (Nâng cấp)
 
@@ -937,9 +938,9 @@ User: "Gửi báo cáo qua Telegram"
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] NLU nhận diện intent tạo báo cáo
-- [ ] Chat trigger workflow thực
-- [ ] Hiển thị progress trong chat
+- [x] NLU nhận diện intent tạo báo cáo
+- [x] Chat trigger workflow thực
+- [x] Hiển thị progress trong chat
 
 ### Bước 9.5: Testing & Bugfix
 
@@ -960,9 +961,9 @@ node local-backend/server.js  # Backend
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] End-to-end test thành công
-- [ ] Không còn mock data
-- [ ] Tất cả API hoạt động
+- [x] End-to-end test thành công
+- [x] Không còn mock data
+- [x] Tất cả API hoạt động
 
 ---
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,8 @@ export default function OutputSettingsPanel() {
   const [notebooklmLoading, setNotebooklmLoading] = useState(false);
   const [n8nLoading, setN8nLoading] = useState(false);
   const [n8nLastTested, setN8nLastTested] = useState<string | null>(null);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [notebooklmStatus, setNotebooklmStatus] = useState<any>(null);
 
   const setTest = (key: string, status: string, message: string) => {
     setTestStatus((prev) => ({ ...prev, [key]: { status, message } }));
@@ -128,27 +130,76 @@ export default function OutputSettingsPanel() {
 
   const testNotebookLM = async () => {
     setNotebooklmLoading(true);
-    setTest("notebooklm", "loading", "Đang test sync...");
+    setTest("notebooklm", "loading", "Đang sync...");
     try {
-      const res = await fetch(`${API_BASE}/api/notebooklm/test`, {
+      const res = await fetch(`${API_BASE}/api/notebooklm/sync`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          folderId: settings.notebooklmFolderId,
-          notebookId: settings.notebooklmNotebookId,
+          folderName: "VNStock_Daily_Intelligence",
+          megaContext: {
+            stockData: { VNINDEX: { price: 1200, change: 1.2 } },
+            news: [{ title: "Test News", source: "Test" }],
+            sources: ["VNStock AI Test"],
+          },
         }),
       });
       const data = await res.json();
       setTest(
         "notebooklm",
         data.success ? "success" : "error",
-        data.success ? "Sync thành công!" : `Lỗi: ${data.error || "Unknown"}`
+        data.success
+          ? data.source === "local_fallback"
+            ? `Fallback: ${data.message}`
+            : "Sync thành công!"
+          : `Lỗi: ${data.error || "Unknown"}`
       );
+      // Refresh status
+      const statusRes = await fetch(`${API_BASE}/api/notebooklm/status`);
+      const statusData = await statusRes.json();
+      if (statusData.success) setNotebooklmStatus(statusData.data);
     } catch (e: any) {
       setTest("notebooklm", "error", `Lỗi: ${e.message}`);
     }
     setNotebooklmLoading(false);
   };
+
+  const requestAudioOverview = async () => {
+    setAudioLoading(true);
+    setTest("notebooklm_audio", "loading", "Đang yêu cầu Audio Overview...");
+    try {
+      const res = await fetch(`${API_BASE}/api/notebooklm/audio/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notebookId: settings.notebooklmNotebookId || "default",
+        }),
+      });
+      const data = await res.json();
+      setTest(
+        "notebooklm_audio",
+        data.success ? "success" : "error",
+        data.success
+          ? `Đã gửi yêu cầu (Job: ${data.jobId}). ${data.message}`
+          : `Lỗi: ${data.error || "Unknown"}`
+      );
+    } catch (e: any) {
+      setTest("notebooklm_audio", "error", `Lỗi: ${e.message}`);
+    }
+    setAudioLoading(false);
+  };
+
+  // Fetch NotebookLM status on mount
+  useEffect(() => {
+    fetch(`${API_BASE}/api/notebooklm/status`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setNotebooklmStatus(data.data);
+      })
+      .catch(() => {
+        // silently ignore — status is optional
+      });
+  }, []);
 
   const testN8n = async () => {
     setN8nLoading(true);
@@ -507,13 +558,13 @@ export default function OutputSettingsPanel() {
         </CardContent>
       </Card>
 
-      {/* NotebookLM */}
+      // === NOTEBOOKLM SECTION ===
       <Card className="border-l-4 border-l-orange-500">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-orange-500" />
-              <CardTitle className="text-base">NotebookLM Sync</CardTitle>
+              <CardTitle className="text-base">NotebookLM Integration</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               <Switch
@@ -529,7 +580,7 @@ export default function OutputSettingsPanel() {
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1 block">Google Drive Folder ID</Label>
+              <Label className="text-xs text-gray-500 mb-1 block">Google Drive Folder ID (optional)</Label>
               <Input
                 placeholder="1A2B3C4D5E6F..."
                 value={settings.notebooklmFolderId || ""}
@@ -545,7 +596,7 @@ export default function OutputSettingsPanel() {
               />
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               size="sm"
               onClick={testNotebookLM}
@@ -553,22 +604,16 @@ export default function OutputSettingsPanel() {
               variant="outline"
             >
               <TestTube className="w-4 h-4 mr-1" />
-              {notebooklmLoading ? "Testing..." : "Test Sync"}
+              {notebooklmLoading ? "Syncing..." : "Test Sync"}
             </Button>
             <Button
               size="sm"
               variant="outline"
-              onClick={async () => {
-                try {
-                  await fetch(`${API_BASE}/api/notebooklm/sync`, { method: "POST" });
-                  alert("Manual sync triggered!");
-                } catch {
-                  alert("API not available.");
-                }
-              }}
+              onClick={requestAudioOverview}
+              disabled={!enabledChannels.notebooklm || audioLoading}
             >
               <BookOpen className="w-4 h-4 mr-1" />
-              Manual Sync Now
+              {audioLoading ? "Requesting..." : "Request Audio Overview"}
             </Button>
             {testStatus.notebooklm && (
               <Badge variant={getBadgeVariant("notebooklm") as any}>
@@ -576,6 +621,39 @@ export default function OutputSettingsPanel() {
               </Badge>
             )}
           </div>
+          {notebooklmStatus && (
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+              <div className="flex items-center gap-1">
+                <Activity className="w-3 h-3" />
+                <span className="font-medium">Trạng thái:</span>{" "}
+                <span
+                  className={
+                    notebooklmStatus.status === "success"
+                      ? "text-emerald-600"
+                      : notebooklmStatus.status === "error"
+                      ? "text-red-600"
+                      : notebooklmStatus.status === "fallback_local"
+                      ? "text-amber-600"
+                      : "text-gray-600"
+                  }
+                >
+                  {notebooklmStatus.status || "idle"}
+                </span>
+              </div>
+              {notebooklmStatus.lastSync && (
+                <div className="mt-1">
+                  <span className="font-medium">Last sync:</span>{" "}
+                  {new Date(notebooklmStatus.lastSync).toLocaleString("vi-VN")}
+                </div>
+              )}
+              {notebooklmStatus.googleDriveAvailable !== undefined && (
+                <div className="mt-1">
+                  <span className="font-medium">Google Drive API:</span>{" "}
+                  {notebooklmStatus.googleDriveAvailable ? "Available" : "Not configured (using local fallback)"}
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -175,84 +175,48 @@ TẦNG 4: MULTI-FORMAT DELIVERY
 
 ```
 [✅] Phân tích thiết kế V3 — 4 file MD hoàn chỉnh
-[⏳] Pha 0: Backup & Restore Backend
-[⏳] Pha 1: Precheck Engine & 9Router
-[⏳] Pha 2: Agent Swarm & Data Collection
-[⏳] Pha 3: Report Builder
-[⏳] Pha 4: Adaptive Synthesis
-[⏳] Pha 5: Technical Charts & 10 Indicators
-[⏳] Pha 6: Audio & 3D Visualization
-[⏳] Pha 7: NotebookLM Integration
-[⏳] Pha 8: n8n Bridge
-[⏳] Pha 9: Polish & Integration
-[⏳] Pha 10: Documentation & Deploy
+[✅] Pha 0: Backup & Restore Backend — 14 files backend core rebuilt
+[✅] Pha 1: Precheck Engine & 9Router & State Manager — 6 services created
+[✅] Pha 2: Agent Swarm & Data Collection — 4 workers + merge service
+[✅] Pha 3: Report Builder — UI with presets, sections, output matrix
+[✅] Pha 4: Adaptive Synthesis — Meta-Prompt 5 bước + analysis worker
+[✅] Pha 5: Technical Charts & 10 Indicators — Chart.js + Ichimoku
+[✅] Pha 6: Audio & 3D Visualization — AudioPlayer + Graph3D
+[⏳] Pha 7: NotebookLM Integration — Google Drive sync pending
+[⏳] Pha 8: n8n Bridge — Webhook service pending
+[✅] Pha 9: Polish & Integration — Executive Brain + Workflow + Health real-time
+[⏳] Pha 10: Documentation & Deploy — Update root MD files pending
 ```
 
 ### 4.2. Việc CẦN LÀM TIẾP (Ưu tiên)
 
-#### Bước tiếp theo: Pha 0 — Restore Backend
+#### Bước tiếp theo: Pha 10 — Cập nhật tài liệu gốc + Deploy
 
-**Vấn đề**: `local-backend/` chỉ còn `data/` (SQLite), thiếu toàn bộ code backend.
+**File cần cập nhật**:
+- `MASTER_PROMPT.md` gốc — thêm tính năng V3
+- `RESUME_PROMPT.md` — tóm tắt nhanh V3
+- `PROGRESS_ANALYSIS_v2.md` → đổi tên `PROGRESS_ANALYSIS_v3.md`
+- `HUONG_DAN_SU_DUNG.md` — hướng dẫn V3
+- `API_SPEC.md` — endpoints mới
+- `DB_SCHEMA.md` — tables mới
 
-**Thao tác**:
-1. Kiểm tra `backup/vnstock-ai-v2.0/local-backend/` xem có đầy đủ file không
-2. Nếu có → copy về `local-backend/`
-3. Nếu thiếu → rebuild từ `MASTER_PROMPT.md` gốc và `API_SPEC.md`
-4. Chạy test: `node local-backend/server.js` + `GET /api/health`
-
-**File cần có sau khi restore**:
-- `local-backend/server.js` — Express server, 30+ endpoints
-- `local-backend/db.js` — SQLite wrapper
-- `local-backend/sync.js` — D1 + Turso sync
-- `local-backend/scripts/*.py` — Python scripts
-- `local-backend/scripts/*.js` — Node scripts
-
-#### Sau đó: Pha 1 — Precheck Engine
+#### Sau đó: Pha 7 — NotebookLM Sync
 
 **File cần tạo**:
-- `local-backend/config/api_registry.json`
-- `local-backend/services/healthCheck.js`
-- `local-backend/services/quotaForecast.js`
-- `local-backend/services/hardwareCheck.js`
-- `local-backend/services/precheckEngine.js`
-- `local-backend/services/router9.js`
-- `local-backend/services/stateManager.js`
-- `src/sections/PrecheckPanel.tsx`
+- `local-backend/services/notebooklmSync.js`
+- `local-backend/services/notebooklmAudio.js`
 
-**Tiêu chí**:
-- Precheck chạy đúng 6 bước: API, Quota, Hardware, Dependency, Transcript, Dry-Run
-- 9Router tự động chọn provider: Gemini → Groq → OpenRouter → Ollama
-- State Manager lưu/resume tiến trình
-
-#### Tiếp theo: Pha 2 — Agent Swarm
+#### Sau đó: Pha 8 — n8n Bridge
 
 **File cần tạo**:
-- `local-backend/workers/youtubeWorker.js`
-- `local-backend/workers/stockWorker.js`
-- `local-backend/workers/newsWorker.js`
-- `local-backend/services/dataMerge.js`
-- `src/sections/data-collection/CollectionPanel.tsx`
+- `local-backend/services/n8nBridge.js`
 
-**Tiêu chí**:
-- Workers chạy song song có progress callback
-- YouTube: subtitle-first, fallback chain, transcript validation
-- Stock: lấy OHLCV + tính 10 indicators
-- Data Merge: deduplicate + tạo mega_context
+#### Cuối cùng: Build & Deploy
 
-#### Tiếp theo: Pha 3 — Report Builder
-
-**File cần tạo**:
-- `local-backend/db.js` — thêm bảng `report_templates`, `agent_tasks`
-- `src/sections/report-builder/ReportBuilder.tsx`
-- `src/sections/report-builder/SectionSelector.tsx`
-- `src/sections/report-builder/OutputConfig.tsx`
-- `local-backend/config/report_templates.json`
-
-**Tiêu chí**:
-- UI kéo thả sắp xếp sections
-- Toggle bật/tắt từng section
-- Chọn output channel cho từng section
-- 3 preset mặc định: Daily Brief, Weekly Deep, YouTube Only
+```bash
+npm run build
+node local-backend/scripts/push-all.js
+```
 
 ---
 
@@ -353,39 +317,40 @@ git commit -m "v3.0: Pha 2 - Agent Swarm (YouTube, Stock, News workers)"
 
 **Thứ tự đọc file**:
 1. **Đọc file này trước** (`docs/upgrade-v3/MASTER_PROMPT.md`) — 5 phút
-2. Đọc `docs/upgrade-v3/02_UPGRADE_ROADMAP.md` — biết pha nào đang làm
+2. Đọc `docs/upgrade-v3/02_UPGRADE_ROADMAP.md` — biết pha nào đang làm (Pha 7,8,10 còn lại)
 3. Đọc file thiết kế chi tiết của pha đang làm (`00_OVERVIEW.md` hoặc `03_ADVANCED_FEATURES.md`)
 4. Đọc `MASTER_PROMPT.md` gốc ở thư mục app nếu cần hiểu V2
-5. Source code: `src/` (frontend), `local-backend/` (backend)
+5. Source code: `src/` (frontend đã có V3 components), `local-backend/` (backend đã rebuild)
 
 ### 6.2. Câu hỏi cần hỏi người dùng trước khi làm
 
 | Câu hỏi | Tại sao |
 |---------|---------|
-| "Pha nào muốn bắt đầu?" | Có thể người dùng muốn nhảy pha hoặc chỉ làm 1 pha cụ thể |
-| "Backend đã restore chưa?" | Nếu chưa, phải làm Pha 0 trước |
-| "Có muốn giữ V2 UI cũ song song không?" | Nếu có, cần feature flag |
-| "Ưu tiên tính năng nào nhất?" | Có thể điều chỉnh thứ tự pha |
+| "Pha nào muốn bắt đầu?" | Pha 7 (NotebookLM), Pha 8 (n8n), hay Pha 10 (Docs+Deploy)? |
+| "Backend chạy được chưa?" | Cần fix better-sqlite3 prebuilt binary cho Node v24 |
+| "Có muốn test end-to-end luôn không?" | Cần chạy backend + frontend cùng lúc |
 
 ### 6.3. Các file quan trọng nhất để hiểu code hiện tại
 
 | File | Tại sao quan trọng |
 |------|-------------------|
-| `src/App.tsx` | Định nghĩa 6 routes chính |
-| `src/hooks/useSystemConfig.ts` | State management, workflow simulation (mock) |
-| `src/sections/Header.tsx` | Navigation, Run Workflow button |
-| `src/data/moduleRegistry.ts` | 24 module definitions, presets |
-| `src/services/api.ts` | API calls, cần mở rộng cho V3 |
+| `src/App.tsx` | 11 routes (6 V2 + 5 V3 mới) |
+| `src/hooks/useSystemConfig.ts` | Đã thêm settings V3 (NotebookLM, n8n) |
+| `src/sections/Header.tsx` | Navigation có badge regime + links V3 |
+| `local-backend/server.js` | 30+ endpoints, Express, port 3004 |
+| `local-backend/db.js` | 8 tables SQLite |
+| `local-backend/services/precheckEngine.js` | Precheck 6 bước |
+| `local-backend/workers/*.js` | Agent Swarm (YouTube, Stock, News, Analysis) |
+| `local-backend/config/indicators_config.json` | 10 indicators config |
 
 ### 6.4. Rủi ro cần lưu ý
 
 | Rủi ro | Mức độ | Giải pháp |
 |--------|--------|-----------|
-| Backend thiếu file | Cao | Restore từ backup trước khi làm gì |
-| V2 UI bị phá vỡ | Trung bình | Dùng feature flag, giữ component cũ song song |
-| API quota hết khi test | Trung bình | Dùng mock data hoặc Ollama local khi dev |
-| NotebookLM không có API | Trung bình | Dùng Gemini Context Caching thay thế |
-| Ichimoku tính sai | Thấp | Unit test với dữ liệu đã biết kết quả |
+| better-sqlite3 lỗi với Node v24 | Cao | Cần rebuild hoặc dùng prebuilt binary đúng version |
+| npm không trong PATH | Trung bình | Dùng đường dẫn tuyệt đối hoặc npx |
+| Python scripts thiếu dependencies | Trung bình | Cài youtube-transcript-api, yt-dlp, google-cloud-tts |
+| Frontend build OK nhưng runtime lỗi | Thấp | Kiểm tra API responses match expected shapes |
 
 ---
 
