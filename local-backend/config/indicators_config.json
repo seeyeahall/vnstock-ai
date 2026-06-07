@@ -1,0 +1,135 @@
+{
+  "indicators": {
+    "ma": {
+      "enabled": true,
+      "periods": [5, 20, 50],
+      "colors": ["#FF6B6B", "#4ECDC4", "#45B7D1"],
+      "linewidth": 1.5
+    },
+    "ema": {
+      "enabled": true,
+      "periods": [12, 26],
+      "colors": ["#96CEB4", "#FFEAA7"],
+      "linewidth": 1.5
+    },
+    "rsi": {
+      "enabled": true,
+      "period": 14,
+      "overbought": 70,
+      "oversold": 30,
+      "color": "#DDA0DD",
+      "panel": "below"
+    },
+    "macd": {
+      "enabled": true,
+      "fast": 12,
+      "slow": 26,
+      "signal": 9,
+      "colors": {
+        "macd": "#00CED1",
+        "signal": "#FF6347",
+        "histogram_positive": "#26A69A",
+        "histogram_negative": "#EF5350"
+      },
+      "panel": "below"
+    },
+    "bollinger": {
+      "enabled": true,
+      "period": 20,
+      "std_dev": 2,
+      "colors": {
+        "upper": "#FF9800",
+        "middle": "#9E9E9E",
+        "lower": "#FF9800"
+      },
+      "fill": "rgba(255, 152, 0, 0.1)"
+    },
+    "ichimoku_standard": {
+      "enabled": true,
+      "name": "Ichimoku Standard",
+      "params": {
+        "tenkan": 9,
+        "kijun": 17,
+        "senkou_b": 26,
+        "senkou_span": 26,
+        "chikou_span": 26
+      },
+      "colors": {
+        "tenkan": "#FF6B6B",
+        "kijun": "#4ECDC4",
+        "senkou_a": "rgba(78, 205, 196, 0.2)",
+        "senkou_b": "rgba(255, 107, 107, 0.2)",
+        "chikou": "#9B59B6"
+      },
+      "cloud_fill": {
+        "bullish": "rgba(78, 205, 196, 0.2)",
+        "bearish": "rgba(255, 107, 107, 0.2)"
+      }
+    },
+    "ichimoku_longterm": {
+      "enabled": true,
+      "name": "Ichimoku Long-term",
+      "params": {
+        "tenkan": 65,
+        "kijun": 129,
+        "senkou_b": 5,
+        "senkou_span": 2,
+        "chikou_span": 2
+      },
+      "colors": {
+        "tenkan": "#E74C3C",
+        "kijun": "#3498DB",
+        "senkou_a": "rgba(52, 152, 219, 0.2)",
+        "senkou_b": "rgba(231, 76, 60, 0.2)",
+        "chikou": "#8E44AD"
+      },
+      "timeframe": "weekly",
+      "cloud_fill": {
+        "bullish": "rgba(52, 152, 219, 0.2)",
+        "bearish": "rgba(231, 76, 60, 0.2)"
+      }
+    },
+    "volume_ma": {
+      "enabled": true,
+      "period": 20,
+      "color": "#FFA726",
+      "panel": "below_volume"
+    },
+    "obv": {
+      "enabled": true,
+      "color": "#AB47BC",
+      "panel": "below"
+    },
+    "stochastic": {
+      "enabled": true,
+      "k_period": 14,
+      "d_period": 3,
+      "smooth": 3,
+      "colors": {
+        "k": "#5C6BC0",
+        "d": "#FF7043"
+      },
+      "overbought": 80,
+      "oversold": 20,
+      "panel": "below"
+    }
+  },
+  "panels": {
+    "main": {
+      "height_ratio": 0.5,
+      "indicators": ["ma", "ema", "bollinger", "ichimoku_standard", "ichimoku_longterm"]
+    },
+    "volume": {
+      "height_ratio": 0.15,
+      "indicators": ["volume_ma"]
+    },
+    "indicator_1": {
+      "height_ratio": 0.15,
+      "indicators": ["rsi", "stochastic"]
+    },
+    "indicator_2": {
+      "height_ratio": 0.2,
+      "indicators": ["macd", "obv"]
+    }
+  }
+}
