@@ -14,6 +14,11 @@ export interface OutputSettings {
   notionDatabaseId: string;
   discordWebhook: string;
   dashboardUrl: string;
+  notebooklmFolderId: string;
+  notebooklmNotebookId: string;
+  n8nWebhookUrl: string;
+  n8nApiKey: string;
+  n8nFallbackMode: string;
   apiKeys: Record<string, string>;
   language: "vi" | "en";
   theme: "light" | "dark";
@@ -31,6 +36,11 @@ const DEFAULT_SETTINGS: OutputSettings = {
   notionDatabaseId: "",
   discordWebhook: "",
   dashboardUrl: "",
+  notebooklmFolderId: "",
+  notebooklmNotebookId: "",
+  n8nWebhookUrl: "",
+  n8nApiKey: "",
+  n8nFallbackMode: "local",
   apiKeys: {
     gemini: "YOUR_GEMINI_API_KEY",
     groq: "YOUR_GROQ_API_KEY",

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { sendTelegramMessage, sendEmail, saveToNotion } from "@/services/api";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
 import {
@@ -15,7 +16,10 @@ import {
   Activity,
   Save,
   TestTube,
+  BookOpen,
+  Workflow,
 } from "lucide-react";
+import { API_BASE } from "@/services/api";
 
 export default function OutputSettingsPanel() {
   const { settings, updateSetting } = useSystemConfig();
@@ -26,7 +30,11 @@ export default function OutputSettingsPanel() {
     notion: false,
     discord: false,
     dashboard: true,
+    notebooklm: false,
+    n8n: false,
   });
+  const [notebooklmLoading, setNotebooklmLoading] = useState(false);
+  const [n8nLoading, setN8nLoading] = useState(false);
 
   const setTest = (key: string, status: string, message: string) => {
     setTestStatus((prev) => ({ ...prev, [key]: { status, message } }));
@@ -38,7 +46,7 @@ export default function OutputSettingsPanel() {
       const res = await sendTelegramMessage(
         settings.telegramBotToken || "7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc",
         settings.telegramChatId || "6226786681",
-        "🧪 Test kênh Telegram từ VNStock AI v2.0"
+        "🧪 Test kênh Telegram từ VNStock AI v3.0"
       );
       setTest(
         "telegram",
@@ -59,8 +67,8 @@ export default function OutputSettingsPanel() {
         settings.emailUser || "seeyeahall@gmail.com",
         settings.emailPass || "qialfxmpfedshqgn",
         settings.emailTo || "seeyeahall@gmail.com",
-        "🧪 Test Email VNStock AI v2.0",
-        "<h2>Test kênh Email</h2><p>Đây là email test từ VNStock AI v2.0</p><p>Nếu bạn nhận được email này, kênh Email đã hoạt động!</p>"
+        "🧪 Test Email VNStock AI v3.0",
+        "<h2>Test kênh Email</h2><p>Đây là email test từ VNStock AI v3.0</p><p>Nếu bạn nhận được email này, kênh Email đã hoạt động!</p>"
       );
       setTest(
         "email",
@@ -80,7 +88,7 @@ export default function OutputSettingsPanel() {
         settings.notionDatabaseId,
         {
           title: "🧪 Test Notion VNStock AI",
-          content: "Test từ VNStock AI v2.0",
+          content: "Test từ VNStock AI v3.0",
         }
       );
       setTest(
@@ -104,7 +112,7 @@ export default function OutputSettingsPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: "🧪 Test kênh Discord từ VNStock AI v2.0",
+          content: "🧪 Test kênh Discord từ VNStock AI v3.0",
         }),
       });
       setTest(
@@ -115,6 +123,54 @@ export default function OutputSettingsPanel() {
     } catch (e: any) {
       setTest("discord", "error", `Lỗi: ${e.message}`);
     }
+  };
+
+  const testNotebookLM = async () => {
+    setNotebooklmLoading(true);
+    setTest("notebooklm", "loading", "Đang test sync...");
+    try {
+      const res = await fetch(`${API_BASE}/api/notebooklm/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folderId: settings.notebooklmFolderId,
+          notebookId: settings.notebooklmNotebookId,
+        }),
+      });
+      const data = await res.json();
+      setTest(
+        "notebooklm",
+        data.success ? "success" : "error",
+        data.success ? "Sync thành công!" : `Lỗi: ${data.error || "Unknown"}`
+      );
+    } catch (e: any) {
+      setTest("notebooklm", "error", `Lỗi: ${e.message}`);
+    }
+    setNotebooklmLoading(false);
+  };
+
+  const testN8n = async () => {
+    setN8nLoading(true);
+    setTest("n8n", "loading", "Đang test connection...");
+    try {
+      const res = await fetch(`${API_BASE}/api/n8n/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          webhookUrl: settings.n8nWebhookUrl,
+          apiKey: settings.n8nApiKey,
+        }),
+      });
+      const data = await res.json();
+      setTest(
+        "n8n",
+        data.success ? "success" : "error",
+        data.success ? "Kết nối thành công!" : `Lỗi: ${data.error || "Unknown"}`
+      );
+    } catch (e: any) {
+      setTest("n8n", "error", `Lỗi: ${e.message}`);
+    }
+    setN8nLoading(false);
   };
 
   const toggleChannel = (channel: string) => {
@@ -449,19 +505,160 @@ export default function OutputSettingsPanel() {
         </CardContent>
       </Card>
 
+      {/* NotebookLM */}
+      <Card className="border-l-4 border-l-orange-500">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-500" />
+              <CardTitle className="text-base">NotebookLM Sync</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={enabledChannels.notebooklm}
+                onCheckedChange={() => toggleChannel("notebooklm")}
+              />
+              <Label className="text-sm text-gray-500">
+                {enabledChannels.notebooklm ? "Bật" : "Tắt"}
+              </Label>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">Google Drive Folder ID</Label>
+              <Input
+                placeholder="1A2B3C4D5E6F..."
+                value={settings.notebooklmFolderId || ""}
+                onChange={(e) => updateSetting("notebooklmFolderId", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">Notebook ID (optional)</Label>
+              <Input
+                placeholder="notebook-xxx"
+                value={settings.notebooklmNotebookId || ""}
+                onChange={(e) => updateSetting("notebooklmNotebookId", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={testNotebookLM}
+              disabled={!enabledChannels.notebooklm || notebooklmLoading}
+              variant="outline"
+            >
+              <TestTube className="w-4 h-4 mr-1" />
+              {notebooklmLoading ? "Testing..." : "Test Sync"}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  await fetch(`${API_BASE}/api/notebooklm/sync`, { method: "POST" });
+                  alert("Manual sync triggered!");
+                } catch {
+                  alert("API not available.");
+                }
+              }}
+            >
+              <BookOpen className="w-4 h-4 mr-1" />
+              Manual Sync Now
+            </Button>
+            {testStatus.notebooklm && (
+              <Badge variant={getBadgeVariant("notebooklm") as any}>
+                {getBadgeText("notebooklm")}
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* n8n Bridge */}
+      <Card className="border-l-4 border-l-purple-500">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Workflow className="w-5 h-5 text-purple-500" />
+              <CardTitle className="text-base">n8n External Worker</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={enabledChannels.n8n}
+                onCheckedChange={() => toggleChannel("n8n")}
+              />
+              <Label className="text-sm text-gray-500">
+                {enabledChannels.n8n ? "Bật" : "Tắt"}
+              </Label>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">n8n Webhook URL</Label>
+              <Input
+                placeholder="https://n8n.example.com/webhook/..."
+                value={settings.n8nWebhookUrl || ""}
+                onChange={(e) => updateSetting("n8nWebhookUrl", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">n8n API Key</Label>
+              <Input
+                type="password"
+                placeholder="n8n_api_..."
+                value={settings.n8nApiKey || ""}
+                onChange={(e) => updateSetting("n8nApiKey", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={testN8n}
+              disabled={!enabledChannels.n8n || n8nLoading}
+              variant="outline"
+            >
+              <TestTube className="w-4 h-4 mr-1" />
+              {n8nLoading ? "Testing..." : "Test Connection"}
+            </Button>
+            <Select
+              value={settings.n8nFallbackMode || "local"}
+              onChange={(e) => updateSetting("n8nFallbackMode", e.target.value)}
+              className="w-40"
+            >
+              <option value="local">Fallback: Local</option>
+              <option value="queue">Fallback: Queue</option>
+              <option value="skip">Fallback: Skip</option>
+            </Select>
+            {testStatus.n8n && (
+              <Badge variant={getBadgeVariant("n8n") as any}>
+                {getBadgeText("n8n")}
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tóm tắt */}
       <Card className="bg-gray-50">
         <CardHeader>
           <CardTitle className="text-base">Tóm tắt kênh Output</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { key: "telegram", label: "Telegram", color: "blue" },
               { key: "email", label: "Email", color: "red" },
               { key: "notion", label: "Notion", color: "gray" },
               { key: "discord", label: "Discord", color: "indigo" },
               { key: "dashboard", label: "Dashboard", color: "emerald" },
+              { key: "notebooklm", label: "NotebookLM", color: "orange" },
+              { key: "n8n", label: "n8n", color: "purple" },
             ].map((ch) => (
               <div
                 key={ch.key}

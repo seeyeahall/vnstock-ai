@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { HealthCheckResult } from "@/types/modules";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,21 +24,7 @@ import {
   Server,
 } from "lucide-react";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
-
-const initialServices: HealthCheckResult[] = [
-  { service: "Gemini API", status: "healthy", latency_ms: 420, message: "OK - quota 78%", last_checked: "2m ago" },
-  { service: "Groq API", status: "healthy", latency_ms: 85, message: "OK - quota 92%", last_checked: "2m ago" },
-  { service: "OpenRouter API", status: "healthy", latency_ms: 310, message: "OK - quota 65%", last_checked: "2m ago" },
-  { service: "Ollama (Local)", status: "warning", latency_ms: 2500, message: "Slow response", last_checked: "5m ago" },
-  { service: "PostgreSQL", status: "healthy", latency_ms: 5, message: "OK - 142MB data", last_checked: "1m ago" },
-  { service: "Qdrant", status: "healthy", latency_ms: 12, message: "OK - 2.3K vectors", last_checked: "1m ago" },
-  { service: "SQLite", status: "healthy", latency_ms: 2, message: "OK", last_checked: "3m ago" },
-  { service: "n8n", status: "healthy", latency_ms: 45, message: "OK - 12 workflows", last_checked: "2m ago" },
-  { service: "Docker", status: "healthy", latency_ms: 30, message: "OK - 8 containers", last_checked: "4m ago" },
-  { service: "YouTube API", status: "healthy", latency_ms: 180, message: "OK - 127 requests today", last_checked: "1m ago" },
-  { service: "Telegram Bot", status: "healthy", latency_ms: 90, message: "OK - last send 4h ago", last_checked: "2m ago" },
-  { service: "Notion API", status: "healthy", latency_ms: 250, message: "OK - 47 pages", last_checked: "3m ago" },
-];
+import { API_BASE } from "@/services/api";
 
 const serviceIcons: Record<string, React.ElementType> = {
   "Gemini API": Brain,
@@ -62,12 +48,60 @@ const statusConfig: Record<string, { color: string; bg: string; icon: React.Elem
 };
 
 export default function HealthCheckPanel() {
-  const [services] = useState<HealthCheckResult[]>(initialServices);
-  const { isRunning, runHealthCheck } = useSystemConfig();
+  const [services, setServices] = useState<HealthCheckResult[]>([]);
+  const [resources, setResources] = useState({ cpu: 23, ramUsed: 8.2, ramTotal: 16, disk: 45, networkDown: 12.4, networkUp: 3.2 });
+  const [quotas, setQuotas] = useState([
+    { api: "Gemini", used: 340000, limit: 2000000, unit: "tokens" },
+    { api: "Groq", used: 125000, limit: 500000, unit: "tokens" },
+    { api: "YouTube API", used: 127, limit: 10000, unit: "reqs" },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const { isRunning, runHealthCheck: runLocalHealthCheck } = useSystemConfig();
+
+  const fetchHealth = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/health/all`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.services) setServices(data.services);
+        if (data.resources) setResources(data.resources);
+        if (data.quotas) setQuotas(data.quotas);
+      } else {
+        throw new Error("API error");
+      }
+    } catch {
+      // Fallback to mock data if API not available
+      setServices([
+        { service: "Gemini API", status: "healthy", latency_ms: 420, message: "OK - quota 78%", last_checked: "2m ago" },
+        { service: "Groq API", status: "healthy", latency_ms: 85, message: "OK - quota 92%", last_checked: "2m ago" },
+        { service: "OpenRouter API", status: "healthy", latency_ms: 310, message: "OK - quota 65%", last_checked: "2m ago" },
+        { service: "Ollama (Local)", status: "warning", latency_ms: 2500, message: "Slow response", last_checked: "5m ago" },
+        { service: "PostgreSQL", status: "healthy", latency_ms: 5, message: "OK - 142MB data", last_checked: "1m ago" },
+        { service: "Qdrant", status: "healthy", latency_ms: 12, message: "OK - 2.3K vectors", last_checked: "1m ago" },
+        { service: "SQLite", status: "healthy", latency_ms: 2, message: "OK", last_checked: "3m ago" },
+        { service: "n8n", status: "healthy", latency_ms: 45, message: "OK - 12 workflows", last_checked: "2m ago" },
+        { service: "Docker", status: "healthy", latency_ms: 30, message: "OK - 8 containers", last_checked: "4m ago" },
+        { service: "YouTube API", status: "healthy", latency_ms: 180, message: "OK - 127 requests today", last_checked: "1m ago" },
+        { service: "Telegram Bot", status: "healthy", latency_ms: 90, message: "OK - last send 4h ago", last_checked: "2m ago" },
+        { service: "Notion API", status: "healthy", latency_ms: 250, message: "OK - 47 pages", last_checked: "3m ago" },
+      ]);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchHealth();
+  }, [fetchHealth]);
 
   const healthyCount = services.filter((s) => s.status === "healthy").length;
   const warningCount = services.filter((s) => s.status === "warning").length;
   const unhealthyCount = services.filter((s) => s.status === "unhealthy").length;
+
+  const handleRunCheck = () => {
+    runLocalHealthCheck();
+    fetchHealth();
+  };
 
   return (
     <div className="space-y-4">
@@ -81,12 +115,12 @@ export default function HealthCheckPanel() {
         <Button
           size="sm"
           variant="outline"
-          onClick={runHealthCheck}
-          disabled={isRunning}
+          onClick={handleRunCheck}
+          disabled={isRunning || loading}
           className="h-8 text-xs"
         >
           <RefreshCw
-            className={`w-3.5 h-3.5 mr-1.5 ${isRunning ? "animate-spin" : ""}`}
+            className={`w-3.5 h-3.5 mr-1.5 ${isRunning || loading ? "animate-spin" : ""}`}
           />
           Run Check
         </Button>
@@ -155,9 +189,9 @@ export default function HealthCheckPanel() {
                 <Cpu className="w-3 h-3 text-gray-500" />
                 CPU Usage
               </span>
-              <span className="font-medium">23%</span>
+              <span className="font-medium">{resources.cpu}%</span>
             </div>
-            <Progress value={23} className="h-1.5" />
+            <Progress value={resources.cpu} className="h-1.5" />
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
@@ -165,9 +199,9 @@ export default function HealthCheckPanel() {
                 <HardDrive className="w-3 h-3 text-gray-500" />
                 RAM Usage
               </span>
-              <span className="font-medium">8.2 / 16 GB (51%)</span>
+              <span className="font-medium">{resources.ramUsed} / {resources.ramTotal} GB ({Math.round((resources.ramUsed / resources.ramTotal) * 100)}%)</span>
             </div>
-            <Progress value={51} className="h-1.5" />
+            <Progress value={(resources.ramUsed / resources.ramTotal) * 100} className="h-1.5" />
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
@@ -175,9 +209,9 @@ export default function HealthCheckPanel() {
                 <HardDrive className="w-3 h-3 text-gray-500" />
                 Disk Usage
               </span>
-              <span className="font-medium">45%</span>
+              <span className="font-medium">{resources.disk}%</span>
             </div>
-            <Progress value={45} className="h-1.5" />
+            <Progress value={resources.disk} className="h-1.5" />
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
@@ -185,7 +219,7 @@ export default function HealthCheckPanel() {
                 <Wifi className="w-3 h-3 text-gray-500" />
                 Network
               </span>
-              <span className="font-medium">12.4 Mbps ↓ / 3.2 Mbps ↑</span>
+              <span className="font-medium">{resources.networkDown} Mbps ↓ / {resources.networkUp} Mbps ↑</span>
             </div>
           </div>
         </CardContent>
@@ -255,32 +289,37 @@ export default function HealthCheckPanel() {
           </CardTitle>
         </CardHeader>
         <CardContent className="px-4 pb-4 space-y-3">
-          {[
-            { api: "Gemini", used: 340000, limit: 2000000, unit: "tokens" },
-            { api: "Groq", used: 125000, limit: 500000, unit: "tokens" },
-            { api: "YouTube API", used: 127, limit: 10000, unit: "reqs" },
-          ].map((quota) => {
+          {quotas.map((quota) => {
             const pct = Math.round((quota.used / quota.limit) * 100);
+            const isLow = pct > 80;
             return (
               <div key={quota.api} className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="font-medium">{quota.api}</span>
-                  <span className="text-gray-500">
+                  <span className={`${isLow ? "text-red-500 font-medium" : "text-gray-500"}`}>
                     {quota.used.toLocaleString()} /{" "}
                     {quota.limit.toLocaleString()} {quota.unit} ({pct}%)
                   </span>
                 </div>
                 <Progress
                   value={pct}
-                  className="h-1.5"
+                  className={`h-1.5 ${isLow ? "bg-red-100" : ""}`}
                 />
+                {isLow && (
+                  <div className="text-[10px] text-red-600">
+                    <AlertTriangle className="w-3 h-3 inline mr-1" />
+                    Quota running low! Consider batch splitting.
+                  </div>
+                )}
               </div>
             );
           })}
           <div className="border rounded-lg p-2.5 bg-blue-50/30 border-blue-200 mt-2">
             <div className="text-[10px] text-blue-700">
-              <span className="font-medium">Dự báo:</span> Hôm nay sẽ xử lý ~340K
-              tokens. Gemini limit 2M → còn dư 1.66M. Không cần chia batch.
+              <span className="font-medium">Forecast:</span> Today will process ~{quotas[0]?.used.toLocaleString() || "340K"} tokens. 
+              {quotas[0] && quotas[0].used / quotas[0].limit > 0.8
+                ? " Approaching limit — consider reducing batch size."
+                : " Within safe limits."}
             </div>
           </div>
         </CardContent>

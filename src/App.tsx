@@ -7,6 +7,11 @@ import ExecutiveBrainConsole from "@/sections/ExecutiveBrainConsole";
 import { ModuleSelector } from "@/sections/ModuleSelector";
 import { SystemConfigPanel } from "@/sections/SystemConfigPanel";
 import ChatPanel from "@/sections/ChatPanel";
+import ReportBuilder from "@/sections/report-builder/ReportBuilder";
+import CollectionPanel from "@/sections/data-collection/CollectionPanel";
+import ChartViewer from "@/sections/chart-viewer/ChartViewer";
+import AudioPlayer from "@/sections/audio-player/AudioPlayer";
+import Graph3D from "@/sections/graph-3d/Graph3D";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
 
 function SystemConfigPage() {
@@ -78,6 +83,46 @@ function SettingsPage() {
   );
 }
 
+function ReportBuilderPage() {
+  return (
+    <div className="space-y-4">
+      <ReportBuilder />
+    </div>
+  );
+}
+
+function DataCollectionPage() {
+  return (
+    <div className="space-y-4">
+      <CollectionPanel />
+    </div>
+  );
+}
+
+function ChartsPage() {
+  return (
+    <div className="space-y-4">
+      <ChartViewer />
+    </div>
+  );
+}
+
+function AudioPage() {
+  return (
+    <div className="space-y-4">
+      <AudioPlayer />
+    </div>
+  );
+}
+
+function Graph3DPage() {
+  return (
+    <div className="space-y-4">
+      <Graph3D />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <HashRouter>
@@ -91,6 +136,11 @@ export default function App() {
             <Route path="/brain" element={<ExecutiveBrainPage />} />
             <Route path="/health" element={<HealthCheckPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/report-builder" element={<ReportBuilderPage />} />
+            <Route path="/data-collection" element={<DataCollectionPage />} />
+            <Route path="/charts" element={<ChartsPage />} />
+            <Route path="/audio" element={<AudioPage />} />
+            <Route path="/graph-3d" element={<Graph3DPage />} />
           </Routes>
         </main>
       </div>

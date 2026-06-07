@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import type { AgentTask, RecoveryAction } from "@/types/modules";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,69 +19,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
-
-const mockTasks: AgentTask[] = [
-  {
-    id: "1",
-    agent_name: "YouTube Collector",
-    status: "success",
-    progress: 100,
-    started_at: "07:00:02",
-    completed_at: "07:01:45",
-  },
-  {
-    id: "2",
-    agent_name: "Transcript Processor",
-    status: "success",
-    progress: 100,
-    started_at: "07:01:46",
-    completed_at: "07:02:30",
-  },
-  {
-    id: "3",
-    agent_name: "Stock Data Fetcher",
-    status: "success",
-    progress: 100,
-    started_at: "07:00:02",
-    completed_at: "07:00:15",
-  },
-  {
-    id: "4",
-    agent_name: "News Collector",
-    status: "success",
-    progress: 100,
-    started_at: "07:00:02",
-    completed_at: "07:00:28",
-  },
-  {
-    id: "5",
-    agent_name: "AI Analyzer (Gemini)",
-    status: "success",
-    progress: 100,
-    started_at: "07:02:31",
-    completed_at: "07:04:12",
-  },
-  {
-    id: "6",
-    agent_name: "Report Generator",
-    status: "success",
-    progress: 100,
-    started_at: "07:04:13",
-    completed_at: "07:04:32",
-  },
-];
-
-const mockRecovery: RecoveryAction[] = [
-  {
-    id: "r1",
-    error_source: "youtube-transcript-api",
-    error_message: "Timeout on channel DNSE",
-    fallback_chain: ["yt_dlp_caption", "whisper", "gemini_audio"],
-    current_fallback_index: 1,
-    status: "resolved",
-    timestamp: "07:01:15",
-  },
-];
+import { API_BASE } from "@/services/api";
 
 const statusIcons: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
   success: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
@@ -92,6 +31,31 @@ const statusIcons: Record<string, { icon: React.ElementType; color: string; bg: 
 
 export default function ExecutiveBrainConsole() {
   const { isRunning, logs } = useSystemConfig();
+  const [tasks, setTasks] = useState<AgentTask[]>([]);
+  const [recovery, setRecovery] = useState<RecoveryAction[]>([]);
+  const [provider, setProvider] = useState<string>("Gemini");
+  const [systemStats, setSystemStats] = useState({ cpu: 23, ramUsed: 8.2, ramTotal: 16, goal: "Morning Report", schedule: "07:00, 20:00" });
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/workflow/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setTasks(data.tasks || []);
+        setRecovery(data.recovery || []);
+        setProvider(data.current_provider || "Gemini");
+        if (data.system) setSystemStats(data.system);
+      }
+    } catch {
+      // Keep existing data or fallback to empty
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStatus();
+    const id = setInterval(fetchStatus, 3000);
+    return () => clearInterval(id);
+  }, [fetchStatus]);
 
   return (
     <div className="space-y-4">
@@ -103,15 +67,21 @@ export default function ExecutiveBrainConsole() {
             Executive Brain Console
           </h2>
         </div>
-        {isRunning && (
-          <Badge
-            variant="outline"
-            className="bg-purple-50 text-purple-700 border-purple-300 animate-pulse text-[10px]"
-          >
-            <RefreshCw className="w-2.5 h-2.5 mr-1 animate-spin" />
-            Processing
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 text-[10px]">
+            <Zap className="w-2.5 h-2.5 mr-1" />
+            9Router: {provider}
           </Badge>
-        )}
+          {isRunning && (
+            <Badge
+              variant="outline"
+              className="bg-purple-50 text-purple-700 border-purple-300 animate-pulse text-[10px]"
+            >
+              <RefreshCw className="w-2.5 h-2.5 mr-1 animate-spin" />
+              Processing
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Top Stats Cards */}
@@ -123,7 +93,7 @@ export default function ExecutiveBrainConsole() {
             </div>
             <div>
               <div className="text-[10px] text-gray-500">Goal</div>
-              <div className="text-xs font-semibold">Morning Report</div>
+              <div className="text-xs font-semibold">{systemStats.goal}</div>
             </div>
           </div>
         </Card>
@@ -134,7 +104,7 @@ export default function ExecutiveBrainConsole() {
             </div>
             <div>
               <div className="text-[10px] text-gray-500">Schedule</div>
-              <div className="text-xs font-semibold">07:00, 20:00</div>
+              <div className="text-xs font-semibold">{systemStats.schedule}</div>
             </div>
           </div>
         </Card>
@@ -145,7 +115,7 @@ export default function ExecutiveBrainConsole() {
             </div>
             <div>
               <div className="text-[10px] text-gray-500">CPU</div>
-              <div className="text-xs font-semibold">23%</div>
+              <div className="text-xs font-semibold">{systemStats.cpu}%</div>
             </div>
           </div>
         </Card>
@@ -156,7 +126,7 @@ export default function ExecutiveBrainConsole() {
             </div>
             <div>
               <div className="text-[10px] text-gray-500">RAM</div>
-              <div className="text-xs font-semibold">8.2/16 GB</div>
+              <div className="text-xs font-semibold">{systemStats.ramUsed}/{systemStats.ramTotal} GB</div>
             </div>
           </div>
         </Card>
@@ -172,45 +142,52 @@ export default function ExecutiveBrainConsole() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-2">
-            {mockTasks.map((task) => {
-              const status = statusIcons[task.status];
-              const StatusIcon = status.icon;
-              return (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                >
+            {tasks.length === 0 ? (
+              <div className="text-xs text-gray-400 italic p-2">No active tasks. Start a workflow to see agents.</div>
+            ) : (
+              tasks.map((task) => {
+                const status = statusIcons[task.status] || statusIcons.pending;
+                const StatusIcon = status.icon;
+                return (
                   <div
-                    className={`w-7 h-7 rounded-full ${status.bg} flex items-center justify-center shrink-0`}
+                    key={task.id}
+                    className="flex items-center gap-3 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
                   >
-                    <StatusIcon className={`w-3.5 h-3.5 ${status.color}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium truncate">
-                        {task.agent_name}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className={`text-[9px] h-4 px-1 ${status.bg} ${status.color}`}
-                      >
-                        {task.status}
-                      </Badge>
+                    <div
+                      className={`w-7 h-7 rounded-full ${status.bg} flex items-center justify-center shrink-0`}
+                    >
+                      <StatusIcon className={`w-3.5 h-3.5 ${status.color}`} />
                     </div>
-                    <Progress value={task.progress} className="h-1 mt-1" />
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-[9px] text-gray-400">
-                        {task.started_at}
-                        {task.completed_at && ` → ${task.completed_at}`}
-                      </span>
-                      <span className="text-[9px] font-medium">
-                        {task.progress}%
-                      </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium truncate">
+                          {task.agent_name}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={`text-[9px] h-4 px-1 ${status.bg} ${status.color}`}
+                        >
+                          {task.status}
+                        </Badge>
+                      </div>
+                      <Progress value={task.progress} className="h-1 mt-1" />
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[9px] text-gray-400">
+                          {task.started_at}
+                          {task.completed_at && ` → ${task.completed_at}`}
+                        </span>
+                        <span className="text-[9px] font-medium">
+                          {task.progress}%
+                        </span>
+                      </div>
+                      {task.error && (
+                        <div className="text-[9px] text-red-500 mt-1">{task.error}</div>
+                      )}
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
@@ -223,51 +200,61 @@ export default function ExecutiveBrainConsole() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            {mockRecovery.map((rec) => (
-              <div
-                key={rec.id}
-                className="border rounded-lg p-3 bg-amber-50/30 border-amber-200"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Badge
-                    variant="outline"
-                    className="text-[9px] bg-emerald-50 text-emerald-700 border-emerald-300"
-                  >
-                    {rec.status}
-                  </Badge>
-                  <span className="text-[9px] text-gray-400">
-                    {rec.timestamp}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-600 mb-1">
-                  <span className="font-medium">Error:</span>{" "}
-                  {rec.error_source}
-                </div>
-                <div className="text-[10px] text-gray-500 mb-2">
-                  {rec.error_message}
-                </div>
-                <div className="text-[10px] text-gray-500 mb-1">Fallback chain:</div>
-                <div className="flex items-center gap-1 flex-wrap">
-                  {rec.fallback_chain.map((fb, i) => (
-                    <span key={fb} className="flex items-center gap-1">
-                      <Badge
-                        variant="outline"
-                        className={`text-[9px] h-4 px-1 ${
-                          i <= rec.current_fallback_index
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-gray-50 text-gray-500"
-                        }`}
-                      >
-                        {fb}
-                      </Badge>
-                      {i < rec.fallback_chain.length - 1 && (
-                        <ArrowRight className="w-2.5 h-2.5 text-gray-400" />
-                      )}
+            {recovery.length === 0 ? (
+              <div className="text-xs text-gray-400 italic p-2">No recovery events. System is healthy.</div>
+            ) : (
+              recovery.map((rec) => (
+                <div
+                  key={rec.id}
+                  className="border rounded-lg p-3 bg-amber-50/30 border-amber-200 mb-2"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge
+                      variant="outline"
+                      className={`text-[9px] ${
+                        rec.status === "resolved"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                          : rec.status === "failed"
+                          ? "bg-red-50 text-red-700 border-red-300"
+                          : "bg-amber-50 text-amber-700 border-amber-300"
+                      }`}
+                    >
+                      {rec.status}
+                    </Badge>
+                    <span className="text-[9px] text-gray-400">
+                      {rec.timestamp}
                     </span>
-                  ))}
+                  </div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    <span className="font-medium">Error:</span>{" "}
+                    {rec.error_source}
+                  </div>
+                  <div className="text-[10px] text-gray-500 mb-2">
+                    {rec.error_message}
+                  </div>
+                  <div className="text-[10px] text-gray-500 mb-1">Fallback chain:</div>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {rec.fallback_chain.map((fb, i) => (
+                      <span key={fb} className="flex items-center gap-1">
+                        <Badge
+                          variant="outline"
+                          className={`text-[9px] h-4 px-1 ${
+                            i <= rec.current_fallback_index
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-gray-50 text-gray-500"
+                          }`}
+                        >
+                          {fb}
+                        </Badge>
+                        {i < rec.fallback_chain.length - 1 && (
+                          <ArrowRight className="w-2.5 h-2.5 text-gray-400" />
+                        )}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
 
             {/* Fallback Chain Visualization */}
             <div className="mt-4 border rounded-lg p-3 bg-gray-50">
@@ -276,16 +263,16 @@ export default function ExecutiveBrainConsole() {
               </div>
               <div className="flex items-center gap-1 flex-wrap">
                 {["Gemini", "Groq", "OpenRouter", "Ollama"].map(
-                  (provider, i) => (
-                    <span key={provider} className="flex items-center gap-1">
+                  (p, i) => (
+                    <span key={p} className="flex items-center gap-1">
                       <div
                         className={`px-2 py-1 rounded text-[10px] font-medium border ${
-                          i === 0
+                          p === provider
                             ? "bg-purple-50 border-purple-300 text-purple-700"
                             : "bg-gray-50 border-gray-200 text-gray-500"
                         }`}
                       >
-                        {provider}
+                        {p}
                       </div>
                       {i < 3 && (
                         <span className="text-gray-400 text-[10px]">→</span>
