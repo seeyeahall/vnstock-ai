@@ -187,6 +187,28 @@ try {
   console.log('[DB] Migration note:', e.message);
 }
 
+// Migration: fix report_templates if missing template_id column
+try {
+  db.prepare('SELECT template_id FROM report_templates LIMIT 1').get();
+} catch (e) {
+  console.log('[DB] Recreating report_templates with template_id column');
+  db.exec('DROP TABLE IF EXISTS report_templates');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS report_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      template_id TEXT UNIQUE,
+      name TEXT NOT NULL,
+      preset TEXT,
+      sections TEXT,
+      output_channels TEXT,
+      time_range TEXT,
+      sources TEXT,
+      schedule TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}
+
 // Seed default templates
 const DEFAULT_TEMPLATES = [
   {
