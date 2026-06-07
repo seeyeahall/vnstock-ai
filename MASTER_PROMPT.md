@@ -19,7 +19,7 @@
 - **Remote Access**: Cloudflare Tunnel (`start-tunnel.bat`) + GitHub Pages + Local + Telegram Bot
 - **Documentation**: `HUONG_DAN_SU_DUNG.md` - hướng dẫn chi tiết cho người mới
 
-**Tính năng chính đã hoàn thành**:
+**Tính năng chính đã hoàn thành (V2.0)****:
 1. ✅ V1 UI restored (ModuleSelector, SystemConfigPanel, Header, ExecutiveBrain, HealthCheck, Workflow)
 2. ✅ Chat AI trong Dashboard (Messenger bubbles, NLU, SQLite storage)
 3. ✅ SQLite Backend (5 tables, 30+ API endpoints)
@@ -30,6 +30,21 @@
 8. ✅ YouTube Analyzer 29 kênh (FREE-first, tiếng Việt có dấu)
 9. ✅ Push All Script (tự động push lên local + tunnel + GitHub Pages + Telegram)
 10. ✅ Auto Start Script (`auto-start.bat` chỉ 3 dòng → gọi Python `auto_start.py` xử lý toàn bộ: Backend + Tunnel + Webhook + Browser)
+
+**Tính năng V3.0 đang nâng cấp**:
+11. 🔄 **Report Builder** — Cấu hình mẫu báo cáo tùy chỉnh (preset, section toggle/reorder, output channel matrix)
+12. 🔄 **Data Collection Panel** — Quản lý nguồn dữ liệu (YouTube 29 kênh, RSS, API, Manual) với trạng thái real-time
+13. 🔄 **Chart Viewer** — Đồ thị 10 chỉ báo (MA, EMA, RSI, MACD, Bollinger, Ichimoku 9-17-26-26-26, Ichimoku 65-129-5-2-2, Volume MA, OBV, Stochastic)
+14. 🔄 **Audio Player** — Phát audio TTS từ báo cáo (Web Speech API + Python TTS fallback)
+15. 🔄 **3D Knowledge Graph** — Force-directed graph D3.js hiển thị mối liên hệ cổ phiếu-chủ đề-kênh
+16. 🔄 **Agent Swarm** — 4 workers (YouTube, Stock, News, Analysis) + Data Merge + Report Renderer + TTS Service
+17. 🔄 **Precheck Engine** — 6 bước kiểm tra trước khi chạy workflow (API Health, Quota Forecast, Hardware, Dependency, Transcript, Dry-Run)
+18. 🔄 **Router 9** — AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
+19. 🔄 **State Manager** — Lưu/load trạng thái workflow (JSON + SQLite)
+20. 🔄 **Meta-Prompt** — 5 bước adaptive synthesis (Anomaly Detection → Market Regime → Critique Rules → Cross-Reference → Generate Report)
+21. ⏳ **NotebookLM Sync** — Google Drive sync + Audio Overview integration (Phase 7)
+22. ⏳ **n8n Bridge** — Webhook service cho workflow automation (Phase 8)
+23. ⏳ **Build & Deploy V3** — Cập nhật GitHub Pages với 5 tab mới (Phase 10)
 
 ---
 
@@ -43,18 +58,30 @@
 │  ├─ /workflow   → Workflow Graph (nodes/edges SVG)          │
 │  ├─ /brain      → Executive Brain Console                    │
 │  ├─ /health     → Health Check + Quota Forecast             │
-│  └─ /settings   → Output Channels (Telegram/Email/Notion)   │
+│  ├─ /settings   → Output Channels (Telegram/Email/Notion)   │
+│  ├─ /report-builder → Report Template Config (V3)           │
+│  ├─ /data-collection → Data Source Manager (V3)             │
+│  ├─ /charts     → Chart Viewer 10 indicators (V3)           │
+│  ├─ /audio      → Audio Player TTS (V3)                     │
+│  └─ /graph-3d   → 3D Knowledge Graph (V3)                  │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  BACKEND (Node.js + Express, port 3004)                      │
-│  ├─ 30+ API endpoints                                       │
+│  ├─ 30+ API endpoints (V2) + 10+ endpoints (V3)             │
 │  ├─ Telegram Webhook (NLU parser, 9 intents)                │
-│  ├─ SQLite (better-sqlite3, WAL mode)                        │
+│  ├─ SQLite (better-sqlite3, WAL mode) - 8 tables            │
 │  ├─ Sync engine (D1 + Turso, bidirectional)                  │
 │  ├─ Email (Python smtplib → Gmail SMTP)                      │
 │  ├─ YouTube Analyzer (Python, FREE-first)                   │
+│  ├─ Agent Swarm (4 workers + Data Merge + Report + TTS)      │
+│  ├─ Precheck Engine (6-check pre-flight)                    │
+│  ├─ Router 9 (AI provider fallback chain)                    │
+│  ├─ State Manager (workflow persistence)                   │
+│  ├─ Meta-Prompt (5-step adaptive synthesis)                │
+│  ├─ NotebookLM Sync (Google Drive + Audio Overview)         │
+│  ├─ n8n Bridge (webhook service)                           │
 │  └─ Cron scheduler (node-cron)                                │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -367,17 +394,18 @@ curl http://localhost:3004/api/sync/status
 4. Source code: `src/` (frontend), `local-backend/` (backend)
 5. Backup: `backup/vnstock-ai-v2.0/` (khôi phục khi cần)
 
-**Các tính năng có thể thêm**:
-- Real data: VNStock API, YouTube Data API v3, RSS feeds
-- Charts: Tích hợp charting library (Chart.js/TradingView)
-- Audio: TTS API (Google TTS/ElevenLabs)
-- AI: Tích hợp Gemini/Groq API thực (thay stub)
-- PWA: Service worker, offline mode
-- Auth: Login system
+**Các tính năng có thể thêm (sau V3.0)**:
+- Real-time data: WebSocket feed cho giá cổ phiếu real-time
+- Advanced AI: Fine-tuned model cho tiếng Việt chứng khoán
+- Mobile app: React Native hoặc PWA
+- Social features: Share báo cáo, comment, rating
+- Backtesting: Test chiến lược giao dịch trên lịch sử
+- Alert system: Thông báo khi chỉ báo đạt ngưỡng
+- Multi-language: English mode cho nhà đầu tư nước ngoài
 
 ---
 
-## 11. Lưu ý quan trọng
+## 11. Lưu ý quan trọng (V3.0)
 
 - **Local first**: SQLite local là primary, remote sync là optional
 - **Natural language**: Không dùng CLI commands (/command), dùng ngôn ngữ tự nhiên
@@ -389,10 +417,12 @@ curl http://localhost:3004/api/sync/status
 - **Backup**: `backup/vnstock-ai-v2.0/` - KHÔNG ĐƯỢC XÓA. Chứa toàn bộ source code để khôi phục khi cần.
 - **Quy tắc FIX CODE**: 
   1. **Trước khi sửa code lớn**: Phải backup toàn bộ `src/`, `local-backend/`, config files vào `backup/vnstock-ai-v2.0/`
-  2. **Sau khi fix code**: Phải cập nhật lại `MASTER_PROMPT.md`, `RESUME_PROMPT.md`, `PROGRESS_ANALYSIS_v2.md`, `HUONG_DAN_SU_DUNG.md` để chat mới biết tiếp tục từ đâu
+  2. **Sau khi fix code**: Phải cập nhật lại `MASTER_PROMPT.md`, `RESUME_PROMPT.md`, `PROGRESS_ANALYSIS_v3.md`, `HUONG_DAN_SU_DUNG.md` để chat mới biết tiếp tục từ đâu
   3. **Không được xóa source code hẳn**: Chỉ được thay thế sau khi đã backup
   4. **Git commit**: Mỗi lần thay đổi phải commit với message rõ ràng
+- **V3 Design Docs**: `docs/upgrade-v3/` chứa 5 file thiết kế chi tiết (overview, system graph, roadmap, advanced features, master prompt)
+- **V3 Code Status**: Pha 0-1-2-3-4-5-6-9 đã hoàn thành. Pha 7 (NotebookLM), Pha 8 (n8n Bridge), Pha 10 (Build & Deploy) đang chờ.
 
 ---
 
-*Cập nhật: 2026-06-07. Tất cả tính năng chính đã hoàn thành.*
+*Cập nhật: 2026-06-08. V3.0 đang nâng cấp — 8/11 pha đã hoàn thành.*

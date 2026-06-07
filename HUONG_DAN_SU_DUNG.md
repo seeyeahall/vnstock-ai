@@ -461,7 +461,91 @@ cp -r backup/vnstock-ai-v2.0/src .
 
 ---
 
-## 11. Thông tin kỹ thuật
+## 📊 Hướng dẫn sử dụng V3.0 (Mới)
+
+### 12.1. Report Builder — Tạo báo cáo tùy chỉnh
+
+**Truy cập**: `/#/report-builder`
+
+**Các bước**:
+1. Chọn preset: Daily Brief / Weekly Deep / YouTube Only
+2. Bật/tắt các section muốn có trong báo cáo
+3. Kéo thả để sắp xếp thứ tự section
+4. Chọn kênh output cho từng section (Telegram/Email/Dashboard)
+5. Chọn time range (1 ngày / 7 ngày / 30 ngày / tùy chỉnh)
+6. Chọn nguồn dữ liệu (YouTube, RSS, API, Manual)
+7. Chọn lịch chạy (Ngay / Hàng ngày / Hàng tuần / Tùy chỉnh)
+8. Nhấn **Save Template** hoặc **Run Now**
+
+**Ví dụ**: Tạo báo cáo tổng hợp thị trường tuần qua
+- Preset: Weekly Deep
+- Sections: Market Overview, Stock Analysis, YouTube Summary, News Digest, Risk Alert
+- Output: Telegram (tất cả), Email (Market Overview + Stock Analysis)
+- Time range: 7 ngày
+- Sources: YouTube (29 kênh), RSS (CafeF, VietStock)
+- Schedule: Hàng tuần, thứ 2 lúc 7:00
+
+### 12.2. Data Collection — Quản lý nguồn dữ liệu
+
+**Truy cập**: `/#/data-collection`
+
+**Các nguồn**:
+- **YouTube**: 29 kênh đã cấu hình, tự động thu thập subtitle
+- **RSS**: CafeF, VietStock, VNExpress, Bloomberg...
+- **API**: VNStock API, TradingView, các nguồn khác
+- **Manual**: Nhập tay dữ liệu đặc biệt
+
+**Thao tác**:
+- Nhấn **Run** để chạy thu thập cho từng nguồn
+- Xem progress bar và log real-time
+- Nhấn **Stop** để dừng
+- Nhấn **View Logs** để xem chi tiết
+
+### 12.3. Chart Viewer — Xem đồ thị chỉ báo
+
+**Truy cập**: `/#/charts`
+
+**Các chỉ báo** (10 loại):
+1. MA (Moving Average)
+2. EMA (Exponential MA)
+3. RSI (Relative Strength Index)
+4. MACD (Moving Average Convergence Divergence)
+5. Bollinger Bands
+6. Ichimoku Cloud (9-17-26-26-26) — chuẩn
+7. Ichimoku Cloud (65-129-5-2-2) — dài hạn
+8. Volume MA
+9. OBV (On-Balance Volume)
+10. Stochastic
+
+**Thao tác**:
+- Chọn mã cổ phiếu (18 mã VN)
+- Chọn timeframe (1 ngày / 1 tuần / 1 tháng)
+- Bật/tắt chỉ báo từng loại
+- Zoom, pan trên đồ thị
+
+### 12.4. Audio Player — Nghe báo cáo
+
+**Truy cập**: `/#/audio`
+
+**Tính năng**:
+- Phát báo cáo dạng audio (TTS)
+- Tốc độ: 0.5x - 2x
+- Tải xuống MP3
+- Tự động phát khi có báo cáo mới
+
+### 12.5. 3D Knowledge Graph — Mối liên hệ
+
+**Truy cập**: `/#/graph-3d`
+
+**Tính năng**:
+- Xem mối liên hệ giữa cổ phiếu, chủ đề, kênh
+- Zoom, pan, kéo thả
+- Click để xem chi tiết
+- Phát hiện cluster và influencer
+
+---
+
+## 13. Thông tin kỹ thuật
 
 ### Cấu trúc thư mục
 
@@ -541,8 +625,9 @@ Nếu gặp lỗi không xử lý được:
 2. **Sau khi fix code**:
    - Cập nhật `MASTER_PROMPT.md` - thêm tính năng mới, thay đổi kiến trúc
    - Cập nhật `RESUME_PROMPT.md` - tóm tắt nhanh cho chat mới
-   - Cập nhật `PROGRESS_ANALYSIS_v2.md` - ghi lại phân tích tối ưu
+   - Cập nhật `PROGRESS_ANALYSIS_v3.md` - ghi lại phân tích tối ưu V3
    - Cập nhật `HUONG_DAN_SU_DUNG.md` - hướng dẫn sử dụng mới
+   - Cập nhật `docs/upgrade-v3/*.md` - thiết kế V3
 
 3. **Không được xóa source code hẳn**:
    - Chỉ được thay thế file sau khi đã backup
@@ -554,6 +639,6 @@ Nếu gặp lỗi không xử lý được:
 
 ---
 
-**Cập nhật**: 2026-06-07  
-**Phiên bản**: VNStock AI v2.0  
+**Cập nhật**: 2026-06-08  
+**Phiên bản**: VNStock AI v3.0 (đang nâng cấp — 8/11 pha hoàn thành)  
 **Tác giả**: seeyeahall

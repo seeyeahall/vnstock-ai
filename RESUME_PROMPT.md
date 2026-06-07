@@ -10,20 +10,30 @@
 - **V1** (cũ): `VNStock Adaptive Intelligence System` - n8n + Google Sheets + Python microservice + Gemini AI
 - **V2.0** (hiện tại): React frontend + Node.js backend + SQLite local + sync D1/Turso + Email Python SMTP + YouTube Analyzer FREE
 
-**Tính năng chính**:
+**Tính năng chính (V2.0 + V3.0)**:
 1. **Module Registry** - 24 modules (Input/AI/Memory/Output/Validation/Recovery), chọn/bật tắt
 2. **System Config** - 3 presets, mode (autonomous/scheduled/manual), hardware, schedule
 3. **Chat AI** - Chat kiểu Messenger trong Dashboard, NLU, lưu SQLite
 4. **Telegram Bot** - @HuuVangbot, ngôn ngữ tự nhiên (không CLI)
-5. **SQLite DB** - 5 tables: chat_history, reports, settings, schedules, api_keys
+5. **SQLite DB** - 8 tables: chat_history, reports, settings, schedules, api_keys, report_templates, agent_tasks, workflow_states
 6. **Remote Sync** - Cloudflare D1 + Turso (cần credentials để activate)
-7. **Workflow** - Visual graph, Executive Brain, Health Check
+7. **Workflow** - Visual graph, Executive Brain, Health Check, Precheck Engine
 8. **Email Gmail SMTP** - Python smtplib, không cài thêm Node package
 9. **YouTube Analyzer** - 29 kênh FREE-first, tiếng Việt có dấu
 10. **Push All Script** - Tự động push lên local + tunnel + GitHub Pages + Telegram
 11. **Auto Start** - File `.bat` chỉ 3 dòng → gọi Python `auto_start.py` xử lý toàn bộ: Backend + Tunnel + Webhook + Browser
 12. **Remote Access** - 4 kênh: Local (3004), Cloudflare Tunnel, GitHub Pages, Telegram Bot
-13. **User Guide** - `HUONG_DAN_SU_DUNG.md` - hướng dẫn chi tiết cho người mới
+13. **Report Builder** (V3) - Cấu hình mẫu báo cáo tùy chỉnh với preset, section toggle/reorder, output channel matrix
+14. **Data Collection** (V3) - Quản lý nguồn dữ liệu (YouTube, RSS, API, Manual) với trạng thái real-time
+15. **Chart Viewer** (V3) - 10 chỉ báo: MA, EMA, RSI, MACD, Bollinger, Ichimoku (9-17-26-26-26), Ichimoku (65-129-5-2-2), Volume MA, OBV, Stochastic
+16. **Audio Player** (V3) - Phát audio TTS từ báo cáo (Web Speech API + Python TTS fallback)
+17. **3D Knowledge Graph** (V3) - Force-directed graph D3.js hiển thị mối liên hệ cổ phiếu-chủ đề-kênh
+18. **Agent Swarm** (V3) - 4 workers (YouTube, Stock, News, Analysis) + Data Merge + Report Renderer + TTS Service
+19. **Precheck Engine** (V3) - 6 bước kiểm tra trước khi chạy workflow
+20. **Router 9** (V3) - AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
+21. **Meta-Prompt** (V3) - 5 bước adaptive synthesis cho báo cáo chính xác
+22. **NotebookLM Sync** (V3 - đang làm) - Google Drive sync + Audio Overview
+23. **n8n Bridge** (V3 - đang làm) - Webhook service cho workflow automation
 
 ---
 
@@ -154,24 +164,27 @@
 
 **Nếu chat mới muốn làm tiếp**:
 1. Đọc `MASTER_PROMPT.md` để hiểu yêu cầu chi tiết
-2. Đọc `API_SPEC.md` để biết API endpoints
-3. Đọc `DB_SCHEMA.md` để biết database structure
-4. Source code: `src/` (frontend), `local-backend/` (backend)
-5. Backup: `backup/vnstock-ai-v2.0/` (khôi phục khi cần)
-6. **Quy tắc FIX CODE quan trọng**:
+2. Đọc `docs/upgrade-v3/MASTER_PROMPT.md` để hiểu thiết kế V3
+3. Đọc `API_SPEC.md` để biết API endpoints
+4. Đọc `DB_SCHEMA.md` để biết database structure
+5. Source code: `src/` (frontend), `local-backend/` (backend)
+6. Backup: `backup/vnstock-ai-v2.0/` (khôi phục khi cần)
+7. **Quy tắc FIX CODE quan trọng**:
    - **Trước khi sửa**: Backup toàn bộ `src/`, `local-backend/` vào `backup/vnstock-ai-v2.0/`
-   - **Sau khi sửa**: Cập nhật lại `MASTER_PROMPT.md`, `RESUME_PROMPT.md`, `PROGRESS_ANALYSIS_v2.md`, `HUONG_DAN_SU_DUNG.md`
+   - **Sau khi sửa**: Cập nhật lại `MASTER_PROMPT.md`, `RESUME_PROMPT.md`, `PROGRESS_ANALYSIS_v3.md`, `HUONG_DAN_SU_DUNG.md`
    - **Không xóa source hẳn**: Chỉ thay thế sau khi backup
    - **Commit**: Mỗi thay đổi phải commit với message rõ ràng
 
-**Các tính năng có thể thêm**:
-- Real data: VNStock API, YouTube Data API v3, RSS feeds
-- Charts: Tích hợp charting library (TradingView, Chart.js)
-- Audio: TTS API (Google TTS, Azure TTS)
-- AI: Tích hợp Gemini/Groq API thực (thay stub)
-- PWA: Service worker, offline mode
-- Auth: Login system
+**Các tính năng có thể thêm (sau V3.0)**:
+- Real-time data: WebSocket feed cho giá cổ phiếu real-time
+- Advanced AI: Fine-tuned model cho tiếng Việt chứng khoán
+- Mobile app: React Native hoặc PWA
+- Social features: Share báo cáo, comment, rating
+- Backtesting: Test chiến lược giao dịch trên lịch sử
+- Alert system: Thông báo khi chỉ báo đạt ngưỡng
+- Multi-language: English mode cho nhà đầu tư nước ngoài
 
 ---
 
 *File này được tạo để chat mới có thể nắm bắt project trong 2 phút.*
+*Cập nhật: 2026-06-08. V3.0 đang nâng cấp — 8/11 pha đã hoàn thành.*
