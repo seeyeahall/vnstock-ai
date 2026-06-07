@@ -1,0 +1,60 @@
+{
+  "templates": {
+    "daily_brief": {
+      "template_id": "daily_brief",
+      "name": "Báo cáo hàng ngày",
+      "sections": [
+        { "id": "macro", "enabled": true, "order": 1 },
+        { "id": "sentiment", "enabled": true, "order": 2 },
+        { "id": "watchlist", "enabled": true, "order": 3 }
+      ],
+      "output_channels": {
+        "telegram": ["macro", "sentiment"],
+        "email": ["all"],
+        "dashboard": ["all"]
+      },
+      "time_range": "1d",
+      "sources": ["youtube", "stock", "rss"],
+      "schedule": ["07:00", "20:00"],
+      "enabled": true
+    },
+    "weekly_deep": {
+      "template_id": "weekly_deep",
+      "name": "Báo cáo chuyên sâu tuần",
+      "sections": [
+        { "id": "macro", "enabled": true, "order": 1 },
+        { "id": "sector", "enabled": true, "order": 2 },
+        { "id": "stock", "enabled": true, "order": 3 },
+        { "id": "chart", "enabled": true, "order": 4 },
+        { "id": "sentiment", "enabled": true, "order": 5 },
+        { "id": "insight", "enabled": true, "order": 6 },
+        { "id": "watchlist", "enabled": true, "order": 7 }
+      ],
+      "output_channels": {
+        "email": ["all"],
+        "dashboard": ["all"]
+      },
+      "time_range": "1w",
+      "sources": ["youtube", "stock", "rss"],
+      "schedule": null,
+      "enabled": true
+    },
+    "youtube_only": {
+      "template_id": "youtube_only",
+      "name": "Tổng hợp YouTube",
+      "sections": [
+        { "id": "macro", "enabled": true, "order": 1 },
+        { "id": "sentiment", "enabled": true, "order": 2 },
+        { "id": "audio", "enabled": true, "order": 3 }
+      ],
+      "output_channels": {
+        "telegram": ["macro", "audio"],
+        "dashboard": ["all"]
+      },
+      "time_range": "1d",
+      "sources": ["youtube"],
+      "schedule": null,
+      "enabled": true
+    }
+  }
+}
