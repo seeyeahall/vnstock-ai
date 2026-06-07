@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import Header from "@/sections/Header";
 import OutputSettingsPanel from "@/sections/OutputSettingsPanel";
 import HealthCheckPanel from "@/sections/HealthCheckPanel";
@@ -7,12 +8,27 @@ import ExecutiveBrainConsole from "@/sections/ExecutiveBrainConsole";
 import { ModuleSelector } from "@/sections/ModuleSelector";
 import { SystemConfigPanel } from "@/sections/SystemConfigPanel";
 import ChatPanel from "@/sections/ChatPanel";
-import ReportBuilder from "@/sections/report-builder/ReportBuilder";
-import CollectionPanel from "@/sections/data-collection/CollectionPanel";
-import ChartViewer from "@/sections/chart-viewer/ChartViewer";
-import AudioPlayer from "@/sections/audio-player/AudioPlayer";
-import Graph3D from "@/sections/graph-3d/Graph3D";
+
+// Lazy load V3 routes (heavy components)
+const ReportBuilder = lazy(() => import("@/sections/report-builder/ReportBuilder"));
+const CollectionPanel = lazy(() => import("@/sections/data-collection/CollectionPanel"));
+const ChartViewer = lazy(() => import("@/sections/chart-viewer/ChartViewer"));
+const AudioPlayer = lazy(() => import("@/sections/audio-player/AudioPlayer"));
+const Graph3D = lazy(() => import("@/sections/graph-3d/Graph3D"));
+
 import { useSystemConfig } from "@/hooks/useSystemConfig";
+
+// Loading fallback for lazy routes
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-[60vh]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+        <p className="text-muted-foreground">Đang tải...</p>
+      </div>
+    </div>
+  );
+}
 
 function SystemConfigPage() {
   const {
@@ -129,19 +145,21 @@ export default function App() {
       <div className="min-h-screen bg-background text-foreground">
         <Header />
         <main className="max-w-[1600px] mx-auto px-4 py-6">
-          <Routes>
-            <Route path="/" element={<SystemConfigPage />} />
-            <Route path="/modules" element={<ModuleRegistryPage />} />
-            <Route path="/workflow" element={<WorkflowGraphPage />} />
-            <Route path="/brain" element={<ExecutiveBrainPage />} />
-            <Route path="/health" element={<HealthCheckPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/report-builder" element={<ReportBuilderPage />} />
-            <Route path="/data-collection" element={<DataCollectionPage />} />
-            <Route path="/charts" element={<ChartsPage />} />
-            <Route path="/audio" element={<AudioPage />} />
-            <Route path="/graph-3d" element={<Graph3DPage />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<SystemConfigPage />} />
+              <Route path="/modules" element={<ModuleRegistryPage />} />
+              <Route path="/workflow" element={<WorkflowGraphPage />} />
+              <Route path="/brain" element={<ExecutiveBrainPage />} />
+              <Route path="/health" element={<HealthCheckPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/report-builder" element={<ReportBuilderPage />} />
+              <Route path="/data-collection" element={<DataCollectionPage />} />
+              <Route path="/charts" element={<ChartsPage />} />
+              <Route path="/audio" element={<AudioPage />} />
+              <Route path="/graph-3d" element={<Graph3DPage />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </HashRouter>
