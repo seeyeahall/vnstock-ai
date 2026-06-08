@@ -6,11 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Send, Bot, User, Loader2, Trash2, MessageSquare } from "lucide-react";
 import { API_BASE } from "@/services/api";
 
+import { useNavigate } from "react-router-dom";
+
 interface ChatMessage {
   id: number;
   role: "user" | "assistant" | "system";
   content: string;
   intent?: string;
+  actions?: any[];
   timestamp: string;
 }
 
@@ -19,6 +22,7 @@ function generateSessionId(): string {
 }
 
 export default function ChatPanel() {
+  const navigate = useNavigate();
   const [sessionId] = useState<string>(() => {
     const stored = localStorage.getItem("vnstock-chat-session");
     return stored || generateSessionId();
@@ -71,6 +75,27 @@ export default function ChatPanel() {
     [sessionId]
   );
 
+  const executeAction = useCallback((action: any) => {
+    if (!action || !action.type) return;
+    switch (action.type) {
+      case "navigate":
+        if (action.target) {
+          navigate(action.target);
+        }
+        break;
+      case "setParam":
+        if (action.key && action.value !== undefined) {
+          localStorage.setItem(`vnstock-action-${action.key}`, JSON.stringify(action.value));
+        }
+        break;
+      case "send":
+        console.log("[Chat Action] Send via", action.channel);
+        break;
+      default:
+        console.log("[Chat Action] Unknown action type:", action.type);
+    }
+  }, [navigate]);
+
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isLoading) return;
 
@@ -95,6 +120,7 @@ export default function ChatPanel() {
         body: JSON.stringify({
           sessionId,
           message: userMsg.content,
+          context: { source: "web" }
         }),
       });
       const data = await res.json();
@@ -102,17 +128,22 @@ export default function ChatPanel() {
       const assistantMsg: ChatMessage = {
         id: Date.now() + 1,
         role: "assistant",
-        content:
-          data.success && data.content
-            ? data.content
-            : processLocalResponse(userMsg.content),
+        content: data.success && data.content ? data.content : processLocalResponse(userMsg.content),
         intent: data.intent,
+        actions: data.actions,
         timestamp: new Date().toISOString(),
       };
 
       const finalMessages = [...newMessages, assistantMsg];
       setMessages(finalMessages);
       saveFallback(finalMessages);
+
+      // Execute actions from AI
+      if (data.success && data.actions && Array.isArray(data.actions)) {
+        for (const action of data.actions) {
+          executeAction(action);
+        }
+      }
     } catch {
       // Backend unavailable - use local response
       const assistantMsg: ChatMessage = {
@@ -128,7 +159,7 @@ export default function ChatPanel() {
       setIsLoading(false);
       setIsTyping(false);
     }
-  }, [input, isLoading, messages, sessionId, saveFallback]);
+  }, [input, isLoading, messages, sessionId, saveFallback, executeAction]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {

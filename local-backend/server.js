@@ -18,6 +18,8 @@ import { n8nBridge } from './services/n8nBridge.js';
 import { notebooklmSync } from './services/notebooklmSync.js';
 import { notebooklmAudio } from './services/notebooklmAudio.js';
 
+import { chatEngine } from './services/chatEngine.js';
+
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -42,14 +44,34 @@ app.get('/api/health/:provider', async (req, res) => {
   res.json({ success: true, result });
 });
 
-// ── Chat ──
-app.post('/api/chat/message', (req, res) => {
-  const { sessionId, role, content, intent, metadata } = req.body;
+// ── Chat AI Engine ──
+app.post('/api/chat/message', async (req, res) => {
+  const { sessionId, message, context } = req.body;
   const sid = sessionId || uuidv4();
-  db.prepare(
-    'INSERT INTO chat_history (session_id, role, content, intent, metadata) VALUES (?, ?, ?, ?, ?)'
-  ).run(sid, role || 'user', content || '', intent || null, metadata ? JSON.stringify(metadata) : null);
-  res.json({ success: true, sessionId: sid });
+  
+  if (!message) {
+    return res.status(400).json({ success: false, error: 'message required' });
+  }
+  
+  try {
+    const result = await chatEngine.processMessage(sid, message, context || {});
+    res.json(result);
+  } catch (e) {
+    console.error('[ChatEngine Error]', e.message);
+    // Fallback: save message and return generic response
+    db.prepare(
+      'INSERT INTO chat_history (session_id, role, content) VALUES (?, ?, ?)'
+    ).run(sid, 'user', message);
+    db.prepare(
+      'INSERT INTO chat_history (session_id, role, content) VALUES (?, ?, ?)'
+    ).run(sid, 'assistant', 'Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại!');
+    res.json({
+      success: true,
+      content: 'Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại!',
+      sessionId: sid,
+      actions: []
+    });
+  }
 });
 
 app.get('/api/chat/history', (req, res) => {
@@ -63,6 +85,24 @@ app.get('/api/chat/history', (req, res) => {
       .all(parseInt(limit, 10));
   }
   res.json({ success: true, data: rows });
+});
+
+// ── Viber Webhook ──
+app.post('/api/viber/webhook', async (req, res) => {
+  res.json({ ok: true });
+  const msg = req.body?.message;
+  if (!msg) return;
+  const userId = msg.sender?.id;
+  const text = msg.text || '';
+  
+  try {
+    const result = await chatEngine.processMessage(`viber_${userId}`, text);
+    // Send response back via Viber API (requires Viber bot token)
+    // For now, log the response
+    console.log('[Viber Response]', userId, result.content);
+  } catch (e) {
+    console.error('[Viber Webhook Error]', e.message);
+  }
 });
 
 // ── DB Settings ──

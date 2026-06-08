@@ -31,8 +31,11 @@
 | 18 | **Router 9** | ✅ | AI provider router: Gemini → Groq → OpenRouter → Ollama |
 | 19 | **State Manager** | ✅ | Lưu/load workflow state, resume sau crash |
 | 20 | **Meta-Prompt** | ✅ | 5 bước adaptive synthesis |
-| 21 | **NotebookLM Sync** | ✅ | Services created (`notebooklmSync.js`, `notebooklmAudio.js`). Cần Google Drive credentials để kích hoạt |
-| 22 | **n8n Bridge** | ✅ | Service created (`n8nBridge.js`). Cần n8n webhook URL để kích hoạt |
+| 21 | **Push All v3** | ✅ | `push_all.py` — 7 bước tự động: Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test |
+| 22 | **Chat AI Engine** | ✅ | `chatEngine.js` — System prompt + Function calling + Smart local processing. AI tự hiểu app, điều khiển workflow |
+| 23 | **Viber Webhook** | ✅ | Endpoint `/api/viber/webhook` — dùng chung chat engine với Telegram |
+| 24 | **NotebookLM Sync** | ✅ | Services created (`notebooklmSync.js`, `notebooklmAudio.js`). Cần Google Drive credentials để kích hoạt |
+| 25 | **n8n Bridge** | ✅ | Service created (`n8nBridge.js`). Cần n8n webhook URL để kích hoạt |
 
 ### 🔧 FIX GẦN NHẤT
 
@@ -40,6 +43,9 @@
 |------|------|--------|-----------|
 | 2026-06-08 | `server.js` | Thiếu `app.listen()` ở cuối file (dòng 439 bị `NaN`) | Thêm `app.listen(PORT, () => console.log(...))` |
 | 2026-06-08 | `node_modules` | Thiếu dependencies (0 packages) | Chạy `npm install` → 290 packages |
+| 2026-06-08 | `chatEngine.js` | Import path sai `import db from './db.js'` | Sửa thành `import db from '../db.js'` |
+| 2026-06-08 | `chatEngine.js` | Schema `workflow_states` không khớp (dùng `workflow_id` thay vì `state_id`) | Sửa query INSERT khớp với schema thực tế |
+| 2026-06-08 | `ChatPanel.tsx` | `executeAction` định nghĩa sau `sendMessage`, gây lỗi TS | Đưa `executeAction` ra trước, dùng `useCallback` |
 
 ---
 
@@ -86,6 +92,52 @@
 | notebooklmSync.js | ✅ | Google Drive sync |
 | notebooklmAudio.js | ✅ | Poll Audio Overview |
 | n8nBridge.js | ✅ | Webhook to n8n |
+| **chatEngine.js** | ✅ | AI Chat Engine — System prompt + Function calling + Smart local processing |
+
+---
+
+## 2.4. Phân tích 2 vấn đề người dùng báo cáo (2026-06-08)
+
+### Vấn đề 1: Push All chưa upload lên hết các kênh
+
+**Thực trạng**:
+- `push-all.bat` chỉ 19 dòng, chỉ chạy `npm run build`
+- Không tự động: start backend, tạo tunnel, cập nhật webhook, mở browser, push GitHub Pages
+- Người dùng phải tự làm 6 bước còn lại thủ công
+
+**Giải pháp đã triển khai**:
+- Tạo `push_all.py` (350 dòng) với class `PushAll` đầy đủ 7 bước
+- Parse tunnel URL từ cloudflared stdout bằng regex
+- Tự động cập nhật Telegram webhook qua API
+- Tự động push gh-pages branch (git stash → checkout → copy → commit → push → restore)
+- Tự động mở browser (local + tunnel URL)
+- Test 5 endpoints sau deploy
+- `push-all.bat` chỉ 12 dòng — gọi Python script
+
+**Kết quả**: Double-click `push-all.bat` → toàn bộ quy trình tự động
+
+### Vấn đề 2: Chat AI không tự hiểu về app để điều khiển
+
+**Thực trạng**:
+- Backend `POST /api/chat/message` chỉ lưu SQLite, không gọi AI
+- Frontend `processLocalResponse()` chỉ keyword matching (7 patterns)
+- Không có system prompt, function calling, context awareness
+- Người dùng phải đánh đúng lệnh, AI không hiểu ngữ cảnh
+
+**Giải pháp đã triển khai**:
+- Tạo `chatEngine.js` — AI Chat Engine backend
+- System prompt đầy đủ: mô tả 11 tab, 8 lệnh điều khiển, format function call
+- Smart local processing: 10+ intent patterns, extract symbols, detect functions
+- Function calling schema: create_report, check_health, run_precheck, get_chart, send_report, get_agent_status, create_schedule, test_api
+- `executeFunction()` thực thi: gọi healthCheck, precheckEngine, insert workflow_states, query agent_tasks
+- Frontend `ChatPanel.tsx` nâng cấp: nhận `actions` từ AI, `executeAction()` với navigate/setParam/send
+- Viber webhook endpoint: `/api/viber/webhook` — dùng chung chat engine
+
+**Kết quả test**:
+- "chào bạn" → Trả lời tự nhiên + gợi ý các lệnh
+- "tạo báo cáo tuần" → Tạo workflow + navigate to /brain
+- "kiểm tra hệ thống" → Health check all APIs + trả kết quả thực
+- "help" → Hướng dẫn đầy đủ 11 tab + 5 lệnh
 
 ---
 

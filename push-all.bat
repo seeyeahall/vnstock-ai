@@ -1,19 +1,20 @@
 @ECHO OFF
-:: Build & Deploy script for VNStock AI v3.0
-:: Builds frontend and copies dist/ to gh-pages branch
+:: VNStock AI v3.0 — Push All
+:: Tự động hóa toàn bộ: Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test
+:: Chỉ 1 lệnh: double-click file này
 
-SET "NODE_DIR=C:\Users\NHVANG\AppData\Local\Programs\kimi-desktop\resources\resources\runtime"
-SET "NPM_CMD=%NODE_DIR%\npm.cmd"
+SET "PYTHON=C:\Users\NHVANG\AppData\Roaming\kimi-desktop\daimon-share\daimon\runtime\python\.venv\Scripts\python.exe"
+SET "SCRIPT=E:\AI TONG HOP THONG TIN\app\local-backend\scripts\push_all.py"
 
-ECHO [VNStock AI v3.0] Building frontend for production...
+ECHO [VNStock AI v3.0] Push All — Đang khởi động...
+ECHO.
 
-"%NPM_CMD%" run build
+"%PYTHON%" "%SCRIPT%"
+
 IF %ERRORLEVEL% NEQ 0 (
-  ECHO [ERROR] Build failed.
-  EXIT /B 1
+  ECHO [ERROR] Push All failed with code %ERRORLEVEL%.
+  PAUSE
+  EXIT /B %ERRORLEVEL%
 )
 
-ECHO [VNStock AI v3.0] Build complete. dist/ folder is ready.
-ECHO Next steps:
-ECHO   1. Copy dist/* to gh-pages branch
-ECHO   2. Commit and push to deploy
+PAUSE

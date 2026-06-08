@@ -32,8 +32,11 @@
 19. **Precheck Engine** (V3) - 6 bước kiểm tra trước khi chạy workflow
 20. **Router 9** (V3) - AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
 21. **Meta-Prompt** (V3) - 5 bước adaptive synthesis cho báo cáo chính xác
-22. **NotebookLM Sync** (V3 — service created) - Google Drive sync + Audio Overview
-23. **n8n Bridge** (V3 — service created) - Webhook service cho workflow automation
+22. **Push All** (V3) — Tự động hóa toàn bộ deploy: Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test
+23. **Chat AI Engine** (V3) — AI tự hiểu app, function calling, điều khiển workflow tự nhiên
+24. **Viber Webhook** (V3) — Endpoint nhận message từ Viber
+25. **NotebookLM Sync** (V3 — service created) - Google Drive sync + Audio Overview
+26. **n8n Bridge** (V3 — service created) - Webhook service cho workflow automation
 
 ---
 
@@ -110,8 +113,11 @@
 | 17 | **Router 9** | `local-backend/services/router9.js` | ✅ |
 | 18 | **State Manager** | `local-backend/services/stateManager.js` | ✅ |
 | 19 | **Meta-Prompt** | `local-backend/config/meta_prompt.md` | ✅ |
-| 20 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ |
-| 21 | **n8n Bridge** | `local-backend/services/n8nBridge.js` | ✅ |
+| 20 | **Push All v3** | `push-all.bat`, `local-backend/scripts/push_all.py` | ✅ |
+| 21 | **Chat AI Engine** | `local-backend/services/chatEngine.js`, `src/sections/ChatPanel.tsx` | ✅ |
+| 22 | **Viber Webhook** | `server.js` (endpoint `/api/viber/webhook`) | ✅ |
+| 23 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ |
+| 24 | **n8n Bridge** | `local-backend/services/n8nBridge.js` | ✅ |
 
 ### ⏳ CẦN LÀM TIẾP
 

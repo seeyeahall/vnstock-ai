@@ -185,10 +185,12 @@ TẦNG 4: MULTI-FORMAT DELIVERY
 [✅] Pha 7: NotebookLM Integration — Services created (notebooklmSync.js + notebooklmAudio.js)
 [✅] Pha 8: n8n Bridge — Service created (n8nBridge.js)
 [✅] Pha 9: Polish & Integration — Executive Brain + Workflow + Health real-time
+[✅] Pha 9.5: Push All v3 + Chat AI Engine + Viber Webhook — push_all.py (7 bước) + chatEngine.js (function calling) + /api/viber/webhook
 [⏳] Pha 10: Documentation & Deploy — Update root MD files + Build & Deploy
 ```
 
 > **Fix gần nhất (2026-06-08)**: `server.js` thiếu `app.listen()` ở cuối file (dòng 439 bị `NaN`). Đã fix — server chạy ổn định trên port 3004.
+> **Nâng cấp (2026-06-08)**: Push All v3 + Chat AI Engine + Viber Webhook đã triển khai.
 
 ### 4.2. Việc CẦN LÀM TIẾP (Ưu tiên)
 
