@@ -76,18 +76,54 @@ def run_cmd(cmd, cwd=None, timeout=120, shell=False):
 def step1_build():
     """Build frontend with npm"""
     log(1, "Building frontend (npm run build)...")
+    
+    # Check if build is needed
+    import shutil
+    dist_dir = os.path.join(APP_DIR, "dist")
+    src_dir = os.path.join(APP_DIR, "src")
+    
+    if os.path.exists(dist_dir) and os.path.exists(src_dir):
+        dist_mtime = max(
+            os.path.getmtime(os.path.join(root, f))
+            for root, _, files in os.walk(dist_dir)
+            for f in files
+        )
+        src_mtime = max(
+            os.path.getmtime(os.path.join(root, f))
+            for root, _, files in os.walk(src_dir)
+            for f in files if f.endswith(('.tsx', '.ts', '.css', '.html', '.js'))
+        )
+        root_index = os.path.join(APP_DIR, "index.html")
+        if os.path.exists(root_index):
+            src_mtime = max(src_mtime, os.path.getmtime(root_index))
+        
+        if dist_mtime >= src_mtime:
+            log(1, f"Build is already fresh (dist newer than src). Skipping build.", "ok")
+            return True
+        else:
+            diff_min = round((src_mtime - dist_mtime) / 60)
+            log(1, f"Source changed {diff_min} min after last build. Rebuilding...", "warn")
+    
     stdout, stderr, rc = run_cmd([NPM_CMD, "run", "build"], cwd=APP_DIR, timeout=180)
     if rc != 0:
         log(1, f"Build failed:\n{stderr}", "error")
         return False
     
     # Check dist exists
-    dist_dir = os.path.join(APP_DIR, "dist")
     if not os.path.exists(dist_dir):
         log(1, "dist/ folder not found after build", "error")
         return False
     
-    log(1, f"Build complete. dist/ ready ({len(os.listdir(dist_dir))} files)", "ok")
+    # Count files and total size
+    file_count = 0
+    total_size = 0
+    for root, _, files in os.walk(dist_dir):
+        for f in files:
+            file_count += 1
+            total_size += os.path.getsize(os.path.join(root, f))
+    
+    size_mb = round(total_size / 1024 / 1024, 2)
+    log(1, f"Build complete. {file_count} files, {size_mb} MB in dist/", "ok")
     return True
 
 def step2_start_backend():

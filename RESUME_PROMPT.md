@@ -125,6 +125,8 @@
 | 29 | **Chat AI API Guard** | `local-backend/services/chatEngine.js` | ✅ |
 | 30 | **Health Check Engine v2** | `local-backend/services/healthCheck.js` | ✅ |
 | 31 | **State Manager v2** | `local-backend/services/stateManager.js` | ✅ |
+| 32 | **Build Freshness Checker** | `local-backend/services/buildChecker.js` | ✅ |
+| 33 | **Push All v3.1** | `push-all.bat`, `local-backend/scripts/push_all.py` | ✅ |
 
 ### ⏳ CẦN LÀM TIẾP
 
@@ -144,6 +146,7 @@
 | **Frontend** | https://seeyeahall.github.io/vnstock-ai/ |
 | **Backend local** | http://localhost:3004 |
 | **Tunnel public** | Cần khởi động thủ công (xem `local-backend/TUNNEL_GUIDE.md`) |
+| **Build Status** | GET http://localhost:3004/api/build/status |
 | **Workflow Run** | POST http://localhost:3004/api/workflow/run |
 | **Workflow Status** | GET http://localhost:3004/api/workflow/status |
 | **Dashboard Status** | GET http://localhost:3004/api/dashboard/status |

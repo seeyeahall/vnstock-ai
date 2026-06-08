@@ -49,12 +49,13 @@ const statusConfig: Record<string, { color: string; bg: string; icon: React.Elem
 
 export default function HealthCheckPanel() {
   const [services, setServices] = useState<HealthCheckResult[]>([]);
-  const [resources, setResources] = useState({ cpu: 23, ramUsed: 8.2, ramTotal: 16, disk: 45, networkDown: 12.4, networkUp: 3.2 });
+  const [resources] = useState({ cpu: 23, ramUsed: 8.2, ramTotal: 16, disk: 45, networkDown: 12.4, networkUp: 3.2 });
   const [quotas, setQuotas] = useState([
     { api: "Gemini", used: 340000, limit: 2000000, unit: "tokens" },
     { api: "Groq", used: 125000, limit: 500000, unit: "tokens" },
     { api: "YouTube API", used: 127, limit: 10000, unit: "reqs" },
   ]);
+  const [buildStatus, setBuildStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { isRunning, runHealthCheck: runLocalHealthCheck } = useSystemConfig();
 
@@ -72,7 +73,6 @@ export default function HealthCheckPanel() {
         
         const transformedServices = Object.entries(apiHealth).map(([name, info]: [string, any]) => {
           const configured = apiStatus[name]?.configured || false;
-          const dbStatus = apiStatus[name]?.status || 'unknown';
           const isHealthy = info.status === 'healthy';
           
           let message = info.message || '';
@@ -82,9 +82,11 @@ export default function HealthCheckPanel() {
             message = info.error || info.message || 'Connection failed';
           }
           
+          const status: HealthCheckResult['status'] = isHealthy ? 'healthy' : configured ? 'unhealthy' : 'warning';
+          
           return {
             service: `${name.charAt(0).toUpperCase() + name.slice(1)} API`,
-            status: isHealthy ? 'healthy' : configured ? 'unhealthy' : 'warning',
+            status,
             latency_ms: info.latency_ms || 0,
             message,
             last_checked: 'just now',
@@ -94,6 +96,11 @@ export default function HealthCheckPanel() {
         });
         
         setServices(transformedServices);
+        
+        // Update build status
+        if (data.build) {
+          setBuildStatus(data.build);
+        }
         
         // Update quotas from API data
         if (data.api?.quotas) {
@@ -242,6 +249,50 @@ export default function HealthCheckPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Build Status Warning */}
+      {buildStatus && !buildStatus.fresh && (
+        <Card className="border-amber-300 bg-amber-50">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-amber-700">⚠️ Frontend Build Outdated</div>
+                <div className="text-[10px] text-amber-600 mt-0.5">
+                  {buildStatus.message}
+                  {buildStatus.diff_minutes !== undefined && (
+                    <span> (Source changed {buildStatus.diff_minutes} min after last build)</span>
+                  )}
+                </div>
+                <div className="mt-1.5 flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-6 text-[10px] border-amber-300 text-amber-700 hover:bg-amber-100"
+                    onClick={() => window.open('https://github.com/seeyeahall/vnstock-ai/actions', '_blank')}
+                  >
+                    Run Push All
+                  </Button>
+                  <span className="text-[10px] text-amber-500 self-center">
+                    Or double-click push-all.bat
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {buildStatus && buildStatus.fresh && (
+        <Card className="border-emerald-200 bg-emerald-50/50">
+          <CardContent className="p-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-[10px] text-emerald-600">{buildStatus.message}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* System Resources */}
       <Card className="border">

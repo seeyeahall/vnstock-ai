@@ -54,7 +54,9 @@
 30. ✅ **Chat AI API Guard** — Tự động detect API chưa cấu hình, navigate Settings
 31. ✅ **Health Check Engine v2** — Node.js `http`/`https` thay vì `curl`
 32. ✅ **State Manager v2** — Khớp schema `workflow_states` thực tế
-33. ✅ **Build & Deploy V3** — Cập nhật GitHub Pages, title v3.0
+33. ✅ **Build Freshness Checker** — Tự động kiểm tra `dist/` vs `src/`, báo trên dashboard
+34. ✅ **Push All v3.1** — Auto-check build freshness trước khi build, skip nếu đã fresh
+35. ✅ **Build & Deploy V3** — Cập nhật GitHub Pages, title v3.0
 
 ---
 

@@ -42,7 +42,8 @@
 | 29 | **Health Check Panel v2** | ✅ | Hiển thị API status chi tiết từ `/api/dashboard/status`, cảnh báo Gemini nổi bật, API Configuration grid |
 | 30 | **Chat AI API Guard** | ✅ | Chat AI tự động detect API chưa cấu hình, cảnh báo user và navigate đến Settings |
 | 31 | **Health Check Engine v2** | ✅ | `healthCheck.js` rewrite — Dùng Node.js `http`/`https` thay vì `curl`, hoạt động trên Windows |
-| 32 | **State Manager v2** | ✅ | `stateManager.js` rewrite — Khớp schema `workflow_states` thực tế (`state_id`, `name`, `state_json`) |
+| 33 | **Build Freshness Checker** | ✅ | `buildChecker.js` — Tự động kiểm tra `dist/` vs `src/` timestamps. Báo trên dashboard nếu frontend chưa build bản mới nhất |
+| 34 | **Push All v3.1** | ✅ | `push_all.py` — Tự động check build freshness trước khi build, log số files + size, skip nếu đã fresh |
 
 ### 🔧 FIX GẦN NHẤT
 

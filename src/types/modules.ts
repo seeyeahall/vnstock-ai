@@ -77,6 +77,8 @@ export interface HealthCheckResult {
   latency_ms: number;
   message: string;
   last_checked: string;
+  configured?: boolean;
+  provider?: string;
 }
 
 // ===== WORKFLOW GRAPH TYPES =====

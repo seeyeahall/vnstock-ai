@@ -16,7 +16,7 @@ import { router9 } from './services/router9.js';
 import { stateManager } from './services/stateManager.js';
 import { n8nBridge } from './services/n8nBridge.js';
 import { notebooklmSync } from './services/notebooklmSync.js';
-import { notebooklmAudio } from './services/notebooklmAudio.js';
+import { checkBuildFreshness } from './services/buildChecker.js';
 
 import { chatEngine } from './services/chatEngine.js';
 
@@ -410,6 +410,9 @@ app.get('/api/dashboard/status', async (req, res) => {
   const geminiConfigured = apiStatus.gemini?.configured || false;
   const geminiHealthy = health.gemini?.status === 'healthy';
   
+  // Check build freshness
+  const buildStatus = checkBuildFreshness();
+  
   res.json({
     success: true,
     system: {
@@ -417,6 +420,7 @@ app.get('/api/dashboard/status', async (req, res) => {
       backend: 'online',
       timestamp: new Date().toISOString()
     },
+    build: buildStatus,
     api: {
       health,
       apiStatus,
@@ -442,7 +446,14 @@ app.get('/api/dashboard/status', async (req, res) => {
   });
 });
 
-// ── API Key Test ──
+// ── Build Status ──
+app.get('/api/build/status', (req, res) => {
+  const buildStatus = checkBuildFreshness();
+  res.json({
+    success: true,
+    ...buildStatus
+  });
+});
 app.post('/api/test-api-key', async (req, res) => {
   const { provider, api_key } = req.body;
   if (!provider) return res.status(400).json({ success: false, error: 'provider required' });

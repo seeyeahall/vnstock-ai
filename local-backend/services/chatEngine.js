@@ -378,14 +378,14 @@ Hoặc gõ "help" để xem danh sách đầy đủ.`;
       const openrouterRow = db.prepare('SELECT api_key, status FROM api_keys WHERE provider = ?').get('openrouter');
       
       const geminiConfigured = !!(geminiRow?.api_key && geminiRow.api_key.length > 10 && !geminiRow.api_key.includes('YOUR_'));
-      const geminiHealthy = geminiRow?.status === 'active' || geminiRow?.status === 'healthy';
+      const geminiHealthy = geminiRow?.status === 'active' || geminiRow?.status === 'healthy' || geminiRow?.status === 'ok';
       const geminiReady = geminiConfigured && geminiHealthy;
       
       const groqConfigured = !!(groqRow?.api_key && groqRow.api_key.length > 10 && !groqRow.api_key.includes('YOUR_'));
-      const groqReady = groqConfigured && (groqRow?.status === 'active' || groqRow?.status === 'healthy');
+      const groqReady = groqConfigured && (groqRow?.status === 'active' || groqRow?.status === 'healthy' || groqRow?.status === 'ok');
       
       const openrouterConfigured = !!(openrouterRow?.api_key && openrouterRow.api_key.length > 10 && !openrouterRow.api_key.includes('YOUR_'));
-      const openrouterReady = openrouterConfigured && (openrouterRow?.status === 'active' || openrouterRow?.status === 'healthy');
+      const openrouterReady = openrouterConfigured && (openrouterRow?.status === 'active' || openrouterRow?.status === 'healthy' || openrouterRow?.status === 'ok');
       
       let message = '';
       if (geminiReady) {
