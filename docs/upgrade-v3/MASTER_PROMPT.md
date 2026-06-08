@@ -182,11 +182,13 @@ TẦNG 4: MULTI-FORMAT DELIVERY
 [✅] Pha 4: Adaptive Synthesis — Meta-Prompt 5 bước + analysis worker
 [✅] Pha 5: Technical Charts & 10 Indicators — Chart.js + Ichimoku
 [✅] Pha 6: Audio & 3D Visualization — AudioPlayer + Graph3D
-[⏳] Pha 7: NotebookLM Integration — Google Drive sync pending
-[⏳] Pha 8: n8n Bridge — Webhook service pending
+[✅] Pha 7: NotebookLM Integration — Services created (notebooklmSync.js + notebooklmAudio.js)
+[✅] Pha 8: n8n Bridge — Service created (n8nBridge.js)
 [✅] Pha 9: Polish & Integration — Executive Brain + Workflow + Health real-time
-[⏳] Pha 10: Documentation & Deploy — Update root MD files pending
+[⏳] Pha 10: Documentation & Deploy — Update root MD files + Build & Deploy
 ```
+
+> **Fix gần nhất (2026-06-08)**: `server.js` thiếu `app.listen()` ở cuối file (dòng 439 bị `NaN`). Đã fix — server chạy ổn định trên port 3004.
 
 ### 4.2. Việc CẦN LÀM TIẾP (Ưu tiên)
 

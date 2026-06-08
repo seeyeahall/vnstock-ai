@@ -32,19 +32,19 @@
 10. ✅ Auto Start Script (`auto-start.bat` chỉ 3 dòng → gọi Python `auto_start.py` xử lý toàn bộ: Backend + Tunnel + Webhook + Browser)
 
 **Tính năng V3.0 đang nâng cấp**:
-11. 🔄 **Report Builder** — Cấu hình mẫu báo cáo tùy chỉnh (preset, section toggle/reorder, output channel matrix)
-12. 🔄 **Data Collection Panel** — Quản lý nguồn dữ liệu (YouTube 29 kênh, RSS, API, Manual) với trạng thái real-time
-13. 🔄 **Chart Viewer** — Đồ thị 10 chỉ báo (MA, EMA, RSI, MACD, Bollinger, Ichimoku 9-17-26-26-26, Ichimoku 65-129-5-2-2, Volume MA, OBV, Stochastic)
-14. 🔄 **Audio Player** — Phát audio TTS từ báo cáo (Web Speech API + Python TTS fallback)
-15. 🔄 **3D Knowledge Graph** — Force-directed graph D3.js hiển thị mối liên hệ cổ phiếu-chủ đề-kênh
-16. 🔄 **Agent Swarm** — 4 workers (YouTube, Stock, News, Analysis) + Data Merge + Report Renderer + TTS Service
-17. 🔄 **Precheck Engine** — 6 bước kiểm tra trước khi chạy workflow (API Health, Quota Forecast, Hardware, Dependency, Transcript, Dry-Run)
-18. 🔄 **Router 9** — AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
-19. 🔄 **State Manager** — Lưu/load trạng thái workflow (JSON + SQLite)
-20. 🔄 **Meta-Prompt** — 5 bước adaptive synthesis (Anomaly Detection → Market Regime → Critique Rules → Cross-Reference → Generate Report)
-21. ⏳ **NotebookLM Sync** — Google Drive sync + Audio Overview integration (Phase 7)
-22. ⏳ **n8n Bridge** — Webhook service cho workflow automation (Phase 8)
-23. ⏳ **Build & Deploy V3** — Cập nhật GitHub Pages với 5 tab mới (Phase 10)
+11. ✅ **Report Builder** — Cấu hình mẫu báo cáo tùy chỉnh (preset, section toggle/reorder, output channel matrix)
+12. ✅ **Data Collection Panel** — Quản lý nguồn dữ liệu (YouTube 29 kênh, RSS, API, Manual) với trạng thái real-time
+13. ✅ **Chart Viewer** — Đồ thị 10 chỉ báo (MA, EMA, RSI, MACD, Bollinger, Ichimoku 9-17-26-26-26, Ichimoku 65-129-5-2-2, Volume MA, OBV, Stochastic)
+14. ✅ **Audio Player** — Phát audio TTS từ báo cáo (Web Speech API + Python TTS fallback)
+15. ✅ **3D Knowledge Graph** — Force-directed graph D3.js hiển thị mối liên hệ cổ phiếu-chủ đề-kênh
+16. ✅ **Agent Swarm** — 4 workers (YouTube, Stock, News, Analysis) + Data Merge + Report Renderer + TTS Service
+17. ✅ **Precheck Engine** — 6 bước kiểm tra trước khi chạy workflow (API Health, Quota Forecast, Hardware, Dependency, Transcript, Dry-Run)
+18. ✅ **Router 9** — AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
+19. ✅ **State Manager** — Lưu/load trạng thái workflow (JSON + SQLite)
+20. ✅ **Meta-Prompt** — 5 bước adaptive synthesis (Anomaly Detection → Market Regime → Critique Rules → Cross-Reference → Generate Report)
+21. ✅ **NotebookLM Sync** — Google Drive sync + Audio Overview integration (Phase 7 — services created)
+22. ✅ **n8n Bridge** — Webhook service cho workflow automation (Phase 8 — service created)
+23. ⏳ **Build & Deploy V3** — Cập nhật GitHub Pages với 5 tab mới + docs (Phase 10)
 
 ---
 

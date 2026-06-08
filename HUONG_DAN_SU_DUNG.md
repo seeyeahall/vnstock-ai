@@ -355,6 +355,89 @@ Gõ tự nhiên bằng tiếng Việt có dấu:
 
 ---
 
+## 8.5. Tính năng V3.0 mới
+
+### Report Builder — Thiết lập mẫu báo cáo
+
+1. Vào app → click **Report Builder** (tab mới)
+2. Chọn preset: **Daily Brief** | **Weekly Deep** | **YouTube Only**
+3. Toggle bật/tắt từng section:
+   - ☑ Macro Overview
+   - ☑ Sector Rotation
+   - ☑ Stock Cards
+   - ☑ Technical Chart
+   - ☑ Sentiment Gauge
+   - ☑ Insights & Blind Spots
+   - ☑ Watchlist Table
+   - ☐ Audio Summary
+   - ☐ 3D Market Graph
+4. Chọn output channel cho từng section:
+   - Telegram: Macro + Sentiment
+   - Email: Full HTML + Excel
+   - Dashboard: All interactive
+5. Chọn time range: 1d | 1w | 1m
+6. Chọn sources: ☑ YouTube ☑ Stock ☑ RSS
+7. Click **Save Template** hoặc **Run Now**
+
+### Chart Viewer — 10 chỉ báo kỹ thuật
+
+1. Vào app → click **Charts** (tab mới)
+2. Chọn symbol: VNINDEX, FPT, VCB, HPG...
+3. Chọn timeframe: 1d | 1w | 1m
+4. Toggle indicators:
+   - MA (5, 20, 50)
+   - EMA (12, 26)
+   - RSI (14)
+   - MACD (12, 26, 9)
+   - Bollinger Bands (20, 2)
+   - Ichimoku Standard (9, 17, 26, 26, 26)
+   - Ichimoku Long-term (65, 129, 5, 2, 2)
+   - Volume MA (20)
+   - OBV
+   - Stochastic (14, 3, 3)
+5. Xem tín hiệu tổng hợp ở footer
+6. Click **Add to Report** để chèn vào báo cáo
+
+### Data Collection Panel — Theo dõi thu thập dữ liệu
+
+1. Vào app → click **Data Collection** (tab mới)
+2. Xem progress real-time:
+   - YouTube Collector: ████████░░ 80%
+   - Stock Data Fetcher: ██████████ 100%
+   - RSS News Collector: ██████░░░░ 60%
+3. Có thể Pause / Resume / Cancel từng agent
+4. Xem error log nếu agent fail
+
+### Audio Player — Nghe báo cáo
+
+1. Trong Dashboard hoặc Report Builder, chọn **Audio Summary**
+2. Hệ thống tạo MP3 từ text báo cáo (TTS)
+3. Player nhúng trong app với play/pause/seek/speed
+4. Có thể download MP3
+
+### 3D Market Graph — Mối liên hệ cổ phiếu
+
+1. Vào app → click **3D Graph** (tab mới)
+2. Xem force-directed graph:
+   - Node = cổ phiếu (màu xanh = bullish, đỏ = bearish)
+   - Edge = tương quan giá hoặc cùng ngành
+3. Zoom, pan, click node để xem chi tiết
+4. Click **Add to Report** để chèn vào báo cáo
+
+### Precheck Engine — Kiểm tra trước khi chạy
+
+1. Trước khi chạy workflow, hệ thống tự động chạy Precheck:
+   - ✓ API Health (Gemini, Groq, VNStock, Telegram, Email)
+   - ✓ Quota Forecast (đủ token không?)
+   - ✓ Hardware (RAM, CPU, Disk)
+   - ✓ Dependencies (SQLite, Qdrant)
+   - ✓ Transcript Config
+   - ✓ Dry-Run
+2. Nếu FAIL → hiển thị lý do và nút **Auto-fix**
+3. Nếu PASS → tự động chạy workflow
+
+---
+
 ## 9. Lệnh Push All - Push app lên tất cả kênh
 
 Push All = Build app → Khởi động backend → Tạo tunnel → Push GitHub Pages → Cập nhật Telegram.
@@ -640,5 +723,5 @@ Nếu gặp lỗi không xử lý được:
 ---
 
 **Cập nhật**: 2026-06-08  
-**Phiên bản**: VNStock AI v3.0 (đã hoàn thành — 11/11 pha)  
+**Phiên bản**: VNStock AI v3.0 (đã hoàn thành — 22/22 pha)  
 **Tác giả**: seeyeahall

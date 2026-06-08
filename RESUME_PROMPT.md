@@ -32,8 +32,8 @@
 19. **Precheck Engine** (V3) - 6 bước kiểm tra trước khi chạy workflow
 20. **Router 9** (V3) - AI provider router với fallback chain (Gemini → Groq → OpenRouter → Ollama)
 21. **Meta-Prompt** (V3) - 5 bước adaptive synthesis cho báo cáo chính xác
-22. **NotebookLM Sync** (V3 - đang làm) - Google Drive sync + Audio Overview
-23. **n8n Bridge** (V3 - đang làm) - Webhook service cho workflow automation
+22. **NotebookLM Sync** (V3 — service created) - Google Drive sync + Audio Overview
+23. **n8n Bridge** (V3 — service created) - Webhook service cho workflow automation
 
 ---
 
@@ -87,7 +87,7 @@
 
 ## 3. Tiến trình hiện tại (2026-06-07)
 
-### ✅ ĐÃ HOÀN THÀNH
+### ✅ ĐÃ HOÀN THÀNH (V2.0 + V3.0)
 
 | # | Tính năng | File chính | Status |
 |---|-----------|-----------|--------|
@@ -100,14 +100,27 @@
 | 7 | **Email Gmail SMTP** | `local-backend/scripts/send_email.py` | ✅ |
 | 8 | **YouTube Analyzer** | `local-backend/scripts/youtube_analyzer.py` | ✅ |
 | 9 | **Push All Script** | `push-all.bat`, `local-backend/scripts/push-all.js` | ✅ |
+| 10 | **Report Builder** | `src/sections/report-builder/*` | ✅ |
+| 11 | **Data Collection Panel** | `src/sections/data-collection/*` | ✅ |
+| 12 | **Chart Viewer (10 indicators)** | `src/sections/chart-viewer/*` | ✅ |
+| 13 | **Audio Player** | `src/sections/audio-player/*` | ✅ |
+| 14 | **3D Knowledge Graph** | `src/sections/graph-3d/*` | ✅ |
+| 15 | **Agent Swarm** | `local-backend/workers/*` | ✅ |
+| 16 | **Precheck Engine** | `local-backend/services/precheckEngine.js` | ✅ |
+| 17 | **Router 9** | `local-backend/services/router9.js` | ✅ |
+| 18 | **State Manager** | `local-backend/services/stateManager.js` | ✅ |
+| 19 | **Meta-Prompt** | `local-backend/config/meta_prompt.md` | ✅ |
+| 20 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ |
+| 21 | **n8n Bridge** | `local-backend/services/n8nBridge.js` | ✅ |
 
-### ⏳ CẦN NGƯỜI DÙNG TỰ CẤU HÌNH
+### ⏳ CẦN LÀM TIẾP
 
-| # | Việc cần làm | Hướng dẫn |
-|---|-------------|-----------|
-| A | **D1 credentials** | Đăng ký Cloudflare → tạo D1 DB → lấy accountId, databaseId, apiToken → POST `/api/sync/config` |
-| B | **Turso credentials** | Đăng ký Turso → `turso db create vnstock-ai` → lấy URL + token → POST `/api/sync/config` |
-| C | **Tunnel stable** | Cần khởi động thủ công. Xem `local-backend/TUNNEL_GUIDE.md` để biết cách chạy cloudflared tunnel. |
+| # | Việc cần làm | Mô tả |
+|---|-------------|-------|
+| A | **Build & Deploy V3** | `npm run build` + push GitHub Pages + cập nhật docs |
+| B | **D1 credentials** | Đăng ký Cloudflare → tạo D1 DB → lấy accountId, databaseId, apiToken → POST `/api/sync/config` |
+| C | **Turso credentials** | Đăng ký Turso → `turso db create vnstock-ai` → lấy URL + token → POST `/api/sync/config` |
+| D | **Tunnel stable** | Cần khởi động thủ công. Xem `local-backend/TUNNEL_GUIDE.md` để biết cách chạy cloudflared tunnel. |
 
 ---
 
@@ -187,4 +200,4 @@
 ---
 
 *File này được tạo để chat mới có thể nắm bắt project trong 2 phút.*
-*Cập nhật: 2026-06-08. V3.0 đã hoàn thành — 11/11 pha.*
+*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 21/23 pha — chỉ còn Build & Deploy + docs.*

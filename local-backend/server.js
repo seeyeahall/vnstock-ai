@@ -436,4 +436,7 @@ app.get('/api/state/load', async (req, res) => {
   res.json({ success: true, ...result });
 });
 
-NaN
+// ── Start Server ──
+app.listen(PORT, () => {
+  console.log(`[Server] VNStock AI v3.0 running on http://localhost:${PORT}`);
+});

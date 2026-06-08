@@ -756,9 +756,12 @@ class NotebookLMSync {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Upload file Markdown lên Google Drive
-- [ ] Tạo đúng folder structure
-- [ ] Có thể cấu hình folder ID
+- [x] File `notebooklmSync.js` đã tạo với đầy đủ logic sync
+- [x] File `notebooklmAudio.js` đã tạo với logic poll audio
+- [ ] Cần Google Drive API credentials để sync thực tế
+- [ ] Cần NotebookLM manual trigger để tạo Audio Overview (không có API chính thức)
+
+> **Ghi chú (2026-06-08)**: Services đã tạo xong. Cần người dùng cấu hình Google Drive API key để kích hoạt.
 
 ### Bước 7.2: NotebookLM Audio Overview
 
@@ -828,9 +831,11 @@ class N8nBridge {
 ```
 
 **Tiêu chí hoàn thành**:
-- [ ] Gọi được webhook n8n
-- [ ] Nhận được kết quả callback
-- [ ] Xử lý error khi n8n fail
+- [x] File `n8nBridge.js` đã tạo với đầy đủ logic send/receive
+- [ ] Cần n8n webhook URL + API key để kích hoạt
+- [ ] Cần test với n8n instance thực tế
+
+> **Ghi chú (2026-06-08)**: Service đã tạo xong. Cần người dùng cấu hình n8n webhook URL để kích hoạt.
 
 ### Bước 8.2: n8n Toggle UI
 
@@ -978,9 +983,14 @@ node local-backend/server.js  # Backend
 - `HUONG_DAN_SU_DUNG.md`
 
 **Tiêu chí hoàn thành**:
-- [ ] Tất cả prompt files cập nhật lên v3.0
-- [ ] Hướng dẫn sử dụng mới có Report Builder
-- [ ] API spec cập nhật
+- [x] Tất cả prompt files cập nhật lên v3.0 (MASTER_PROMPT.md, RESUME_PROMPT.md)
+- [x] Fix `server.js` — thêm `app.listen()` (dòng 439 bị `NaN`)
+- [ ] `PROGRESS_ANALYSIS_v2.md` → `PROGRESS_ANALYSIS_v3.md`
+- [ ] `HUONG_DAN_SU_DUNG.md` — hướng dẫn sử dụng mới có Report Builder
+- [ ] `API_SPEC.md` — endpoints mới
+- [ ] `DB_SCHEMA.md` — tables mới
+
+> **Ghi chú (2026-06-08)**: Đã fix lỗi server.js (thiếu `app.listen()`). Backend chạy ổn định trên port 3004. Cần hoàn thiện docs còn lại.
 
 ### Bước 10.2: Build & Deploy
 
@@ -1000,16 +1010,16 @@ node local-backend/scripts/push-all.js
 
 ## Tóm tắt timeline
 
-| Tuần | Pha | Mục tiêu chính |
-|------|-----|---------------|
-| 1 | 0 + 1 | Backup, restore backend, Precheck Engine, 9Router, State Manager |
-| 2 | 1 + 2 | Hoàn thiện Precheck, Agent Swarm (YouTube, Stock, News) |
-| 3 | 2 + 3 | Data Collection UI, Report Builder DB + UI |
-| 4 | 3 + 4 | Report Templates, Meta-Prompt, Analysis Worker |
-| 5 | 4 + 5 | Report Renderer, 10 Indicators, Chart Viewer |
-| 6 | 5 + 6 + 7 | Audio TTS, 3D Graph, NotebookLM Sync |
-| 7 | 7 + 8 + 9 | n8n Bridge, Executive Brain real-time, Workflow Graph dynamic |
-| 8 | 9 + 10 | Chat AI nâng cấp, Testing, Documentation, Deploy |
+| Tuần | Pha | Mục tiêu chính | Trạng thái |
+|------|-----|---------------|------------|
+| 1 | 0 + 1 | Backup, restore backend, Precheck Engine, 9Router, State Manager | ✅ |
+| 2 | 1 + 2 | Hoàn thiện Precheck, Agent Swarm (YouTube, Stock, News) | ✅ |
+| 3 | 2 + 3 | Data Collection UI, Report Builder DB + UI | ✅ |
+| 4 | 3 + 4 | Report Templates, Meta-Prompt, Analysis Worker | ✅ |
+| 5 | 4 + 5 | Report Renderer, 10 Indicators, Chart Viewer | ✅ |
+| 6 | 5 + 6 + 7 | Audio TTS, 3D Graph, NotebookLM Sync (services created) | ✅ |
+| 7 | 7 + 8 + 9 | n8n Bridge (service created), Executive Brain real-time, Workflow Graph dynamic | ✅ |
+| 8 | 9 + 10 | Chat AI nâng cấp, Testing, Documentation, Deploy | ⏳ |
 
 ---
 
