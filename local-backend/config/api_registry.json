@@ -1,8 +1,8 @@
 {
   "gemini": {
     "provider": "google",
-    "api_key": "",
-    "health_url": "https://generativelanguage.googleapis.com/v1beta/models",
+    "api_key": "YOUR_GEMINI_API_KEY",
+    "health_url": "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_GEMINI_API_KEY",
     "rpm_limit": 15,
     "rpd_limit": 1500,
     "max_context": 2000000,
@@ -11,7 +11,7 @@
   },
   "groq": {
     "provider": "groq",
-    "api_key": "",
+    "api_key": "YOUR_GROQ_API_KEY",
     "health_url": "https://api.groq.com/openai/v1/models",
     "rpm_limit": 30,
     "rpd_limit": 14400,
@@ -21,7 +21,7 @@
   },
   "openrouter": {
     "provider": "openrouter",
-    "api_key": "",
+    "api_key": "YOUR_OPENROUTER_API_KEY",
     "health_url": "https://openrouter.ai/api/v1/models",
     "rpm_limit": 20,
     "rpd_limit": 200,
@@ -41,8 +41,8 @@
   },
   "telegram": {
     "provider": "telegram",
-    "api_key": "7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc",
-    "health_url": "https://api.telegram.org/bot7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc/getMe",
+    "api_key": "YOUR_TELEGRAM_BOT_TOKEN",
+    "health_url": "https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/getMe",
     "rpm_limit": 30,
     "rpd_limit": 0,
     "max_context": 4096,
@@ -51,7 +51,7 @@
   },
   "email": {
     "provider": "gmail",
-    "api_key": "qialfxmpfedshqgn",
+    "api_key": "YOUR_EMAIL_APP_PASSWORD",
     "health_url": "smtp.gmail.com:587",
     "rpm_limit": 0,
     "rpd_limit": 500,

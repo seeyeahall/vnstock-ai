@@ -1,4 +1,5 @@
 import { router9 } from './router9.js';
+import { callGemini } from './aiService.js';
 import db from '../db.js';
 
 /**
@@ -130,13 +131,62 @@ Khi cần điều khiển app, trả về:
         { role: 'user', content: userMessage }
       ];
 
-      // For now, use smart local processing (no real AI call needed)
-      // In production, this would call Gemini/Groq API
+      if (provider === 'gemini') {
+        try {
+          const prompt = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
+          const aiText = await callGemini(prompt, {
+            temperature: 0.7,
+            maxOutputTokens: 1024
+          });
+          
+          // Try to extract function call from AI response
+          const functionCall = this.extractFunctionCall(aiText);
+          if (functionCall) {
+            return {
+              text: this.cleanText(aiText),
+              functionCall: functionCall
+            };
+          }
+          
+          return { text: aiText };
+        } catch (aiErr) {
+          console.error('[ChatEngine] Gemini API failed:', aiErr.message);
+          // Fallback to smart local processing
+          return this.smartProcess(userMessage, messages);
+        }
+      }
+      
+      // For other providers, use smart local processing
       return this.smartProcess(userMessage, messages);
     } catch (e) {
       // Fallback to smart local processing
+      console.log('[ChatEngine] 9Router failed, using local processing:', e.message);
       return this.smartProcess(userMessage, []);
     }
+  }
+
+  extractFunctionCall(text) {
+    // Extract JSON function call from code blocks
+    const codeBlockMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      try {
+        const json = JSON.parse(codeBlockMatch[1]);
+        if (json.function && this.functions[json.function]) {
+          return {
+            function: json.function,
+            parameters: json.parameters || {}
+          };
+        }
+      } catch (e) {
+        // Not valid JSON, ignore
+      }
+    }
+    return null;
+  }
+
+  cleanText(text) {
+    // Remove JSON code blocks from display text
+    return text.replace(/```json\s*[\s\S]*?\s*```/g, '').trim();
   }
 
   smartProcess(userMessage, context) {

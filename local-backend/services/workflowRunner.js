@@ -2,6 +2,7 @@ import { router9 } from './router9.js';
 import { stateManager } from './stateManager.js';
 import { runPrecheck } from './precheckEngine.js';
 import { checkAllHealth } from './healthCheck.js';
+import { callGemini, buildAnalysisPrompt, parseAnalysisResponse } from './aiService.js';
 import db from '../db.js';
 
 /**
@@ -237,18 +238,18 @@ class WorkflowRunner {
       // Create agent task
       const taskId = `yt-${Date.now()}`;
       db.prepare(`
-        INSERT INTO agent_tasks (task_id, report_id, agent_name, status, progress, input_params)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(taskId, workflowId, 'youtube_collector', 'running', 0, JSON.stringify({ channels: channels.length, days: 7 }));
+        INSERT INTO agent_tasks (task_id, task_type, status, payload)
+        VALUES (?, ?, ?, ?)
+      `).run(taskId, 'youtube_collector', 'running', JSON.stringify({ channels: channels.length, days: 7 }));
 
       // Simulate YouTube collection (in production, call youtubeWorker.js)
       await this.delay(2000); // Simulate work
       
       // Update task
       db.prepare(`
-        UPDATE agent_tasks SET status = ?, progress = ?, output_data = ?, completed_at = datetime('now')
+        UPDATE agent_tasks SET status = ?, result = ?, completed_at = datetime('now')
         WHERE task_id = ?
-      `).run('success', 100, JSON.stringify({ videos: 0, transcripts: 0, channels: channels.length }), taskId);
+      `).run('success', JSON.stringify({ videos: 0, transcripts: 0, channels: channels.length }), taskId);
 
       return {
         agent: 'youtube_collector',
@@ -268,9 +269,9 @@ class WorkflowRunner {
       const taskId = `st-${Date.now()}`;
       
       db.prepare(`
-        INSERT INTO agent_tasks (task_id, report_id, agent_name, status, progress, input_params)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(taskId, workflowId, 'stock_fetcher', 'running', 0, JSON.stringify({ symbols, days: 7 }));
+        INSERT INTO agent_tasks (task_id, task_type, status, payload)
+        VALUES (?, ?, ?, ?)
+      `).run(taskId, 'stock_fetcher', 'running', JSON.stringify({ symbols, days: 7 }));
 
       // Simulate stock data fetch (in production, call stockWorker.js)
       await this.delay(1500);
@@ -289,9 +290,9 @@ class WorkflowRunner {
       }
 
       db.prepare(`
-        UPDATE agent_tasks SET status = ?, progress = ?, output_data = ?, completed_at = datetime('now')
+        UPDATE agent_tasks SET status = ?, result = ?, completed_at = datetime('now')
         WHERE task_id = ?
-      `).run('success', 100, JSON.stringify(stockData), taskId);
+      `).run('success', JSON.stringify(stockData), taskId);
 
       return {
         agent: 'stock_fetcher',
@@ -309,9 +310,9 @@ class WorkflowRunner {
       const taskId = `nw-${Date.now()}`;
       
       db.prepare(`
-        INSERT INTO agent_tasks (task_id, report_id, agent_name, status, progress, input_params)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(taskId, workflowId, 'news_collector', 'running', 0, JSON.stringify({ feeds: ['CafeF', 'VietStock', 'SSI'] }));
+        INSERT INTO agent_tasks (task_id, task_type, status, payload)
+        VALUES (?, ?, ?, ?)
+      `).run(taskId, 'news_collector', 'running', JSON.stringify({ feeds: ['CafeF', 'VietStock', 'SSI'] }));
 
       // Simulate news collection
       await this.delay(1000);
@@ -323,9 +324,9 @@ class WorkflowRunner {
       ];
 
       db.prepare(`
-        UPDATE agent_tasks SET status = ?, progress = ?, output_data = ?, completed_at = datetime('now')
+        UPDATE agent_tasks SET status = ?, result = ?, completed_at = datetime('now')
         WHERE task_id = ?
-      `).run('success', 100, JSON.stringify({ articles: articles.length, articles }), taskId);
+      `).run('success', JSON.stringify({ articles: articles.length, articles }), taskId);
 
       return {
         agent: 'news_collector',
@@ -365,8 +366,30 @@ class WorkflowRunner {
         return this.runLocalAnalysis(mergedData, templateId);
       }
 
-      // In production: call AI API with Meta-Prompt 5 steps
-      // For now, return local analysis
+      // Call AI API with Meta-Prompt 5 steps
+      try {
+        const prompt = buildAnalysisPrompt(mergedData, templateId);
+        console.log('[WorkflowRunner] Calling Gemini API for analysis...');
+        const aiResponse = await callGemini(prompt, {
+          temperature: 0.7,
+          maxOutputTokens: 2048
+        });
+        
+        const parsed = parseAnalysisResponse(aiResponse);
+        if (parsed) {
+          console.log('[WorkflowRunner] Gemini analysis received:', parsed.marketRegime);
+          return {
+            ...parsed,
+            symbols: Object.keys(mergedData.stock?.data || {}).length,
+            articles: (mergedData.news?.data || []).length,
+            note: null // Clear local-only warning
+          };
+        }
+      } catch (aiErr) {
+        console.error('[WorkflowRunner] Gemini API failed:', aiErr.message);
+      }
+
+      // Fallback to local analysis if AI call fails
       return this.runLocalAnalysis(mergedData, templateId);
 
     } catch (e) {
@@ -476,7 +499,7 @@ class WorkflowRunner {
   <div class="section">
     <h2>📝 Sections</h2>
     <ul>
-      ${(sections || []).map(s => `<li>${s}</li>`).join('')}
+      ${(sections || []).map(s => typeof s === 'string' ? `<li>${s}</li>` : `<li>${s.id || s.name || JSON.stringify(s)}</li>`).join('')}
     </ul>
   </div>
 
@@ -495,12 +518,17 @@ class WorkflowRunner {
       try {
         const token = '7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc';
         const chatId = '6226786681';
-        const message = `📊 VNStock AI Report\nID: ${reportId}\nRegime: ${rendered.marketRegime || 'N/A'}\nView: http://localhost:3004`;
+        const message = `📊 VNStock AI Report\nID: ${reportId}\nView: http://localhost:3004`;
         
-        // In production: call Telegram API
-        // For now, log it
-        console.log('[Delivery] Telegram:', message);
-        results.telegram = true;
+        // Actually send via Telegram API
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        const cmd = `curl -s -X POST "https://api.telegram.org/bot${token}/sendMessage" -H "Content-Type: application/json" -d "{\\"chat_id\\":\\"${chatId}\\",\\"text\\":\\"${message.replace(/"/g, '\\"').replace(/\n/g, '\\n')}\\",\\"parse_mode\\":\\"HTML\\"}"`;
+        const { stdout } = await execAsync(cmd, { timeout: 15000 });
+        const telegramResult = JSON.parse(stdout);
+        results.telegram = telegramResult.ok === true;
+        console.log('[Delivery] Telegram:', results.telegram ? 'sent' : 'failed', telegramResult.ok ? '' : telegramResult.description);
       } catch (e) {
         console.error('[Delivery] Telegram failed:', e.message);
       }
@@ -509,9 +537,28 @@ class WorkflowRunner {
     // Email delivery
     if (channels.email && channels.email.length > 0) {
       try {
-        // In production: call send_email.py
-        console.log('[Delivery] Email: Report', reportId);
-        results.email = true;
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        const { dirname, join } = await import('path');
+        const { fileURLToPath } = await import('url');
+        const __dirname = dirname(fileURLToPath(import.meta.url));
+        const scriptPath = join(__dirname, '..', 'scripts', 'send_email.py');
+        
+        // Check if script exists
+        const { existsSync } = await import('fs');
+        if (!existsSync(scriptPath)) {
+          console.error('[Delivery] Email script not found:', scriptPath);
+        } else {
+          const subject = `[VNStock AI] Báo cáo ${reportId}`;
+          const body = `Báo cáo phân tích thị trường chứng khoán Việt Nam.\n\nReport ID: ${reportId}\nXem chi tiết: http://localhost:3004`;
+          const html = `<h2>VNStock AI Report</h2><p>Report ID: <code>${reportId}</code></p><p><a href="http://localhost:3004">Xem Dashboard</a></p>`;
+          const cmd = `py "${scriptPath}" "--to" "seeyeahall@gmail.com" "--subject" "${subject}" "--body" "${body}" "--html" "${html}"`;
+          const { stdout } = await execAsync(cmd, { timeout: 30000 });
+          const emailResult = JSON.parse(stdout.trim());
+          results.email = emailResult.success === true;
+          console.log('[Delivery] Email:', results.email ? 'sent' : 'failed', emailResult.message || emailResult.error);
+        }
       } catch (e) {
         console.error('[Delivery] Email failed:', e.message);
       }

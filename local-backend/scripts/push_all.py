@@ -18,16 +18,62 @@ import os
 import time
 import json
 import re
+import shutil
+import socket
 import webbrowser
 import urllib.request
 import urllib.error
+from pathlib import Path
 
-# Paths
+# Paths — auto-detect
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.dirname(BASE_DIR)
-NODE_DIR = r"C:\Users\NHVANG\AppData\Local\Programs\kimi-desktop\resources\resources\runtime"
-NPM_CMD = os.path.join(NODE_DIR, "npm.cmd")
-NODE_CMD = os.path.join(NODE_DIR, "node.exe")
+
+# Auto-detect Node.js
+NODE_CMD = None
+NPM_CMD = None
+NODE_EXE = None
+
+# Common Node.js locations
+NODE_SEARCH_PATHS = [
+    r"C:\Users\{}\AppData\Local\Programs\kimi-desktop\resources\resources\runtime".format(os.environ.get('USERNAME', 'user')),
+    r"C:\Program Files\nodejs",
+    r"C:\Program Files (x86)\nodejs",
+    r"C:\Users\{}\AppData\Roaming\kimi-desktop\daimon-bundle\runtime".format(os.environ.get('USERNAME', 'user')),
+]
+
+for path in NODE_SEARCH_PATHS:
+    node = os.path.join(path, "node.exe")
+    npm = os.path.join(path, "npm.cmd")
+    if os.path.exists(node):
+        NODE_EXE = node
+        NODE_CMD = node
+        if os.path.exists(npm):
+            NPM_CMD = npm
+        break
+
+# Fallback: try PATH
+if not NODE_EXE:
+    for cmd in ["node.exe", "node"]:
+        try:
+            result = subprocess.run([cmd, "--version"], capture_output=True, text=True, timeout=5)
+            if result.returncode == 0:
+                NODE_EXE = cmd
+                NODE_CMD = cmd
+                break
+        except Exception:
+            pass
+
+if not NPM_CMD and NODE_EXE:
+    for cmd in ["npm.cmd", "npm"]:
+        try:
+            result = subprocess.run([cmd, "--version"], capture_output=True, text=True, timeout=5)
+            if result.returncode == 0:
+                NPM_CMD = cmd
+                break
+        except Exception:
+            pass
+
 TUNNEL_EXE = os.path.join(BASE_DIR, "cloudflared.exe")
 
 # Credentials
@@ -86,7 +132,6 @@ def kill_existing_processes():
         pass
     
     # Verify port 3004 is free
-    import socket
     for attempt in range(5):
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -99,7 +144,6 @@ def kill_existing_processes():
             else:
                 log(0, f"Port 3004 still in use (attempt {attempt+1}/5), retrying...", "warn")
                 time.sleep(2)
-                # Try taskkill again
                 try:
                     subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
                                    capture_output=True, timeout=5)
@@ -116,32 +160,42 @@ def step1_build():
     """Build frontend with npm"""
     log(1, "Building frontend (npm run build)...")
     
+    if not NPM_CMD:
+        log(1, "npm not found! Cannot build frontend.", "error")
+        log(1, "Searched paths:", "error")
+        for p in NODE_SEARCH_PATHS:
+            log(1, f"  - {p}", "error")
+        log(1, "Please install Node.js or set PATH correctly.", "error")
+        return False
+    
     # Check if build is needed
-    import shutil
     dist_dir = os.path.join(APP_DIR, "dist")
     src_dir = os.path.join(APP_DIR, "src")
     
     if os.path.exists(dist_dir) and os.path.exists(src_dir):
-        dist_mtime = max(
-            os.path.getmtime(os.path.join(root, f))
-            for root, _, files in os.walk(dist_dir)
-            for f in files
-        )
-        src_mtime = max(
-            os.path.getmtime(os.path.join(root, f))
-            for root, _, files in os.walk(src_dir)
-            for f in files if f.endswith(('.tsx', '.ts', '.css', '.html', '.js'))
-        )
-        root_index = os.path.join(APP_DIR, "index.html")
-        if os.path.exists(root_index):
-            src_mtime = max(src_mtime, os.path.getmtime(root_index))
-        
-        if dist_mtime >= src_mtime:
-            log(1, f"Build is already fresh (dist newer than src). Skipping build.", "ok")
-            return True
-        else:
-            diff_min = round((src_mtime - dist_mtime) / 60)
-            log(1, f"Source changed {diff_min} min after last build. Rebuilding...", "warn")
+        try:
+            dist_mtime = max(
+                os.path.getmtime(os.path.join(root, f))
+                for root, _, files in os.walk(dist_dir)
+                for f in files
+            )
+            src_mtime = max(
+                os.path.getmtime(os.path.join(root, f))
+                for root, _, files in os.walk(src_dir)
+                for f in files if f.endswith(('.tsx', '.ts', '.css', '.html', '.js'))
+            )
+            root_index = os.path.join(APP_DIR, "index.html")
+            if os.path.exists(root_index):
+                src_mtime = max(src_mtime, os.path.getmtime(root_index))
+            
+            if dist_mtime >= src_mtime:
+                log(1, f"Build is already fresh (dist newer than src). Skipping build.", "ok")
+                return True
+            else:
+                diff_min = round((src_mtime - dist_mtime) / 60)
+                log(1, f"Source changed {diff_min} min after last build. Rebuilding...", "warn")
+        except Exception as e:
+            log(1, f"Build freshness check error: {e}", "warn")
     
     stdout, stderr, rc = run_cmd([NPM_CMD, "run", "build"], cwd=APP_DIR, timeout=180)
     if rc != 0:
@@ -168,10 +222,18 @@ def step1_build():
 def step2_start_backend():
     """Start Node.js backend"""
     log(2, "Starting backend on port 3004...")
+    
+    if not NODE_EXE:
+        log(2, "node.exe not found! Cannot start backend.", "error")
+        return None
+    
     server_path = os.path.join(BASE_DIR, "server.js")
+    if not os.path.exists(server_path):
+        log(2, f"server.js not found at {server_path}", "error")
+        return None
     
     proc = subprocess.Popen(
-        [NODE_CMD, server_path],
+        [NODE_EXE, server_path],
         cwd=BASE_DIR,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -202,7 +264,8 @@ def step3_start_tunnel():
     log(3, "Starting Cloudflare tunnel...")
     
     if not os.path.exists(TUNNEL_EXE):
-        log(3, "cloudflared.exe not found, skipping tunnel", "warn")
+        log(3, f"cloudflared.exe not found at {TUNNEL_EXE}", "warn")
+        log(3, "Tunnel skipped. Download from: https://github.com/cloudflare/cloudflared/releases", "warn")
         return None, None
     
     proc = subprocess.Popen(
@@ -247,26 +310,44 @@ def step4_push_ghpages():
     """Push dist/ to gh-pages branch"""
     log(4, "Pushing to GitHub Pages...")
     
+    # Backup current branch state before switching
+    backup_dir = os.path.join(APP_DIR, "backup", f"gh-pages-pre-{time.strftime('%Y%m%d-%H%M%S')}")
+    try:
+        os.makedirs(backup_dir, exist_ok=True)
+        # Save current branch name
+        stdout, _, rc = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=APP_DIR, timeout=10)
+        current_branch = stdout.strip() if rc == 0 else "unknown"
+        with open(os.path.join(backup_dir, "branch.txt"), "w") as f:
+            f.write(current_branch)
+        log(4, f"Current branch backed up: {current_branch}", "ok")
+    except Exception as e:
+        log(4, f"Backup note: {e}", "warn")
+    
     # Stash current work
     run_cmd(["git", "stash"], cwd=APP_DIR, timeout=10)
     
-    # Checkout gh-pages
-    stdout, stderr, rc = run_cmd(["git", "checkout", "gh-pages"], cwd=APP_DIR, timeout=10)
-    if rc != 0 and "already exists" not in stderr:
-        log(4, f"Could not checkout gh-pages: {stderr}", "warn")
-        run_cmd(["git", "checkout", "upgrade-v3.0"], cwd=APP_DIR, timeout=10)
-        run_cmd(["git", "stash", "pop"], cwd=APP_DIR, timeout=10)
-        return False
+    # Check if gh-pages branch exists
+    stdout, _, rc = run_cmd(["git", "branch", "--list", "gh-pages"], cwd=APP_DIR, timeout=10)
+    if "gh-pages" not in stdout:
+        log(4, "gh-pages branch does not exist. Creating orphan branch...", "warn")
+        run_cmd(["git", "checkout", "--orphan", "gh-pages"], cwd=APP_DIR, timeout=10)
+        run_cmd(["git", "rm", "-rf", "."], cwd=APP_DIR, timeout=10)
+    else:
+        stdout, stderr, rc = run_cmd(["git", "checkout", "gh-pages"], cwd=APP_DIR, timeout=10)
+        if rc != 0:
+            log(4, f"Could not checkout gh-pages: {stderr}", "warn")
+            run_cmd(["git", "checkout", current_branch], cwd=APP_DIR, timeout=10)
+            run_cmd(["git", "stash", "pop"], cwd=APP_DIR, timeout=10)
+            return False
     
     # Copy dist files to root
     dist_dir = os.path.join(APP_DIR, "dist")
     if not os.path.exists(dist_dir):
         log(4, "dist/ not found", "error")
-        run_cmd(["git", "checkout", "upgrade-v3.0"], cwd=APP_DIR, timeout=10)
+        run_cmd(["git", "checkout", current_branch], cwd=APP_DIR, timeout=10)
         return False
     
     # Copy files (skip node_modules, local-backend, etc.)
-    import shutil
     for item in os.listdir(dist_dir):
         src = os.path.join(dist_dir, item)
         dst = os.path.join(APP_DIR, item)
@@ -291,14 +372,14 @@ def step4_push_ghpages():
     stdout, stderr, rc = run_cmd(["git", "push", "origin", "gh-pages"], cwd=APP_DIR, timeout=30)
     if rc != 0:
         log(4, f"Push failed: {stderr}", "error")
-        run_cmd(["git", "checkout", "upgrade-v3.0"], cwd=APP_DIR, timeout=10)
+        run_cmd(["git", "checkout", current_branch], cwd=APP_DIR, timeout=10)
         run_cmd(["git", "stash", "pop"], cwd=APP_DIR, timeout=10)
         return False
     
     log(4, "GitHub Pages deployed! https://seeyeahall.github.io/vnstock-ai/", "ok")
     
     # Switch back
-    run_cmd(["git", "checkout", "upgrade-v3.0"], cwd=APP_DIR, timeout=10)
+    run_cmd(["git", "checkout", current_branch], cwd=APP_DIR, timeout=10)
     run_cmd(["git", "stash", "pop"], cwd=APP_DIR, timeout=10)
     return True
 
@@ -360,6 +441,8 @@ def step7_test():
         ("Registry", "http://localhost:3004/api/registry"),
         ("Templates", "http://localhost:3004/api/report-templates"),
         ("Settings", "http://localhost:3004/api/db/settings"),
+        ("NotebookLM Status", "http://localhost:3004/api/notebooklm/status"),
+        ("n8n Test", "http://localhost:3004/api/n8n/test"),
     ]
     
     results = []
@@ -389,6 +472,18 @@ def main():
     print(f"  Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test")
     print(f"{'='*60}\n")
     
+    # Check prerequisites
+    if not NODE_EXE:
+        print(f"{Colors.RED}[FATAL] Node.js not found!{Colors.RESET}")
+        print("Searched paths:")
+        for p in NODE_SEARCH_PATHS:
+            print(f"  - {p}")
+        print("\nPlease install Node.js or add it to PATH.")
+        return 1
+    
+    if not NPM_CMD:
+        print(f"{Colors.YELLOW}[WARNING] npm not found! Build may fail.{Colors.RESET}")
+    
     # Step 0: Kill existing processes
     kill_existing_processes()
     
@@ -399,6 +494,9 @@ def main():
     
     # Step 2: Start Backend
     backend_proc = step2_start_backend()
+    if not backend_proc:
+        print(f"\n{Colors.RED}Push All aborted at Step 2.{Colors.RESET}")
+        return 1
     
     # Step 3: Start Tunnel
     tunnel_proc, tunnel_url = step3_start_tunnel()

@@ -109,18 +109,28 @@ app.post('/api/viber/webhook', async (req, res) => {
 
 // ── DB Settings ──
 app.get('/api/db/settings', (req, res) => {
-  const rows = db.prepare('SELECT * FROM settings').all();
-  const obj = {};
-  for (const r of rows) obj[r.key] = r.value;
-  res.json({ success: true, data: obj });
+  try {
+    const rows = db.prepare('SELECT * FROM settings').all();
+    const obj = {};
+    for (const r of rows) obj[r.key] = r.value;
+    res.json({ success: true, data: obj });
+  } catch (e) {
+    console.error('[DB Settings GET Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 app.post('/api/db/settings', (req, res) => {
-  const { key, value } = req.body;
-  if (!key) return res.status(400).json({ success: false, error: 'key required' });
-  db.prepare(`INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))`)
-    .run(key, typeof value === 'string' ? value : JSON.stringify(value));
-  res.json({ success: true });
+  try {
+    const { key, value } = req.body;
+    if (!key) return res.status(400).json({ success: false, error: 'key required' });
+    db.prepare(`INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))`)
+      .run(key, typeof value === 'string' ? value : JSON.stringify(value));
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[DB Settings POST Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 // ── DB Chat (alias for history with CRUD) ──
@@ -631,6 +641,81 @@ app.get('/api/state/load', async (req, res) => {
   const { workflow_id } = req.query;
   const result = await stateManager.resumeState(workflow_id);
   res.json({ success: true, ...result });
+});
+
+// ── NotebookLM Integration ──
+app.post('/api/notebooklm/sync', async (req, res) => {
+  try {
+    const { folderName, megaContext } = req.body;
+    const result = await notebooklmSync.syncToDrive(megaContext, folderName || 'VNStock_Daily_Intelligence');
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('[NotebookLM Sync Error]', e.message);
+    res.status(500).json({ success: false, error: e.message, fallback: 'local' });
+  }
+});
+
+app.get('/api/notebooklm/status', async (req, res) => {
+  try {
+    const status = notebooklmSync.getStatus();
+    res.json({ success: true, data: status });
+  } catch (e) {
+    console.error('[NotebookLM Status Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.post('/api/notebooklm/audio/request', async (req, res) => {
+  try {
+    const { notebookId } = req.body;
+    // NotebookLM has no public API for Audio Overview
+    // This is a placeholder that returns a job ID for polling
+    const jobId = `audio-${Date.now()}`;
+    res.json({
+      success: true,
+      jobId,
+      message: 'NotebookLM Audio Overview request queued. NotebookLM does not have a public API — manually trigger Audio Overview in the NotebookLM UI after sync.',
+      note: 'Go to notebooklm.google.com → Open your notebook → Click "Generate" in Audio Overview section.'
+    });
+  } catch (e) {
+    console.error('[NotebookLM Audio Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── n8n Bridge ──
+app.post('/api/n8n/test', async (req, res) => {
+  try {
+    const result = await n8nBridge.testConnection();
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('[n8n Test Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.post('/api/n8n/callback', async (req, res) => {
+  try {
+    const result = await n8nBridge.receiveResult(req.body);
+    res.json(result);
+  } catch (e) {
+    console.error('[n8n Callback Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.post('/api/n8n/send', async (req, res) => {
+  try {
+    const { taskType, payload } = req.body;
+    if (!taskType) {
+      return res.status(400).json({ success: false, error: 'taskType required' });
+    }
+    const result = await n8nBridge.sendTask(taskType, payload || {});
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('[n8n Send Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 // ── Static Files (Frontend) ──
