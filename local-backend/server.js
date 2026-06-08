@@ -219,7 +219,7 @@ app.post('/api/send-email', async (req, res) => {
     ...(html ? [`--html`, html] : []),
     ...(attachments ? attachments.flatMap(a => [`--attachments`, a]) : [])
   ];
-  const cmd = `python "${scriptPath}" ${args.map(a => `"${a.replace(/"/g, '\\"')}"`).join(' ')}`;
+  const cmd = `py "${scriptPath}" ${args.map(a => `"${a.replace(/"/g, '\\"')}"`).join(' ')}`;
   try {
     const { stdout, stderr } = await execAsync(cmd, { timeout: 30000 });
     const result = JSON.parse(stdout.trim());
@@ -259,7 +259,7 @@ app.post('/api/youtube/analyze', async (req, res) => {
     ...(days ? [`--days`, String(days)] : []),
     ...(max_videos ? [`--max-videos`, String(max_videos)] : [])
   ];
-  const cmd = `python "${scriptPath}" ${args.join(' ')}`;
+  const cmd = `py "${scriptPath}" ${args.join(' ')}`;
   try {
     const { stdout, stderr } = await execAsync(cmd, { timeout: 120000 });
     res.json({ success: true, output: stdout, stderr });
