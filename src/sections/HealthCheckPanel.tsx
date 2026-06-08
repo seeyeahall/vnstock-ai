@@ -61,30 +61,56 @@ export default function HealthCheckPanel() {
   const fetchHealth = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/health/all`);
+      // Use new dashboard status API
+      const res = await fetch(`${API_BASE}/api/dashboard/status`);
       if (res.ok) {
         const data = await res.json();
-        if (data.services) setServices(data.services);
-        if (data.resources) setResources(data.resources);
-        if (data.quotas) setQuotas(data.quotas);
+        
+        // Transform API health data to service list format
+        const apiHealth = data.api?.health || {};
+        const apiStatus = data.api?.apiStatus || {};
+        
+        const transformedServices = Object.entries(apiHealth).map(([name, info]: [string, any]) => {
+          const configured = apiStatus[name]?.configured || false;
+          const dbStatus = apiStatus[name]?.status || 'unknown';
+          const isHealthy = info.status === 'healthy';
+          
+          let message = info.message || '';
+          if (!configured) {
+            message = 'Not configured — add API key in Settings';
+          } else if (!isHealthy) {
+            message = info.error || info.message || 'Connection failed';
+          }
+          
+          return {
+            service: `${name.charAt(0).toUpperCase() + name.slice(1)} API`,
+            status: isHealthy ? 'healthy' : configured ? 'unhealthy' : 'warning',
+            latency_ms: info.latency_ms || 0,
+            message,
+            last_checked: 'just now',
+            configured,
+            provider: name
+          };
+        });
+        
+        setServices(transformedServices);
+        
+        // Update quotas from API data
+        if (data.api?.quotas) {
+          setQuotas(data.api.quotas);
+        }
       } else {
         throw new Error("API error");
       }
     } catch {
       // Fallback to mock data if API not available
       setServices([
-        { service: "Gemini API", status: "healthy", latency_ms: 420, message: "OK - quota 78%", last_checked: "2m ago" },
-        { service: "Groq API", status: "healthy", latency_ms: 85, message: "OK - quota 92%", last_checked: "2m ago" },
-        { service: "OpenRouter API", status: "healthy", latency_ms: 310, message: "OK - quota 65%", last_checked: "2m ago" },
-        { service: "Ollama (Local)", status: "warning", latency_ms: 2500, message: "Slow response", last_checked: "5m ago" },
-        { service: "PostgreSQL", status: "healthy", latency_ms: 5, message: "OK - 142MB data", last_checked: "1m ago" },
-        { service: "Qdrant", status: "healthy", latency_ms: 12, message: "OK - 2.3K vectors", last_checked: "1m ago" },
-        { service: "SQLite", status: "healthy", latency_ms: 2, message: "OK", last_checked: "3m ago" },
-        { service: "n8n", status: "healthy", latency_ms: 45, message: "OK - 12 workflows", last_checked: "2m ago" },
-        { service: "Docker", status: "healthy", latency_ms: 30, message: "OK - 8 containers", last_checked: "4m ago" },
-        { service: "YouTube API", status: "healthy", latency_ms: 180, message: "OK - 127 requests today", last_checked: "1m ago" },
-        { service: "Telegram Bot", status: "healthy", latency_ms: 90, message: "OK - last send 4h ago", last_checked: "2m ago" },
-        { service: "Notion API", status: "healthy", latency_ms: 250, message: "OK - 47 pages", last_checked: "3m ago" },
+        { service: "Gemini API", status: "unhealthy", latency_ms: 0, message: "Not configured — add API key in Settings", last_checked: "now", configured: false, provider: "gemini" },
+        { service: "Groq API", status: "warning", latency_ms: 0, message: "Not configured", last_checked: "now", configured: false, provider: "groq" },
+        { service: "OpenRouter API", status: "healthy", latency_ms: 180, message: "OK", last_checked: "now", configured: false, provider: "openrouter" },
+        { service: "Ollama (Local)", status: "healthy", latency_ms: 5, message: "Local server running", last_checked: "now", configured: true, provider: "ollama" },
+        { service: "Telegram Bot", status: "healthy", latency_ms: 650, message: "OK", last_checked: "now", configured: true, provider: "telegram" },
+        { service: "Email SMTP", status: "healthy", latency_ms: 55, message: "SMTP connection OK", last_checked: "now", configured: true, provider: "email" },
       ]);
     }
     setLoading(false);
@@ -173,6 +199,49 @@ export default function HealthCheckPanel() {
           </div>
         </Card>
       </div>
+
+      {/* Gemini Critical Warning */}
+      {services.find(s => s.provider === 'gemini')?.status !== 'healthy' && (
+        <Card className="border-red-300 bg-red-50">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <div className="text-xs font-semibold text-red-700">⚠️ Gemini API Required</div>
+                <div className="text-[10px] text-red-600 mt-0.5">
+                  Gemini is the primary AI provider for workflow analysis. Without it, reports will run in local mode (no AI insights). 
+                  <a href="#/settings" className="underline font-medium">Go to Settings → API Keys</a>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* API Configuration Status */}
+      <Card className="border">
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-xs font-semibold flex items-center gap-2">
+            <Brain className="w-3.5 h-3.5 text-purple-600" />
+            API Configuration Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {services.map((service) => (
+              <div key={service.provider} className={`flex items-center gap-2 p-2 rounded-lg border ${service.configured ? (service.status === 'healthy' ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200') : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`w-2 h-2 rounded-full ${service.configured ? (service.status === 'healthy' ? 'bg-emerald-500' : 'bg-red-500') : 'bg-gray-300'}`} />
+                <div className="text-[10px]">
+                  <div className="font-medium">{service.service.replace(' API', '')}</div>
+                  <div className={`${service.configured ? (service.status === 'healthy' ? 'text-emerald-600' : 'text-red-600') : 'text-gray-400'}`}>
+                    {service.configured ? (service.status === 'healthy' ? '✅ Ready' : '❌ Failed') : '⚪ Not Set'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* System Resources */}
       <Card className="border">

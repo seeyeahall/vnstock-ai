@@ -36,6 +36,13 @@
 | 23 | **Viber Webhook** | ✅ | Endpoint `/api/viber/webhook` — dùng chung chat engine với Telegram |
 | 24 | **NotebookLM Sync** | ✅ | Services created (`notebooklmSync.js`, `notebooklmAudio.js`). Cần Google Drive credentials để kích hoạt |
 | 25 | **n8n Bridge** | ✅ | Service created (`n8nBridge.js`). Cần n8n webhook URL để kích hoạt |
+| 26 | **Workflow Runner** | ✅ | `workflowRunner.js` — Full pipeline 7 bước end-to-end: Precheck → Agent Swarm → Merge → Synthesis → Render → Deliver |
+| 27 | **API Test Endpoints** | ✅ | `POST /api/test-api-key` + `GET /api/test-all-keys` — Test tất cả providers, trả về `can_run_workflow` flag |
+| 28 | **Dashboard Status API** | ✅ | `GET /api/dashboard/status` — Tổng quan hệ thống: health, apiStatus, active workflows, recent reports |
+| 29 | **Health Check Panel v2** | ✅ | Hiển thị API status chi tiết từ `/api/dashboard/status`, cảnh báo Gemini nổi bật, API Configuration grid |
+| 30 | **Chat AI API Guard** | ✅ | Chat AI tự động detect API chưa cấu hình, cảnh báo user và navigate đến Settings |
+| 31 | **Health Check Engine v2** | ✅ | `healthCheck.js` rewrite — Dùng Node.js `http`/`https` thay vì `curl`, hoạt động trên Windows |
+| 32 | **State Manager v2** | ✅ | `stateManager.js` rewrite — Khớp schema `workflow_states` thực tế (`state_id`, `name`, `state_json`) |
 
 ### 🔧 FIX GẦN NHẤT
 
@@ -46,6 +53,13 @@
 | 2026-06-08 | `chatEngine.js` | Import path sai `import db from './db.js'` | Sửa thành `import db from '../db.js'` |
 | 2026-06-08 | `chatEngine.js` | Schema `workflow_states` không khớp (dùng `workflow_id` thay vì `state_id`) | Sửa query INSERT khớp với schema thực tế |
 | 2026-06-08 | `ChatPanel.tsx` | `executeAction` định nghĩa sau `sendMessage`, gây lỗi TS | Đưa `executeAction` ra trước, dùng `useCallback` |
+| 2026-06-08 | `server.js` | SQLite `datetime("now")` dùng double quotes → lỗi `no such column: "now"` | Sửa thành `datetime('now')` trong template literals |
+| 2026-06-08 | `server.js` | `agent_tasks` query dùng cột `agent_name`, `progress`, `report_id` không tồn tại | Sửa query khớp schema thực tế: `task_type`, `status`, `created_at` |
+| 2026-06-08 | `healthCheck.js` | Dùng `curl` với `/dev/null` — không hoạt động trên Windows | Rewrite dùng Node.js `http`/`https` built-in modules |
+| 2026-06-08 | `stateManager.js` | Dùng cột `workflow_id`, `step`, `progress`, `status`, `data` không tồn tại | Rewrite lưu state vào `state_json` JSON blob, dùng `state_id` làm key |
+| 2026-06-08 | `server.js` | `/api/test-all-keys` lỗi CHECK constraint: status `healthy`/`unhealthy` không hợp lệ | Map status: `healthy`→`ok`, `unhealthy`→`error`, `unknown`→`unknown` |
+| 2026-06-08 | `chatEngine.js` | `navigate` function không có case trong `executeFunction()` | Thêm case `navigate` vào switch statement |
+| 2026-06-08 | `index.html` | Title vẫn là "VNStock AI v2.0" | Cập nhật lên "VNStock AI v3.0" |
 
 ---
 
@@ -175,16 +189,19 @@
 | Metric | Giá trị |
 |--------|---------|
 | **Frontend bundle** | 566KB JS (150KB gzipped) + 32KB CSS |
-| **API endpoints** | 35+ |
+| **API endpoints** | 40+ (thêm 5 endpoint mới: workflow, dashboard, test-api-key, test-all-keys, agent-tasks) |
 | **Database tables** | 8 |
 | **Telegram intents** | 9 |
 | **Sync engines** | 2 (D1 + Turso) |
 | **YouTube channels** | 29 |
 | **Technical indicators** | 10 |
 | **Agent workers** | 4 |
-| **Build time** | ~18 giây |
+| **Build time** | ~32 giây |
 | **Backend port** | 3004 |
 | **Remote access channels** | 4 |
+| **Workflow pipeline steps** | 7 (Precheck → Swarm → Merge → Synthesis → Render → Deliver → Complete) |
+| **AI providers** | 4 (Gemini → Groq → OpenRouter → Ollama) |
+| **Health check providers** | 7 (Gemini, Groq, OpenRouter, Ollama, Telegram, Email, VNStock) |
 
 ---
 
@@ -202,7 +219,11 @@
    - **Trước khi sửa**: Backup `src/`, `local-backend/` vào `backup/`
    - **Sau khi fix**: Cập nhật `MASTER_PROMPT.md`, `RESUME_PROMPT.md`, `PROGRESS_ANALYSIS_v3.md`, `HUONG_DAN_SU_DUNG.md`
    - **Không xóa source hẳn**: Chỉ thay thế sau khi backup
+   - **Kiểm tra schema SQLite**: Dùng `PRAGMA table_info(table_name)` trước khi viết query
+   - **Windows compatibility**: Không dùng `curl /dev/null` hoặc `python` command trực tiếp
+10. **API Test**: `GET /api/test-all-keys` — Kiểm tra tất cả API providers
+11. **Dashboard Status**: `GET /api/dashboard/status` — Tổng quan hệ thống
 
 ---
 
-*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 22/22 pha — chỉ còn cần credentials để kích hoạt NotebookLM và n8n.*
+*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 32/32 pha — chỉ còn cần credentials để kích hoạt NotebookLM và n8n.*

@@ -118,6 +118,13 @@
 | 22 | **Viber Webhook** | `server.js` (endpoint `/api/viber/webhook`) | ✅ |
 | 23 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ |
 | 24 | **n8n Bridge** | `local-backend/services/n8nBridge.js` | ✅ |
+| 25 | **Workflow Runner** | `local-backend/services/workflowRunner.js` | ✅ |
+| 26 | **API Test Endpoints** | `server.js` (`/api/test-api-key`, `/api/test-all-keys`) | ✅ |
+| 27 | **Dashboard Status API** | `server.js` (`/api/dashboard/status`) | ✅ |
+| 28 | **Health Check Panel v2** | `src/sections/HealthCheckPanel.tsx` | ✅ |
+| 29 | **Chat AI API Guard** | `local-backend/services/chatEngine.js` | ✅ |
+| 30 | **Health Check Engine v2** | `local-backend/services/healthCheck.js` | ✅ |
+| 31 | **State Manager v2** | `local-backend/services/stateManager.js` | ✅ |
 
 ### ⏳ CẦN LÀM TIẾP
 
@@ -137,6 +144,12 @@
 | **Frontend** | https://seeyeahall.github.io/vnstock-ai/ |
 | **Backend local** | http://localhost:3004 |
 | **Tunnel public** | Cần khởi động thủ công (xem `local-backend/TUNNEL_GUIDE.md`) |
+| **Workflow Run** | POST http://localhost:3004/api/workflow/run |
+| **Workflow Status** | GET http://localhost:3004/api/workflow/status |
+| **Dashboard Status** | GET http://localhost:3004/api/dashboard/status |
+| **Test API Key** | POST http://localhost:3004/api/test-api-key |
+| **Test All Keys** | GET http://localhost:3004/api/test-all-keys |
+| **Agent Tasks** | GET/POST http://localhost:3004/api/agent-tasks |
 | **Health** | http://localhost:3004/api/health |
 | **Chat API** | POST http://localhost:3004/api/chat/message |
 | **Email** | POST http://localhost:3004/api/send-email |
@@ -206,4 +219,4 @@
 ---
 
 *File này được tạo để chat mới có thể nắm bắt project trong 2 phút.*
-*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 21/23 pha — chỉ còn Build & Deploy + docs.*
+*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 31/31 pha — chỉ còn cần credentials để kích hoạt NotebookLM và n8n.*

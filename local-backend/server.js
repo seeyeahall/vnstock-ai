@@ -20,6 +20,8 @@ import { notebooklmAudio } from './services/notebooklmAudio.js';
 
 import { chatEngine } from './services/chatEngine.js';
 
+import { workflowRunner } from './services/workflowRunner.js';
+
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -116,7 +118,7 @@ app.get('/api/db/settings', (req, res) => {
 app.post('/api/db/settings', (req, res) => {
   const { key, value } = req.body;
   if (!key) return res.status(400).json({ success: false, error: 'key required' });
-  db.prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime("now"))')
+  db.prepare(`INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))`)
     .run(key, typeof value === 'string' ? value : JSON.stringify(value));
   res.json({ success: true });
 });
@@ -176,7 +178,7 @@ app.get('/api/db/keys', (req, res) => {
 app.post('/api/db/keys', (req, res) => {
   const { provider, api_key, status } = req.body;
   if (!provider) return res.status(400).json({ success: false, error: 'provider required' });
-  db.prepare('INSERT OR REPLACE INTO api_keys (provider, api_key, status, last_tested) VALUES (?, ?, ?, datetime("now"))')
+  db.prepare(`INSERT OR REPLACE INTO api_keys (provider, api_key, status, last_tested) VALUES (?, ?, ?, datetime('now'))`)
     .run(provider, api_key || '', status || 'unknown');
   res.json({ success: true });
 });
@@ -297,7 +299,7 @@ app.post('/api/registry/:provider', (req, res) => {
     if (api_key !== undefined) registry[provider].api_key = api_key;
     writeFileSync(path, JSON.stringify(registry, null, 2));
     // Also update DB
-    db.prepare('INSERT OR REPLACE INTO api_keys (provider, api_key, last_tested) VALUES (?, ?, datetime("now"))')
+    db.prepare(`INSERT OR REPLACE INTO api_keys (provider, api_key, last_tested) VALUES (?, ?, datetime('now'))`)
       .run(provider, api_key || '');
     res.json({ success: true });
   } catch (e) {
@@ -324,13 +326,9 @@ app.post('/api/report-templates', (req, res) => {
 
 // ── Agent Tasks ──
 app.get('/api/agent-tasks', (req, res) => {
-  const { report_id, status } = req.query;
+  const { status } = req.query;
   let rows;
-  if (report_id && status) {
-    rows = db.prepare('SELECT * FROM agent_tasks WHERE report_id = ? AND status = ? ORDER BY created_at DESC').all(report_id, status);
-  } else if (report_id) {
-    rows = db.prepare('SELECT * FROM agent_tasks WHERE report_id = ? ORDER BY created_at DESC').all(report_id);
-  } else if (status) {
+  if (status) {
     rows = db.prepare('SELECT * FROM agent_tasks WHERE status = ? ORDER BY created_at DESC').all(status);
   } else {
     rows = db.prepare('SELECT * FROM agent_tasks ORDER BY created_at DESC LIMIT 200').all();
@@ -339,33 +337,181 @@ app.get('/api/agent-tasks', (req, res) => {
 });
 
 app.post('/api/agent-tasks', (req, res) => {
-  const { task_id, report_id, agent_name, status, progress, input_params, output_data, error_message } = req.body;
+  const { task_id, task_type, status, payload, result, error } = req.body;
   const tid = task_id || uuidv4();
-  const result = db.prepare(
-    `INSERT OR REPLACE INTO agent_tasks (task_id, report_id, agent_name, status, progress, input_params, output_data, error_message, started_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))`
-  ).run(tid, report_id || null, agent_name || null, status || 'pending', progress || 0, input_params ? JSON.stringify(input_params) : null, output_data ? JSON.stringify(output_data) : null, error_message || null);
-  res.json({ success: true, task_id: tid, id: result.lastInsertRowid });
+  const resultDb = db.prepare(
+    `INSERT INTO agent_tasks (task_id, task_type, status, payload, result, error)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(tid, task_type || 'generic', status || 'pending', payload ? JSON.stringify(payload) : null, result ? JSON.stringify(result) : null, error || null);
+  res.json({ success: true, task_id: tid, id: resultDb.lastInsertRowid });
 });
 
-// ── Workflow ──
+// ── Workflow (Full Pipeline) ──
 app.post('/api/workflow/run', async (req, res) => {
-  const { workflow_id, template_id, inputs } = req.body;
+  const { workflow_id, template_id, inputs, skip_precheck } = req.body;
   const wid = workflow_id || uuidv4();
-  // Initialize workflow state
-  await stateManager.saveState(wid, { step: 'init', progress: 0, data: { template_id, inputs }, status: 'running' });
-  res.json({ success: true, workflow_id: wid, status: 'running', message: 'Workflow initialized. Use /api/workflow/status to poll.' });
+  
+  // Start workflow asynchronously
+  workflowRunner.run(wid, template_id || 'daily_brief', inputs || {}, { skipPrecheck: skip_precheck })
+    .then(result => {
+      console.log(`[Workflow] ${wid} completed:`, result.success ? 'SUCCESS' : 'FAILED');
+    })
+    .catch(err => {
+      console.error(`[Workflow] ${wid} error:`, err.message);
+    });
+
+  res.json({ 
+    success: true, 
+    workflow_id: wid, 
+    status: 'running', 
+    message: 'Workflow started. Use /api/workflow/status to poll progress.',
+    poll_url: `/api/workflow/status?workflow_id=${wid}`
+  });
 });
 
 app.get('/api/workflow/status', async (req, res) => {
   const { workflow_id } = req.query;
   if (!workflow_id) {
-    // List all workflow states
     const rows = await stateManager.listStates();
-    return res.json({ success: true, data: rows });
+    const active = workflowRunner.getActiveWorkflows();
+    return res.json({ success: true, data: rows, active });
   }
   const state = await stateManager.resumeState(workflow_id);
-  res.json({ success: true, ...state });
+  const active = workflowRunner.getActiveWorkflows().find(w => w.workflowId === workflow_id);
+  res.json({ success: true, ...state, active: active || null });
+});
+
+app.post('/api/workflow/cancel', async (req, res) => {
+  const { workflow_id } = req.body;
+  if (!workflow_id) return res.status(400).json({ success: false, error: 'workflow_id required' });
+  const result = await workflowRunner.cancelWorkflow(workflow_id);
+  res.json(result);
+});
+
+// ── Dashboard Status ──
+app.get('/api/dashboard/status', async (req, res) => {
+  const health = await checkAllHealth();
+  const activeWorkflows = workflowRunner.getActiveWorkflows();
+  const recentReports = db.prepare('SELECT report_id, template, market_regime, created_at FROM reports ORDER BY created_at DESC LIMIT 5').all();
+  const recentTasks = db.prepare('SELECT task_id, task_type, status, created_at FROM agent_tasks ORDER BY created_at DESC LIMIT 10').all();
+  
+  // Check API key configuration status
+  const apiKeys = db.prepare('SELECT provider, api_key, status FROM api_keys').all();
+  const apiStatus = {};
+  for (const key of apiKeys) {
+    apiStatus[key.provider] = {
+      configured: !!(key.api_key && key.api_key.length > 10 && !key.api_key.includes('YOUR_')),
+      status: key.status,
+      last_tested: key.last_tested
+    };
+  }
+  
+  // Gemini is most important
+  const geminiConfigured = apiStatus.gemini?.configured || false;
+  const geminiHealthy = health.gemini?.status === 'healthy';
+  
+  res.json({
+    success: true,
+    system: {
+      version: '3.0.0',
+      backend: 'online',
+      timestamp: new Date().toISOString()
+    },
+    api: {
+      health,
+      apiStatus,
+      gemini: {
+        configured: geminiConfigured,
+        healthy: geminiHealthy,
+        critical: true, // Gemini is most important
+        message: !geminiConfigured 
+          ? '⚠️ Gemini API key chưa cấu hình. Vào Settings → API Keys để thêm.' 
+          : !geminiHealthy 
+            ? '⚠️ Gemini API key đã cấu hình nhưng không kết nối được. Kiểm tra lại key.' 
+            : '✅ Gemini OK'
+      }
+    },
+    workflows: {
+      active: activeWorkflows.length,
+      active_list: activeWorkflows,
+      recent: recentReports
+    },
+    agents: {
+      recent_tasks: recentTasks
+    }
+  });
+});
+
+// ── API Key Test ──
+app.post('/api/test-api-key', async (req, res) => {
+  const { provider, api_key } = req.body;
+  if (!provider) return res.status(400).json({ success: false, error: 'provider required' });
+  
+  // Update key in DB if provided
+  if (api_key) {
+    db.prepare(`INSERT OR REPLACE INTO api_keys (provider, api_key, last_tested) VALUES (?, ?, datetime('now'))`)
+      .run(provider, api_key);
+  }
+  
+  // Test the provider
+  const result = await checkApiHealth(provider);
+  
+  // Update status in DB
+  const dbStatus = result.status === 'healthy' ? 'ok' : result.status === 'unhealthy' ? 'error' : 'unknown';
+  db.prepare(`UPDATE api_keys SET status = ?, latency_ms = ?, last_tested = datetime('now') WHERE provider = ?`)
+    .run(dbStatus, result.latency_ms || 0, provider);
+  
+  res.json({
+    success: true,
+    provider,
+    status: result.status,
+    latency_ms: result.latency_ms,
+    quota_remaining: result.quota_remaining,
+    error: result.error || null,
+    message: result.status === 'healthy' 
+      ? `✅ ${provider} OK (${result.latency_ms}ms)` 
+      : `❌ ${provider} failed: ${result.error || 'Unknown error'}`
+  });
+});
+
+app.get('/api/test-all-keys', async (req, res) => {
+  const providers = ['gemini', 'groq', 'openrouter', 'telegram', 'email'];
+  const results = {};
+  
+  for (const provider of providers) {
+    try {
+      const result = await checkApiHealth(provider);
+      results[provider] = {
+        status: result.status,
+        latency_ms: result.latency_ms,
+        quota_remaining: result.quota_remaining,
+        error: result.error || null
+      };
+      
+      // Update DB - map health status to DB status
+      const dbStatus = result.status === 'healthy' ? 'ok' : result.status === 'unhealthy' ? 'error' : 'unknown';
+      db.prepare(`UPDATE api_keys SET status = ?, latency_ms = ?, last_tested = datetime('now') WHERE provider = ?`)
+        .run(dbStatus, result.latency_ms || 0, provider);
+    } catch (e) {
+      results[provider] = { status: 'error', error: e.message };
+    }
+  }
+  
+  const allHealthy = Object.values(results).every(r => r.status === 'healthy');
+  const geminiOk = results.gemini?.status === 'healthy';
+  
+  res.json({
+    success: true,
+    all_healthy: allHealthy,
+    gemini_ok: geminiOk,
+    can_run_workflow: geminiOk, // Gemini is required for workflow
+    results,
+    message: !geminiOk 
+      ? '⚠️ Gemini API chưa sẵn sàng. Workflow cần Gemini để chạy AI analysis.' 
+      : allHealthy 
+        ? '✅ Tất cả API đã sẵn sàng!' 
+        : '⚠️ Một số API chưa sẵn sàng nhưng vẫn có thể chạy workflow.'
+  });
 });
 
 // ── Telegram Webhook + NLU ──
@@ -475,6 +621,9 @@ app.get('/api/state/load', async (req, res) => {
   const result = await stateManager.resumeState(workflow_id);
   res.json({ success: true, ...result });
 });
+
+// ── Static Files (Frontend) ──
+app.use(express.static(join(__dirname, '..', 'dist')));
 
 // ── Start Server ──
 app.listen(PORT, () => {

@@ -1,4 +1,4 @@
-# VNStock AI v2.0 - MASTER PROMPT
+# VNStock AI v3.0 - MASTER PROMPT
 
 > **File này là tài liệu chính của project.** Chat mới đọc để hiểu toàn bộ thiết kế, tiến trình, và cách tiếp tục phát triển.
 
@@ -47,7 +47,14 @@
 23. ✅ **Push All** — Tự động hóa toàn bộ: Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test
 24. ✅ **Chat AI Engine** — AI tự hiểu app, function calling, điều khiển workflow tự nhiên
 25. ✅ **Viber Webhook** — Endpoint nhận message từ Viber
-26. ⏳ **Build & Deploy V3** — Cập nhật GitHub Pages
+26. ✅ **Workflow Runner** — Full pipeline 7 bước end-to-end
+27. ✅ **API Test Endpoints** — Test tất cả providers, `can_run_workflow` flag
+28. ✅ **Dashboard Status API** — Tổng quan hệ thống real-time
+29. ✅ **Health Check Panel v2** — API status chi tiết, cảnh báo Gemini
+30. ✅ **Chat AI API Guard** — Tự động detect API chưa cấu hình, navigate Settings
+31. ✅ **Health Check Engine v2** — Node.js `http`/`https` thay vì `curl`
+32. ✅ **State Manager v2** — Khớp schema `workflow_states` thực tế
+33. ✅ **Build & Deploy V3** — Cập nhật GitHub Pages, title v3.0
 
 ---
 

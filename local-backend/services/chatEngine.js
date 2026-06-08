@@ -142,9 +142,35 @@ Khi cần điều khiển app, trả về:
   smartProcess(userMessage, context) {
     const text = userMessage.toLowerCase();
     
+    // Check API configuration status first for workflow-related requests
+    const apiStatus = this.checkApiStatus();
+    
     // Detect function calls from natural language
     const functionCall = this.detectFunction(text);
     if (functionCall) {
+      // For workflow-related functions, check if API is ready
+      if (['create_report', 'run_precheck', 'check_health'].includes(functionCall.function)) {
+        if (!apiStatus.geminiReady) {
+          return {
+            text: `⚠️ **Chưa thể chạy workflow!**
+
+${apiStatus.message}
+
+**Cách khắc phục:**
+1. Vào tab **Settings** → **API Keys**
+2. Thêm **Gemini API Key** (quan trọng nhất)
+3. Click **Test** để kiểm tra
+4. Quay lại chat và thử lại
+
+Bạn cần hướng dẫn chi tiết không?`,
+            functionCall: {
+              function: 'navigate',
+              parameters: { target: '/settings' }
+            }
+          };
+        }
+      }
+      
       return {
         text: `Đang thực hiện: ${functionCall.description}...`,
         functionCall: functionCall
@@ -153,8 +179,7 @@ Khi cần điều khiển app, trả về:
 
     // General responses
     if (text.includes('chào') || text.includes('hello') || text.includes('hi')) {
-      return {
-        text: `Chào bạn! 👋 Tôi là VNStock AI Assistant.
+      let greeting = `Chào bạn! 👋 Tôi là VNStock AI Assistant.
 
 Tôi có thể giúp bạn:
 • Tạo báo cáo phân tích thị trường
@@ -163,8 +188,15 @@ Tôi có thể giúp bạn:
 • Điều khiển workflow tự động
 • Gửi báo cáo qua Telegram/Email
 
-Bạn cần gì?`
-      };
+Bạn cần gì?`;
+      
+      if (!apiStatus.geminiReady) {
+        greeting += `
+
+⚠️ **Lưu ý:** Gemini API chưa cấu hình. Một số tính năng AI sẽ chạy ở chế độ local. Vào Settings → API Keys để cấu hình.`;
+      }
+      
+      return { text: greeting };
     }
 
     if (text.includes('help') || text.includes('hướng dẫn') || text.includes('cách dùng')) {
@@ -184,11 +216,34 @@ Bạn cần gì?`
 • "Kiểm tra hệ thống" → Health check all APIs
 • "Xem chart FPT" → Mở chart cổ phiếu FPT
 • "Chạy precheck" → Kiểm tra trước khi chạy
-• "Gửi báo cáo qua Telegram" → Gửi báo cáo gần nhất`
+• "Gửi báo cáo qua Telegram" → Gửi báo cáo gần nhất
+
+${!apiStatus.geminiReady ? '\n⚠️ **Quan trọng:** Gemini API chưa cấu hình. Vào Settings → API Keys để thêm key.' : ''}`
       };
     }
 
     if (text.includes('báo cáo') || text.includes('report') || text.includes('phân tích')) {
+      if (!apiStatus.geminiReady) {
+        return {
+          text: `⚠️ **Chưa thể tạo báo cáo AI!**
+
+${apiStatus.message}
+
+**Tại sao cần Gemini?**
+Gemini là AI provider chính để phân tích dữ liệu, nhận diện market regime, và tạo báo cáo chất lượng.
+
+**Cách khắc phục:**
+1. Vào tab **Settings** (góc trên bên phải)
+2. Chọn **API Keys**
+3. Thêm **Gemini API Key**
+4. Click **Test Connection**
+5. Quay lại chat và gõ "tạo báo cáo"
+
+Bạn muốn tôi hướng dẫn chi tiết hơn không?`,
+          actions: [{ type: 'navigate', target: '/settings' }]
+        };
+      }
+      
       return {
         text: `Tôi sẽ tạo báo cáo cho bạn! 📊
 
@@ -205,8 +260,26 @@ Hoặc tùy chỉnh trong tab **Report Builder**.`,
       };
     }
 
+    if (text.includes('api') || text.includes('kiểm tra api') || text.includes('test api')) {
+      return {
+        text: `🔌 Kiểm tra API providers...
+
+${apiStatus.message}
+
+**Trạng thái hiện tại:**
+• Gemini: ${apiStatus.geminiReady ? '✅ OK' : '❌ Chưa cấu hình'}
+• Groq: ${apiStatus.groqReady ? '✅ OK' : '❌ Chưa cấu hình'}
+• OpenRouter: ${apiStatus.openrouterReady ? '✅ OK' : '❌ Chưa cấu hình'}
+
+Vào **Settings → API Keys** để cấu hình.`,
+        functionCall: { function: 'test_api', parameters: { provider: 'all' } }
+      };
+    }
+
+    // ... rest of existing smartProcess code ...
+    // Keep existing chart, health, precheck, agent, schedule, send, test patterns
+    
     if (text.includes('chart') || text.includes('biểu đồ') || text.includes('đồ thị') || text.includes('kỹ thuật')) {
-      // Extract symbol
       const symbols = this.extractSymbols(text);
       const symbol = symbols[0] || 'VNINDEX';
       return {
@@ -277,17 +350,8 @@ Ví dụ:
       };
     }
 
-    if (text.includes('test api') || text.includes('kiểm tra api')) {
-      const provider = text.includes('gemini') ? 'gemini' : text.includes('groq') ? 'groq' : 'all';
-      return {
-        text: `Kiểm tra API ${provider}... 🔌`,
-        functionCall: { function: 'test_api', parameters: { provider } }
-      };
-    }
-
     // Default response
-    return {
-      text: `Tôi hiểu ý bạn! 💡
+    let defaultResponse = `Tôi hiểu ý bạn! 💡
 
 Bạn có thể hỏi tôi:
 • "Tạo báo cáo" — Tạo báo cáo phân tích
@@ -296,8 +360,58 @@ Bạn có thể hỏi tôi:
 • "Chạy precheck" — Kiểm tra trước khi chạy
 • "Gửi báo cáo" — Gửi qua Telegram/Email
 
-Hoặc gõ "help" để xem danh sách đầy đủ.`
-    };
+Hoặc gõ "help" để xem danh sách đầy đủ.`;
+
+    if (!apiStatus.geminiReady) {
+      defaultResponse += `
+
+⚠️ **Lưu ý:** Gemini API chưa cấu hình. Vào Settings → API Keys để thêm key.`;
+    }
+
+    return { text: defaultResponse };
+  }
+
+  checkApiStatus() {
+    try {
+      const geminiRow = db.prepare('SELECT api_key, status FROM api_keys WHERE provider = ?').get('gemini');
+      const groqRow = db.prepare('SELECT api_key, status FROM api_keys WHERE provider = ?').get('groq');
+      const openrouterRow = db.prepare('SELECT api_key, status FROM api_keys WHERE provider = ?').get('openrouter');
+      
+      const geminiConfigured = !!(geminiRow?.api_key && geminiRow.api_key.length > 10 && !geminiRow.api_key.includes('YOUR_'));
+      const geminiHealthy = geminiRow?.status === 'active' || geminiRow?.status === 'healthy';
+      const geminiReady = geminiConfigured && geminiHealthy;
+      
+      const groqConfigured = !!(groqRow?.api_key && groqRow.api_key.length > 10 && !groqRow.api_key.includes('YOUR_'));
+      const groqReady = groqConfigured && (groqRow?.status === 'active' || groqRow?.status === 'healthy');
+      
+      const openrouterConfigured = !!(openrouterRow?.api_key && openrouterRow.api_key.length > 10 && !openrouterRow.api_key.includes('YOUR_'));
+      const openrouterReady = openrouterConfigured && (openrouterRow?.status === 'active' || openrouterRow?.status === 'healthy');
+      
+      let message = '';
+      if (geminiReady) {
+        message = '✅ Gemini API đã sẵn sàng. Workflow có thể chạy với AI analysis.';
+      } else if (geminiConfigured) {
+        message = '⚠️ Gemini API key đã nhập nhưng chưa kết nối được. Kiểm tra lại key hoặc mạng.';
+      } else {
+        message = '❌ Gemini API chưa cấu hình. Workflow sẽ chạy ở chế độ local (không có AI analysis). Vào Settings → API Keys để thêm.';
+      }
+      
+      return {
+        geminiReady,
+        groqReady,
+        openrouterReady,
+        anyAiReady: geminiReady || groqReady || openrouterReady,
+        message
+      };
+    } catch (e) {
+      return {
+        geminiReady: false,
+        groqReady: false,
+        openrouterReady: false,
+        anyAiReady: false,
+        message: '❌ Không thể kiểm tra API status. Lỗi: ' + e.message
+      };
+    }
   }
 
   detectFunction(text) {
@@ -404,6 +518,13 @@ Hoặc gõ "help" để xem danh sách đầy đủ.`
         const result = await checkApiHealth(provider);
         const status = result.status === 'healthy' ? '✅' : '❌';
         message = `${status} API ${provider}: ${result.status}\nLatency: ${result.latency_ms}ms\nQuota: ${result.quota_remaining || 'N/A'}`;
+        break;
+      }
+
+      case 'navigate': {
+        const target = parameters.target || '/dashboard';
+        message = `🔄 Đang chuyển đến ${target}...`;
+        actions.push({ type: 'navigate', target });
         break;
       }
 

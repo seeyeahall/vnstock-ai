@@ -17,24 +17,24 @@ class StateManager {
       return { saved: false, workflowId, progress };
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO workflow_states (workflow_id, step, progress, data, status, updated_at)
-      VALUES (@workflowId, @step, @progress, @data, @status, datetime('now'))
-      ON CONFLICT(workflow_id) DO UPDATE SET
-        step = excluded.step,
-        progress = excluded.progress,
-        data = excluded.data,
-        status = excluded.status,
-        updated_at = datetime('now')
-    `);
-
-    stmt.run({
-      workflowId,
+    const stateJson = JSON.stringify({
       step,
       progress,
       data: typeof data === 'string' ? data : JSON.stringify(data),
-      status
+      status,
+      updated_at: new Date().toISOString()
     });
+
+    const stmt = db.prepare(`
+      INSERT INTO workflow_states (state_id, name, state_json)
+      VALUES (?, ?, ?)
+      ON CONFLICT(state_id) DO UPDATE SET
+        name = excluded.name,
+        state_json = excluded.state_json,
+        updated_at = datetime('now')
+    `);
+
+    stmt.run(workflowId, step || 'unknown', stateJson);
 
     this.lastSavedProgress.set(workflowId, progress);
 
@@ -42,46 +42,49 @@ class StateManager {
   }
 
   async resumeState(workflowId) {
-    const row = db.prepare('SELECT * FROM workflow_states WHERE workflow_id = ?').get(workflowId);
+    const row = db.prepare('SELECT * FROM workflow_states WHERE state_id = ?').get(workflowId);
     if (!row) {
       return { found: false, workflowId };
     }
 
-    let data = row.data;
+    let state = {};
     try {
-      data = JSON.parse(data);
+      state = JSON.parse(row.state_json);
     } catch (e) {
-      // keep as string
+      state = { data: row.state_json };
     }
 
-    this.lastSavedProgress.set(workflowId, row.progress);
+    this.lastSavedProgress.set(workflowId, state.progress || 0);
 
     return {
       found: true,
       workflowId,
-      step: row.step,
-      progress: row.progress,
-      data,
-      status: row.status,
+      step: state.step || row.name,
+      progress: state.progress || 0,
+      data: state.data,
+      status: state.status || 'unknown',
       updated_at: row.updated_at,
       created_at: row.created_at
     };
   }
 
   async listStates(statusFilter = null) {
-    let rows;
-    if (statusFilter) {
-      rows = db.prepare('SELECT workflow_id, step, progress, status, updated_at FROM workflow_states WHERE status = ? ORDER BY updated_at DESC')
-        .all(statusFilter);
-    } else {
-      rows = db.prepare('SELECT workflow_id, step, progress, status, updated_at FROM workflow_states ORDER BY updated_at DESC')
-        .all();
-    }
-    return rows;
+    const rows = db.prepare('SELECT state_id, name, state_json, updated_at FROM workflow_states ORDER BY updated_at DESC').all();
+    return rows.map(row => {
+      let state = {};
+      try { state = JSON.parse(row.state_json); } catch (e) {}
+      return {
+        workflow_id: row.state_id,
+        step: state.step || row.name,
+        progress: state.progress || 0,
+        status: state.status || 'unknown',
+        updated_at: row.updated_at
+      };
+    }).filter(r => !statusFilter || r.status === statusFilter);
   }
 
   async deleteState(workflowId) {
-    db.prepare('DELETE FROM workflow_states WHERE workflow_id = ?').run(workflowId);
+    db.prepare('DELETE FROM workflow_states WHERE state_id = ?').run(workflowId);
     this.lastSavedProgress.delete(workflowId);
     return { deleted: true, workflowId };
   }

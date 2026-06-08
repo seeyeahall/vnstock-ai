@@ -1,10 +1,9 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { get } from 'https';
+import { get as httpGet } from 'http';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let registry = {};
@@ -12,6 +11,22 @@ try {
   registry = JSON.parse(readFileSync(join(__dirname, '..', 'config', 'api_registry.json'), 'utf-8'));
 } catch (e) {
   console.log('[HealthCheck] Registry load error:', e.message);
+}
+
+function httpRequest(url, timeout = 15000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const client = url.startsWith('https:') ? get : httpGet;
+    const req = client(url, { timeout }, (res) => {
+      const latency = Date.now() - start;
+      resolve({ statusCode: res.statusCode, latency });
+    });
+    req.on('error', (err) => reject(err));
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
 }
 
 async function checkApiHealth(provider) {
@@ -23,11 +38,19 @@ async function checkApiHealth(provider) {
   const start = Date.now();
   try {
     if (provider === 'email') {
-      // Email health: try SMTP connection via Python
-      const { stdout, stderr } = await execAsync(
-        `python -c "import smtplib; s=smtplib.SMTP('smtp.gmail.com',587); s.starttls(); s.quit(); print('OK')"`,
-        { timeout: 10000 }
-      );
+      // Email health: try SMTP connection via Node.js net
+      const { createConnection } = await import('net');
+      await new Promise((resolve, reject) => {
+        const socket = createConnection(587, 'smtp.gmail.com', () => {
+          socket.end();
+          resolve();
+        });
+        socket.on('error', reject);
+        socket.setTimeout(10000, () => {
+          socket.destroy();
+          reject(new Error('SMTP timeout'));
+        });
+      });
       const latency = Date.now() - start;
       return {
         provider,
@@ -38,39 +61,17 @@ async function checkApiHealth(provider) {
       };
     }
 
-    if (provider === 'ollama') {
-      const { stdout } = await execAsync(
-        `curl -s -o /dev/null -w "%{http_code}" "${config.health_url}"`,
-        { timeout: 5000 }
-      );
-      const latency = Date.now() - start;
-      const ok = stdout.trim() === '200';
-      return {
-        provider,
-        status: ok ? 'healthy' : 'unhealthy',
-        latency_ms: latency,
-        quota_remaining: ok ? 100 : 0,
-        message: ok ? 'Ollama local server reachable' : 'Ollama not running on :11434'
-      };
-    }
-
     // Generic HTTP health check
-    const { stdout } = await execAsync(
-      `curl -s -o /dev/null -w "%{http_code},%{time_total}" "${config.health_url}"`,
-      { timeout: 15000 }
-    );
-    const latency = Date.now() - start;
-    const [httpCode, timeTotal] = stdout.trim().split(',');
-    const code = parseInt(httpCode, 10);
-    const ok = code >= 200 && code < 400;
+    const { statusCode, latency } = await httpRequest(config.health_url, 15000);
+    const ok = statusCode >= 200 && statusCode < 400;
 
     return {
       provider,
       status: ok ? 'healthy' : 'unhealthy',
       latency_ms: latency,
       quota_remaining: ok ? (config.rpd_limit || 100) : 0,
-      http_code: code,
-      message: ok ? `${provider} API reachable` : `${provider} returned HTTP ${code}`
+      http_code: statusCode,
+      message: ok ? `${provider} API reachable` : `${provider} returned HTTP ${statusCode}`
     };
   } catch (error) {
     return {
