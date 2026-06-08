@@ -61,6 +61,9 @@
 | 2026-06-08 | `server.js` | `/api/test-all-keys` lỗi CHECK constraint: status `healthy`/`unhealthy` không hợp lệ | Map status: `healthy`→`ok`, `unhealthy`→`error`, `unknown`→`unknown` |
 | 2026-06-08 | `chatEngine.js` | `navigate` function không có case trong `executeFunction()` | Thêm case `navigate` vào switch statement |
 | 2026-06-08 | `index.html` | Title vẫn là "VNStock AI v2.0" | Cập nhật lên "VNStock AI v3.0" |
+| 2026-06-08 | `push_all.py` | Không kill process cũ trước khi start backend → EADDRINUSE | Thêm `kill_existing_processes()` — taskkill + socket check port 3004 |
+| 2026-06-08 | `auto_start.py` | Không kill process cũ trước khi start backend → EADDRINUSE | Thêm `kill_existing_processes()` — taskkill + socket check port 3004 |
+| 2026-06-08 | `auto-start.bat` | Không kill process cũ trước khi start → port conflict | Thêm `taskkill /F /IM node.exe` + `timeout /t 2` trước khi start services |
 
 ---
 

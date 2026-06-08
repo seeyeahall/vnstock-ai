@@ -127,6 +127,7 @@
 | 31 | **State Manager v2** | `local-backend/services/stateManager.js` | ✅ |
 | 32 | **Build Freshness Checker** | `local-backend/services/buildChecker.js` | ✅ |
 | 33 | **Push All v3.1** | `push-all.bat`, `local-backend/scripts/push_all.py` | ✅ |
+| 34 | **Kill Process Guard** | `push_all.py`, `auto_start.py`, `auto-start.bat` | ✅ |
 
 ### ⏳ CẦN LÀM TIẾP
 

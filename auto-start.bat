@@ -1,10 +1,15 @@
 @ECHO OFF
 :: Auto-start script for VNStock AI v3.0
 :: Starts backend server and frontend dev server
+:: Kills existing Node.js processes first to avoid port conflicts
 
 SET "NODE_DIR=C:\Users\NHVANG\AppData\Local\Programs\kimi-desktop\resources\resources\runtime"
 SET "NPM_CMD=%NODE_DIR%\npm.cmd"
 SET "NODE_EXE=%NODE_DIR%\node.exe"
+
+ECHO [VNStock AI v3.0] Killing existing Node.js processes...
+taskkill /F /IM node.exe 2>nul
+timeout /t 2 /nobreak >nul
 
 ECHO [VNStock AI v3.0] Starting infrastructure...
 

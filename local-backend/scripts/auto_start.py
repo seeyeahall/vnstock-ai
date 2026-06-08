@@ -17,6 +17,42 @@ TUNNEL_EXE = os.path.join(BASE_DIR, "cloudflared.exe")
 def log(msg):
     print(f"[AutoStart] {msg}", flush=True)
 
+def kill_existing_processes():
+    """Kill existing Node.js processes and free port 3004"""
+    log("Killing existing Node.js processes...")
+    try:
+        subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
+                       capture_output=True, timeout=10)
+        time.sleep(2)
+    except Exception:
+        pass
+    
+    # Verify port 3004 is free
+    import socket
+    for attempt in range(5):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            result = sock.connect_ex(('localhost', 3004))
+            sock.close()
+            if result != 0:
+                log("Port 3004 is free")
+                return True
+            else:
+                log(f"Port 3004 still in use (attempt {attempt+1}/5), retrying...")
+                time.sleep(2)
+                try:
+                    subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
+                                   capture_output=True, timeout=5)
+                except Exception:
+                    pass
+        except Exception as e:
+            log(f"Socket check error: {e}")
+            time.sleep(1)
+    
+    log("Could not fully free port 3004, but will try to start anyway")
+    return False
+
 def start_backend():
     log("Starting Node.js backend on port 3004...")
     server_path = os.path.join(BASE_DIR, "server.js")
@@ -68,6 +104,10 @@ def open_browser():
 
 def main():
     log("=== VNStock AI Auto Start ===")
+    
+    # Kill existing processes first
+    kill_existing_processes()
+    
     backend_proc = start_backend()
     tunnel_proc = start_tunnel()
     open_browser()

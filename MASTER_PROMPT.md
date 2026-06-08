@@ -56,7 +56,8 @@
 32. ✅ **State Manager v2** — Khớp schema `workflow_states` thực tế
 33. ✅ **Build Freshness Checker** — Tự động kiểm tra `dist/` vs `src/`, báo trên dashboard
 34. ✅ **Push All v3.1** — Auto-check build freshness trước khi build, skip nếu đã fresh
-35. ✅ **Build & Deploy V3** — Cập nhật GitHub Pages, title v3.0
+35. ✅ **Kill Process Guard** — Tự động kill node.exe cũ trước khi start backend (tránh EADDRINUSE)
+36. ✅ **Build & Deploy V3** — Cập nhật GitHub Pages, title v3.0
 
 ---
 

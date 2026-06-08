@@ -73,6 +73,45 @@ def run_cmd(cmd, cwd=None, timeout=120, shell=False):
     except Exception as e:
         return "", str(e), -1
 
+def kill_existing_processes():
+    """Kill existing Node.js processes and free port 3004"""
+    log(0, "Killing existing Node.js processes...")
+    
+    # Try taskkill first (Windows)
+    try:
+        subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
+                       capture_output=True, timeout=10)
+        time.sleep(2)
+    except Exception:
+        pass
+    
+    # Verify port 3004 is free
+    import socket
+    for attempt in range(5):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            result = sock.connect_ex(('localhost', 3004))
+            sock.close()
+            if result != 0:
+                log(0, "Port 3004 is free", "ok")
+                return True
+            else:
+                log(0, f"Port 3004 still in use (attempt {attempt+1}/5), retrying...", "warn")
+                time.sleep(2)
+                # Try taskkill again
+                try:
+                    subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
+                                   capture_output=True, timeout=5)
+                except Exception:
+                    pass
+        except Exception as e:
+            log(0, f"Socket check error: {e}", "warn")
+            time.sleep(1)
+    
+    log(0, "Could not fully free port 3004, but will try to start anyway", "warn")
+    return False
+
 def step1_build():
     """Build frontend with npm"""
     log(1, "Building frontend (npm run build)...")
@@ -349,6 +388,9 @@ def main():
     print(f"  VNStock AI v3.0 — Push All")
     print(f"  Build → Backend → Tunnel → GitHub Pages → Webhook → Browser → Test")
     print(f"{'='*60}\n")
+    
+    # Step 0: Kill existing processes
+    kill_existing_processes()
     
     # Step 1: Build
     if not step1_build():
