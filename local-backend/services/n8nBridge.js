@@ -23,6 +23,7 @@ class N8nBridge {
   }
 
   isConfigured() {
+    this.loadConfig(); // Reload from DB each time
     return this.config.enabled && this.config.webhookUrl && this.config.apiKey;
   }
 

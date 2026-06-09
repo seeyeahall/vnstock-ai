@@ -123,10 +123,9 @@ def kill_existing_processes():
     """Kill existing Node.js processes and free port 3004"""
     log(0, "Killing existing Node.js processes...")
     
-    # Try taskkill first (Windows)
+    # Use os.system for taskkill to avoid subprocess hang in CLI environments
     try:
-        subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
-                       capture_output=True, timeout=10)
+        os.system("taskkill /F /IM node.exe >nul 2>&1")
         time.sleep(2)
     except Exception:
         pass
@@ -145,8 +144,7 @@ def kill_existing_processes():
                 log(0, f"Port 3004 still in use (attempt {attempt+1}/5), retrying...", "warn")
                 time.sleep(2)
                 try:
-                    subprocess.run(["taskkill", "/F", "/IM", "node.exe"], 
-                                   capture_output=True, timeout=5)
+                    os.system("taskkill /F /IM node.exe >nul 2>&1")
                 except Exception:
                     pass
         except Exception as e:
@@ -384,6 +382,28 @@ def step4_push_ghpages():
     run_cmd(["git", "stash", "pop"], cwd=APP_DIR, timeout=10)
     return True
 
+def step0_backup():
+    """Backup source code before push"""
+    log(0, "Backing up source code...")
+    backup_dir = os.path.join(APP_DIR, "backup", f"vnstock-ai-v3.0-{time.strftime('%Y%m%d-%H%M%S')}")
+    try:
+        os.makedirs(backup_dir, exist_ok=True)
+        # Copy critical directories
+        for item in ["src", "local-backend", "package.json", "vite.config.ts", "tsconfig.json", "tailwind.config.js", "auto-start.bat", "push-all.bat"]:
+            src = os.path.join(APP_DIR, item)
+            dst = os.path.join(backup_dir, item)
+            if os.path.exists(src):
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
+        log(0, f"Backup saved to: {backup_dir}", "ok")
+        return True
+    except Exception as e:
+        log(0, f"Backup failed: {e}", "warn")
+        log(0, "Continuing without backup...", "warn")
+        return False
+
 def step5_update_webhook(tunnel_url):
     """Update Telegram webhook"""
     log(5, "Updating Telegram webhook...")
@@ -395,6 +415,22 @@ def step5_update_webhook(tunnel_url):
     webhook_url = f"{tunnel_url}/api/telegram/webhook"
     
     try:
+        # First delete existing webhook to avoid 400 error
+        try:
+            del_req = urllib.request.Request(
+                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/deleteWebhook",
+                method="POST",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps({"drop_pending_updates": True}).encode()
+            )
+            with urllib.request.urlopen(del_req, timeout=15) as resp:
+                del_data = json.loads(resp.read())
+                if del_data.get("ok"):
+                    log(5, "Old webhook deleted", "ok")
+        except Exception as e:
+            log(5, f"Could not delete old webhook: {e}", "warn")
+        
+        # Now set new webhook
         req = urllib.request.Request(
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/setWebhook",
             method="POST",
@@ -484,6 +520,9 @@ def main():
     
     if not NPM_CMD:
         print(f"{Colors.YELLOW}[WARNING] npm not found! Build may fail.{Colors.RESET}")
+    
+    # Step 0: Backup
+    step0_backup()
     
     # Step 0: Kill existing processes
     kill_existing_processes()

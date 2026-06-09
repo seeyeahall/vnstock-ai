@@ -51,6 +51,59 @@ CREATE TABLE IF NOT EXISTS workflow_states (
 
 db.exec(V3_MIGRATION);
 
+// === Schema Migration: Ensure all V3 columns exist in V2 tables ===
+function migrateTableColumns(tableName, requiredColumns) {
+  try {
+    const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+    const colNames = columns.map(c => c.name);
+    for (const [name, type] of requiredColumns) {
+      if (!colNames.includes(name)) {
+        db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${name} ${type}`);
+        console.log(`[DB] Added column ${name} to ${tableName}`);
+      }
+    }
+  } catch (e) {
+    console.log(`[DB] Migration note for ${tableName}:`, e.message);
+  }
+}
+
+// agent_tasks: merge V2 + V3 columns
+migrateTableColumns('agent_tasks', [
+  ['report_id', 'TEXT'],
+  ['agent_name', 'TEXT'],
+  ['progress', 'INTEGER DEFAULT 0'],
+  ['input_params', 'TEXT'],
+  ['output_data', 'TEXT'],
+  ['error_message', 'TEXT'],
+  ['started_at', 'DATETIME'],
+]);
+
+// report_templates: merge V2 + V3 columns
+migrateTableColumns('report_templates', [
+  ['template_id', 'TEXT UNIQUE'],
+  ['preset', 'TEXT'],
+  ['enabled', 'BOOLEAN DEFAULT 1'],
+]);
+
+// workflow_states: ensure updated_at exists
+migrateTableColumns('workflow_states', [
+  ['updated_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP'],
+]);
+
+// reports: V3 columns (already handled by migrateV2toV3 but ensure here too)
+migrateTableColumns('reports', [
+  ['raw_data_json', 'TEXT'],
+  ['analysis_result', 'TEXT'],
+  ['audio_path', 'TEXT'],
+  ['excel_path', 'TEXT'],
+  ['market_regime', 'TEXT'],
+  ['focus_sectors', 'TEXT'],
+  ['notion_sent', 'BOOLEAN DEFAULT 0'],
+  ['dashboard_saved', 'BOOLEAN DEFAULT 0'],
+]);
+
+// === End Schema Migration ===
+
 // V2 tables
 const V2_SCHEMA = `
 CREATE TABLE IF NOT EXISTS chat_history (
@@ -114,51 +167,8 @@ CREATE TABLE IF NOT EXISTS api_keys (
 );
 `;
 
-// V3 new tables
-const V3_SCHEMA = `
-CREATE TABLE IF NOT EXISTS report_templates (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  template_id TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  sections TEXT,
-  output_channels TEXT,
-  time_range TEXT,
-  sources TEXT,
-  schedule TEXT,
-  enabled BOOLEAN DEFAULT 1,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS agent_tasks (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  task_id TEXT UNIQUE NOT NULL,
-  report_id TEXT,
-  agent_name TEXT,
-  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'running', 'success', 'failed', 'retrying')),
-  progress INTEGER DEFAULT 0,
-  input_params TEXT,
-  output_data TEXT,
-  error_message TEXT,
-  started_at DATETIME,
-  completed_at DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS workflow_states (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  workflow_id TEXT UNIQUE NOT NULL,
-  step TEXT,
-  progress INTEGER DEFAULT 0,
-  data TEXT,
-  status TEXT DEFAULT 'running' CHECK(status IN ('running', 'paused', 'completed', 'failed')),
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-`;
-
 // Run schema creation
 db.exec(V2_SCHEMA);
-db.exec(V3_SCHEMA);
 
 // Migration: ensure V2 reports table has new V3 columns
 function migrateV2toV3() {

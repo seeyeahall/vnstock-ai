@@ -5,3 +5,6 @@ package-lock.json
 *.db
 *.db-shm
 *.db-wal
+backup/
+local-backend/data/
+local-backend/*.log

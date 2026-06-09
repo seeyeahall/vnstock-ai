@@ -7,6 +7,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import cron from 'node-cron';
+import https from 'https';
 
 import db from './db.js';
 import { syncEngine } from './sync.js';
@@ -170,6 +171,42 @@ app.post('/api/db/settings', (req, res) => {
   }
 });
 
+// ── Settings Sync (Frontend → Backend) ──
+app.post('/api/settings/sync', (req, res) => {
+  try {
+    const settings = req.body;
+    if (!settings || typeof settings !== 'object') {
+      return res.status(400).json({ success: false, error: 'settings object required' });
+    }
+    
+    const stmt = db.prepare(`INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))`);
+    let count = 0;
+    
+    for (const [key, value] of Object.entries(settings)) {
+      const val = typeof value === 'string' ? value : JSON.stringify(value);
+      stmt.run(key, val);
+      count++;
+    }
+    
+    res.json({ success: true, message: `Synced ${count} settings to backend DB` });
+  } catch (e) {
+    console.error('[Settings Sync Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.get('/api/settings/all', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM settings').all();
+    const obj = {};
+    for (const r of rows) obj[r.key] = r.value;
+    res.json({ success: true, data: obj });
+  } catch (e) {
+    console.error('[Settings All Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── DB Chat (alias for history with CRUD) ──
 app.get('/api/db/chat', (req, res) => {
   const rows = db.prepare('SELECT * FROM chat_history ORDER BY created_at DESC LIMIT 100').all();
@@ -277,17 +314,45 @@ app.post('/api/send-email', async (req, res) => {
 });
 
 // ── Telegram ──
+function telegramHttpRequest(token, method, body) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${token}/${method}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data)
+      }
+    };
+    const req = https.request(options, (res) => {
+      let responseData = '';
+      res.on('data', (chunk) => { responseData += chunk; });
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(responseData));
+        } catch (e) {
+          resolve({ ok: false, description: responseData });
+        }
+      });
+    });
+    req.on('error', (e) => reject(e));
+    req.write(data);
+    req.end();
+  });
+}
+
 app.post('/api/send-telegram', async (req, res) => {
   const { chat_id, text, parse_mode = 'HTML' } = req.body;
   const token = '7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc';
   const cid = chat_id || '6226786681';
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
   try {
-    const { stdout } = await execAsync(
-      `curl -s -X POST "${url}" -H "Content-Type: application/json" -d "{\\"chat_id\\":\\"${cid}\\",\\"text\\":\\"${text.replace(/"/g, '\\"').replace(/\n/g, '\\n')}\\",\\"parse_mode\\":\\"${parse_mode}\\"}"`,
-      { timeout: 15000 }
-    );
-    const result = JSON.parse(stdout);
+    const result = await telegramHttpRequest(token, 'sendMessage', {
+      chat_id: cid,
+      text: text,
+      parse_mode: parse_mode
+    });
     res.json({ success: result.ok, data: result });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
@@ -598,8 +663,11 @@ function parseTelegramIntent(text) {
 async function executeTelegramIntent(intent, text, chatId) {
   const token = '7055879874:AAE8PmCuPMMV7uyIiamDBNN5xZgWBctYIVc';
   const send = async (msg) => {
-    const cmd = `curl -s -X POST "https://api.telegram.org/bot${token}/sendMessage" -H "Content-Type: application/json" -d "{\\"chat_id\\":\\"${chatId}\\",\\"text\\":\\"${msg.replace(/"/g, '\\"').replace(/\n/g, '\\n')}\\",\\"parse_mode\\":\\"HTML\\"}"`;
-    await execAsync(cmd, { timeout: 15000 });
+    await telegramHttpRequest(token, 'sendMessage', {
+      chat_id: chatId,
+      text: msg,
+      parse_mode: 'HTML'
+    });
   };
 
   switch (intent) {

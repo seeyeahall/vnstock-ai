@@ -6,12 +6,16 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-let registry = {};
-try {
-  registry = JSON.parse(readFileSync(join(__dirname, '..', 'config', 'api_registry.json'), 'utf-8'));
-} catch (e) {
-  console.log('[HealthCheck] Registry load error:', e.message);
+function loadRegistry() {
+  try {
+    return JSON.parse(readFileSync(join(__dirname, '..', 'config', 'api_registry.json'), 'utf-8'));
+  } catch (e) {
+    console.log('[HealthCheck] Registry load error:', e.message);
+    return {};
+  }
 }
+
+let registry = loadRegistry();
 
 function httpRequest(url, timeout = 15000) {
   return new Promise((resolve, reject) => {
@@ -30,7 +34,9 @@ function httpRequest(url, timeout = 15000) {
 }
 
 async function checkApiHealth(provider) {
-  const config = registry[provider];
+  // Reload registry each time to pick up changes
+  const currentRegistry = loadRegistry();
+  const config = currentRegistry[provider];
   if (!config) {
     return { provider, status: 'unknown', error: 'Not in registry' };
   }
@@ -85,6 +91,8 @@ async function checkApiHealth(provider) {
 }
 
 async function checkAllHealth() {
+  // Reload registry each time to pick up changes
+  registry = loadRegistry();
   const providers = Object.keys(registry);
   const results = {};
   for (const p of providers) {

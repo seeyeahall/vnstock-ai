@@ -2,6 +2,7 @@ import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import db from '../db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, '..', 'data', 'notebooklm');
@@ -23,6 +24,25 @@ class NotebookLMSync {
     this.syncStatus = 'idle'; // idle | syncing | success | fallback_local | error
     this.googleDriveAvailable = false; // Set true when credentials are configured
     this.ensureLocalDir();
+    this.loadConfig();
+  }
+
+  loadConfig() {
+    // Load folderId and notebookId from DB settings
+    try {
+      const rows = db.prepare("SELECT * FROM settings WHERE key LIKE 'notebooklm_%'").all();
+      for (const r of rows) {
+        if (r.key === 'notebooklmFolderId') this.folderId = r.value || '';
+        if (r.key === 'notebooklmNotebookId') this.notebookId = r.value || '';
+      }
+      // Fallback to defaults if DB empty
+      if (!this.folderId) this.folderId = '1C1Q5GPypwiPvIHt6acYRHWAKapdr5jof';
+      if (!this.notebookId) this.notebookId = 'b27d3277-d416-410e-a48d-dca5a38d5741';
+    } catch (e) {
+      console.log('[NotebookLMSync] Config load note:', e.message);
+      this.folderId = '1C1Q5GPypwiPvIHt6acYRHWAKapdr5jof';
+      this.notebookId = 'b27d3277-d416-410e-a48d-dca5a38d5741';
+    }
   }
 
   ensureLocalDir() {
@@ -39,13 +59,14 @@ class NotebookLMSync {
    */
   async syncToDrive(megaContext, folderName = 'VNStock_Daily_Intelligence') {
     this.syncStatus = 'syncing';
+    this.loadConfig(); // Reload config in case it changed
     try {
       const markdown = await this.createMarkdownFile(megaContext);
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `vnstock_intelligence_${dateStr}.md`;
 
       if (this.googleDriveAvailable) {
-        const folderId = await this.findOrCreateFolder(folderName);
+        const folderId = this.folderId || await this.findOrCreateFolder(folderName);
         const fileId = await this.uploadFile(folderId, filename, markdown);
         this.lastSync = new Date().toISOString();
         this.syncStatus = 'success';
@@ -184,7 +205,7 @@ class NotebookLMSync {
   async findOrCreateFolder(folderName) {
     if (!this.googleDriveAvailable) {
       console.log(`[NotebookLMSync] Placeholder: Would find/create folder "${folderName}" on Google Drive`);
-      return 'placeholder-folder-id';
+      return this.folderId || 'placeholder-folder-id';
     }
     // TODO: Implement using googleapis or REST API with service account
     // 1. Search for folder by name
@@ -215,6 +236,8 @@ class NotebookLMSync {
       lastSync: this.lastSync,
       googleDriveAvailable: this.googleDriveAvailable,
       localDir: DATA_DIR,
+      folderId: this.folderId || null,
+      notebookId: this.notebookId || null,
     };
   }
 }

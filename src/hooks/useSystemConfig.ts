@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SystemProfile, ModuleDef } from "@/types/modules";
 import { allModules, systemPresets } from "@/data/moduleRegistry";
+import { syncSettingsToBackend, getSettingsFromBackend } from "@/services/api";
 
 export interface OutputSettings {
   telegramBotToken: string;
@@ -81,6 +82,42 @@ export function useSystemConfig() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
+
+  // Sync settings to backend when they change (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      syncSettingsToBackend(settings as unknown as Record<string, unknown>).catch((e) => {
+        console.warn("[useSystemConfig] Sync to backend failed:", e);
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [settings]);
+
+  // Load settings from backend on mount (if backend available and localStorage empty)
+  useEffect(() => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      getSettingsFromBackend()
+        .then((res) => {
+          if (res.success && res.data) {
+            const backendSettings: Partial<OutputSettings> = {};
+            for (const [key, value] of Object.entries(res.data)) {
+              if (key in DEFAULT_SETTINGS) {
+                try {
+                  backendSettings[key as keyof OutputSettings] = JSON.parse(value as string);
+                } catch {
+                  backendSettings[key as keyof OutputSettings] = value as any;
+                }
+              }
+            }
+            setSettings((prev) => ({ ...prev, ...backendSettings }));
+          }
+        })
+        .catch(() => {
+          // silently ignore if backend not available
+        });
+    }
+  }, []);
 
   const updateSetting = useCallback(
     <K extends keyof OutputSettings>(key: K, value: OutputSettings[K]) => {

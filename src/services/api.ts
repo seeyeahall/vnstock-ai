@@ -105,6 +105,20 @@ export function useApiStatus() {
   return { online, check };
 }
 
+export async function syncSettingsToBackend(settings: Record<string, unknown>) {
+  const res = await fetch(`${API_BASE}/api/settings/sync`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(settings),
+  });
+  return res.json();
+}
+
+export async function getSettingsFromBackend() {
+  const res = await fetch(`${API_BASE}/api/settings/all`);
+  return res.json();
+}
+
 // ===== CHAT APIs =====
 
 export async function sendChatMessage(sessionId: string, message: string) {
