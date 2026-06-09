@@ -4,6 +4,12 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: true,
+    port: 5173,
+    cors: true,
+    allowedHosts: ['.trycloudflare.com', 'localhost'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
