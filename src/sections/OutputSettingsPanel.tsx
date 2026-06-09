@@ -558,7 +558,7 @@ export default function OutputSettingsPanel() {
         </CardContent>
       </Card>
 
-      // === NOTEBOOKLM SECTION ===
+      {/* === NOTEBOOKLM SECTION === */}
       <Card className="border-l-4 border-l-orange-500">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">

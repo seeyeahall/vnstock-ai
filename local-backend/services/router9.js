@@ -25,14 +25,15 @@ class Router9 {
     for (const provider of candidates) {
       const health = await checkApiHealth(provider);
       const cfg = registry[provider];
+      if (!cfg) continue;
       const quotaMin = 20; // minimum % quota to consider usable
 
       if (health.status === 'healthy') {
         const quotaRemaining = health.quota_remaining || 0;
-        const quotaPercent = cfg && cfg.rpd_limit > 0 ? Math.round((quotaRemaining / cfg.rpd_limit) * 100) : 100;
+        const quotaPercent = cfg.rpd_limit > 0 ? Math.round((quotaRemaining / cfg.rpd_limit) * 100) : 100;
 
         if (quotaPercent > quotaMin || cfg.rpd_limit === 0) {
-          selected.push({ provider, health, quotaPercent, priority: cfg?.priority || 99 });
+          selected.push({ provider, health, quotaPercent, priority: cfg.priority || 99 });
         }
       }
     }

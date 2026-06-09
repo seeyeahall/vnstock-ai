@@ -90,7 +90,7 @@
 
 ## 3. Tiến trình hiện tại (2026-06-07)
 
-### ✅ ĐÃ HOÀN THÀNH (V2.0 + V3.0)
+### ✅ ĐÃ HOÀN THÀNH (V2.0 + V3.0 + Fix 2026-06-09)
 
 | # | Tính năng | File chính | Status |
 |---|-----------|-----------|--------|
@@ -116,7 +116,7 @@
 | 20 | **Push All v3** | `push-all.bat`, `local-backend/scripts/push_all.py` | ✅ |
 | 21 | **Chat AI Engine** | `local-backend/services/chatEngine.js`, `src/sections/ChatPanel.tsx` | ✅ |
 | 22 | **Viber Webhook** | `server.js` (endpoint `/api/viber/webhook`) | ✅ |
-| 23 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ |
+| 23 | **NotebookLM Sync** | `local-backend/services/notebooklmSync.js` | ✅ (Folder ID + Notebook ID từ `.worktrees`) |
 | 24 | **n8n Bridge** | `local-backend/services/n8nBridge.js` | ✅ |
 | 25 | **Workflow Runner** | `local-backend/services/workflowRunner.js` | ✅ |
 | 26 | **API Test Endpoints** | `server.js` (`/api/test-api-key`, `/api/test-all-keys`) | ✅ |
@@ -128,15 +128,15 @@
 | 32 | **Build Freshness Checker** | `local-backend/services/buildChecker.js` | ✅ |
 | 33 | **Push All v3.1** | `push-all.bat`, `local-backend/scripts/push_all.py` | ✅ |
 | 34 | **Kill Process Guard** | `push_all.py`, `auto_start.py`, `auto-start.bat` | ✅ |
+| 35 | **Fix 2026-06-09** | JSX comment, API mismatch, missing endpoints, auto-start tunnel | ✅ |
 
 ### ⏳ CẦN LÀM TIẾP
 
 | # | Việc cần làm | Mô tả |
 |---|-------------|-------|
-| A | **Build & Deploy V3** | `npm run build` + push GitHub Pages + cập nhật docs |
-| B | **D1 credentials** | Đăng ký Cloudflare → tạo D1 DB → lấy accountId, databaseId, apiToken → POST `/api/sync/config` |
-| C | **Turso credentials** | Đăng ký Turso → `turso db create vnstock-ai` → lấy URL + token → POST `/api/sync/config` |
-| D | **Tunnel stable** | Cần khởi động thủ công. Xem `local-backend/TUNNEL_GUIDE.md` để biết cách chạy cloudflared tunnel. |
+| A | **D1 credentials** | Đăng ký Cloudflare → tạo D1 DB → lấy accountId, databaseId, apiToken → POST `/api/sync/config` |
+| B | **Turso credentials** | Đăng ký Turso → `turso db create vnstock-ai` → lấy URL + token → POST `/api/sync/config` |
+| C | **Tunnel stable** | Cần khởi động thủ công. Xem `local-backend/TUNNEL_GUIDE.md` để biết cách chạy cloudflared tunnel. |
 
 ---
 
@@ -223,4 +223,4 @@
 ---
 
 *File này được tạo để chat mới có thể nắm bắt project trong 2 phút.*
-*Cập nhật: 2026-06-08. V3.0 đã hoàn thành 31/31 pha — chỉ còn cần credentials để kích hoạt NotebookLM và n8n.*
+*Cập nhật: 2026-06-09. V3.0 đã hoàn thành 35/35 pha — Fix lỗi compile, API mismatch, missing endpoints, auto-start tunnel. Chỉ còn cần credentials để kích hoạt D1/Turso.*

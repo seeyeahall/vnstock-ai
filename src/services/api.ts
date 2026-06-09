@@ -19,23 +19,23 @@ export function getApiBaseUrl(): string {
 }
 
 export async function sendTelegramMessage(
-  botToken: string,
-  chatId: string,
+  _botToken: string,
+  _chatId: string,
   message: string
 ) {
   const res = await fetch(`${API_BASE}/api/send-telegram`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ botToken, chatId, message }),
+    body: JSON.stringify({ chat_id: _chatId, text: message, parse_mode: "HTML" }),
   });
   return res.json();
 }
 
 export async function sendEmail(
-  smtpHost: string,
-  smtpPort: number,
-  user: string,
-  pass: string,
+  _smtpHost: string,
+  _smtpPort: number,
+  _user: string,
+  _pass: string,
   to: string,
   subject: string,
   html: string
@@ -43,7 +43,7 @@ export async function sendEmail(
   const res = await fetch(`${API_BASE}/api/send-email`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ smtpHost, smtpPort, user, pass, to, subject, html }),
+    body: JSON.stringify({ to, subject, body: html.replace(/<[^>]*>/g, ' '), html }),
   });
   return res.json();
 }
@@ -62,7 +62,7 @@ export async function saveToNotion(
 }
 
 export async function runWorkflow(payload: Record<string, unknown>) {
-  const res = await fetch(`${API_BASE}/api/run-workflow`, {
+  const res = await fetch(`${API_BASE}/api/workflow/run`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -71,7 +71,11 @@ export async function runWorkflow(payload: Record<string, unknown>) {
 }
 
 export async function getYouTubeData(channelId: string) {
-  const res = await fetch(`${API_BASE}/api/youtube?channelId=${channelId}`);
+  const res = await fetch(`${API_BASE}/api/youtube/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ channels: [channelId], days: 7, max_videos: 10 }),
+  });
   return res.json();
 }
 

@@ -31,6 +31,43 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// ── Market Regime (stub for Header) ──
+app.get('/api/market/regime', (req, res) => {
+  res.json({ success: true, regime: 'Sideway', timestamp: new Date().toISOString() });
+});
+
+// ── Notion Save (stub) ──
+app.post('/api/save-notion', async (req, res) => {
+  const { token, databaseId, data } = req.body;
+  if (!token) {
+    return res.status(400).json({ success: false, error: 'Notion token required' });
+  }
+  // Stub: Notion API integration not fully implemented
+  res.json({ success: true, message: 'Notion save stub — implement Notion API integration', note: 'Token received, databaseId: ' + (databaseId || 'none') });
+});
+
+// ── Chat History Delete ──
+app.delete('/api/chat/history/:sessionId', (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    db.prepare('DELETE FROM chat_history WHERE session_id = ?').run(sessionId);
+    res.json({ success: true, message: `Deleted chat history for session ${sessionId}` });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── Schedules Delete ──
+app.delete('/api/db/schedules/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    db.prepare('DELETE FROM schedules WHERE schedule_id = ?').run(id);
+    res.json({ success: true, message: `Deleted schedule ${id}` });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ── Health ──
 app.get('/api/health', (req, res) => {
   res.json({ success: true, status: 'ok', version: '3.0.0', timestamp: new Date().toISOString() });
@@ -684,6 +721,16 @@ app.post('/api/notebooklm/audio/request', async (req, res) => {
 });
 
 // ── n8n Bridge ──
+app.get('/api/n8n/test', async (req, res) => {
+  try {
+    const result = await n8nBridge.testConnection();
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('[n8n Test Error]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 app.post('/api/n8n/test', async (req, res) => {
   try {
     const result = await n8nBridge.testConnection();

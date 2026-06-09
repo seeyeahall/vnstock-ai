@@ -45,10 +45,20 @@
 | 33 | **Build Freshness Checker** | ✅ | `buildChecker.js` — Tự động kiểm tra `dist/` vs `src/` timestamps. Báo trên dashboard nếu frontend chưa build bản mới nhất |
 | 34 | **Push All v3.1** | ✅ | `push_all.py` — Tự động check build freshness trước khi build, log số files + size, skip nếu đã fresh |
 
-### 🔧 FIX GẦN NHẤT
+### 🔧 FIX GẦN NHẤT (2026-06-09)
 
 | Ngày | File | Vấn đề | Giải pháp |
 |------|------|--------|-----------|
+| 2026-06-09 | `OutputSettingsPanel.tsx` | JSX comment `//` gây lỗi compile | Sửa thành `{/* */}` |
+| 2026-06-09 | `api.ts` | API endpoints sai: `/api/run-workflow`, `/api/youtube?channelId=` | Sửa thành `/api/workflow/run`, `/api/youtube/analyze` |
+| 2026-06-09 | `api.ts` | `sendTelegramMessage` gửi sai params (`botToken`, `chatId`) | Sửa thành `chat_id`, `text`, `parse_mode` |
+| 2026-06-09 | `api.ts` | `sendEmail` gửi sai params (`smtpHost`, `smtpPort`, `user`, `pass`) | Sửa thành `to`, `subject`, `body`, `html` |
+| 2026-06-09 | `server.js` | Thiếu endpoints: `/api/market/regime`, `/api/save-notion`, DELETE chat history, DELETE schedules | Thêm 4 endpoints mới |
+| 2026-06-09 | `server.js` | `/api/n8n/test` chỉ có POST, push_all.py gọi GET | Thêm GET endpoint `/api/n8n/test` |
+| 2026-06-09 | `router9.js` | `cfg.rpd_limit` lỗi khi provider không trong registry | Thêm `if (!cfg) continue` |
+| 2026-06-09 | `push_all.py` | `current_branch` undefined ngoài try block | Định nghĩa `current_branch = "main"` trước try |
+| 2026-06-09 | `auto-start.bat` | Không start tunnel, mở browser sai URL (localhost:3004) | Thêm start tunnel, mở localhost:5173 |
+| 2026-06-09 | `useSystemConfig.ts` | NotebookLM & n8n default values trống | Cập nhật Folder ID và Notebook ID từ `.worktrees` |
 | 2026-06-08 | `server.js` | Thiếu `app.listen()` ở cuối file (dòng 439 bị `NaN`) | Thêm `app.listen(PORT, () => console.log(...))` |
 | 2026-06-08 | `node_modules` | Thiếu dependencies (0 packages) | Chạy `npm install` → 290 packages |
 | 2026-06-08 | `chatEngine.js` | Import path sai `import db from './db.js'` | Sửa thành `import db from '../db.js'` |

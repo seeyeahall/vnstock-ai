@@ -312,6 +312,7 @@ def step4_push_ghpages():
     
     # Backup current branch state before switching
     backup_dir = os.path.join(APP_DIR, "backup", f"gh-pages-pre-{time.strftime('%Y%m%d-%H%M%S')}")
+    current_branch = "main"  # default fallback
     try:
         os.makedirs(backup_dir, exist_ok=True)
         # Save current branch name

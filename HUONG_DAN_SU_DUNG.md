@@ -35,7 +35,13 @@
 
 ## 2. Cách 0: Auto Start - Chỉ 1 lệnh (Khuyên dùng)
 
-**Đây là cách dễ nhất và được khuyên dùng.** File `.bat` chỉ có **3 dòng**, gọi Python để tự động làm hết:
+**Đây là cách dễ nhất và được khuyên dùng.** File `auto-start.bat` tự động:
+1. Tìm Node.js
+2. Kill process cũ (tránh port conflict)
+3. Start backend server (port 3004)
+4. Start frontend dev server (port 5173)
+5. Start Cloudflare tunnel (nếu có)
+6. Mở browser ở `http://localhost:5173`
 
 ```
 [1/5] Kiem tra backend... OK
@@ -68,106 +74,68 @@ Bạn sẽ thấy cửa sổ hiện ra với tiến trình:
 
 ```
 ============================================================
-VNStock AI v2.0 - AUTO START
-Chi 1 lenh -> Backend + Tunnel + Webhook + Browser
+VNStock AI v3.0 - AUTO START
+Backend + Frontend Dev + Tunnel + Browser
 ============================================================
 
-[1/5] Kiem tra backend...
-    Backend chua chay. Dang khoi dong...
-    Dang cho backend khoi dong... OK (mat 5s)
-
-[2/5] Tao Cloudflare tunnel...
-    Dang khoi dong tunnel...
-    Dang cho URL tunnel... OK
-    URL tu xa: https://abc123-def456.trycloudflare.com
-
-[3/5] Cap nhat Telegram webhook...
-    OK - Webhook da cap nhat
-    https://abc123-def456.trycloudflare.com/api/telegram/webhook
-
-[4/5] Mo trinh duyet...
-    OK - Da mo: https://abc123-def456.trycloudflare.com
+[1/4] Kiem tra Node.js... OK
+[2/4] Khoi dong backend... OK (port 3004)
+[3/4] Khoi dong frontend dev... OK (port 5173)
+[4/4] Khoi dong tunnel... OK (neu co cloudflared.exe)
 
 ============================================================
 APP DA SAN SANG!
 ============================================================
 
-TRUY CAP TU XA (moi thiet bi):
-    https://abc123-def456.trycloudflare.com
+TRUY CAP LOCAL (frontend dev):
+    http://localhost:5173
 
-TRUY CAP LOCAL (may nay):
+TRUY CAP API (backend):
     http://localhost:3004
+
+TRUY CAP TU XA (neu tunnel chay):
+    Xem cua so "VNStock Tunnel" de lay URL
 
 TELEGRAM BOT:
     @HuuVangbot
-
-EMAIL:
-    seeyeahall@gmail.com
 
 GITHUB PAGES (chi giao dien):
     https://seeyeahall.github.io/vnstock-ai/
 
 ============================================================
 LUU Y QUAN TRONG:
-    - Giua cua so NAY mo de tunnel hoat dong
+    - Giua cua so backend mo de API hoat dong
     - URL tunnel thay doi moi lan khoi dong lai
-    - Nhan Ctrl+C de dung tunnel va thoat
+    - Frontend dev server (5173) tu dong reload khi sua code
     - Backend chay rieng, khong bi anh huong khi dung tunnel
 ============================================================
-
-Dang giu tunnel hoat dong... (Ctrl+C de dung)
 ```
 
-**Trình duyệt sẽ tự động mở** với URL từ xa. Bạn có thể:
+**Trình duyệt sẽ tự động mở** với URL frontend dev (`http://localhost:5173`). Bạn có thể:
 - Truy cập trên máy tính này
-- Truy cập trên điện thoại (nhập URL)
+- Truy cập trên điện thoại (nhập URL tunnel nếu có)
 - Gửi URL cho người khác qua Zalo/Messenger
 
 ### ⚠️ Lưu ý
 
-- **Giữ cửa sổ auto-start.bat mở**: Tunnel sẽ tắt nếu đóng cửa sổ
-- **URL thay đổi mỗi lần**: Mỗi lần chạy lại `auto-start.bat` sẽ có URL mới
-- **Backend tự khởi động**: Nếu backend chưa chạy, script tự động khởi động
+- **Giữ cửa sổ backend mở**: API sẽ tắt nếu đóng cửa sổ backend
+- **Giữ cửa sổ tunnel mở**: Tunnel sẽ tắt nếu đóng cửa sổ
+- **URL tunnel thay đổi mỗi lần**: Mỗi lần chạy lại `auto-start.bat` sẽ có URL mới
+- **Frontend auto-reload**: Khi sửa code frontend, trang tự động reload
 - **Không cần làm gì thêm**: Tất cả đã tự động
 
-### File .bat có gì?
+### File auto-start.bat có gì?
 
-File `auto-start.bat` **chỉ có 15 dòng** - cực kỳ đơn giản:
+File `auto-start.bat` tự động tìm Node.js, kill process cũ, start backend, start frontend dev, start tunnel, và mở browser:
 
-```batch
-@echo off
-set PYTHON_EXE=C:\Users\NHVANG\AppData\Roaming\kimi-desktop\daimon-share\daimon\runtime\python\.venv\Scripts\python.exe
-set SCRIPT=E:\AI TONG HOP THONG TIN\app\local-backend\scripts\auto_start.py
-
-if not exist "%PYTHON_EXE%" (
-    echo [LOI] Khong tim thay Python: %PYTHON_EXE%
-    pause
-    exit /b 1
-)
-
-if not exist "%SCRIPT%" (
-    echo [LOI] Khong tim thay script: %SCRIPT%
-    pause
-    exit /b 1
-)
-
-"%PYTHON_EXE%" "%SCRIPT%"
-pause
-```
-
-- Dòng 1: Tắt echo
-- Dòng 2: Gọi Python chạy script `auto_start.py`
-- Dòng 3: Đợi người dùng nhấn phím trước khi đóng cửa sổ
-
-**Toàn bộ logic nằm trong file Python** `local-backend/scripts/auto_start.py`:
-- Kiểm tra backend đang chạy chưa
-- Khởi động backend nếu chưa chạy (mở cửa sổ mới)
-- Kiểm tra cloudflared đã cài chưa
-- Tạo Cloudflare tunnel và lấy URL
-- Cập nhật Telegram webhook
-- Mở trình duyệt tự động
-- Hiển thị tóm tắt tất cả kênh truy cập
-- Giữ tunnel chạy cho đến khi người dùng nhấn Ctrl+C
+- Tìm `node.exe` trong các thư mục phổ biến hoặc PATH
+- Kill `node.exe` cũ để tránh port conflict
+- Kiểm tra port 3004 trống
+- Start backend trong cửa sổ mới (`START "VNStock Backend"`)
+- Test backend health (`curl http://localhost:3004/api/health`)
+- Start frontend dev server trong cửa sổ mới (`npm run dev`)
+- Start Cloudflare tunnel nếu `cloudflared.exe` tồn tại
+- Mở browser ở `http://localhost:5173`
 
 ---
 

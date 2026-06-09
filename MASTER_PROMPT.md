@@ -31,7 +31,15 @@
 9. ✅ Push All Script (tự động push lên local + tunnel + GitHub Pages + Telegram)
 10. ✅ Auto Start Script (`auto-start.bat` chỉ 3 dòng → gọi Python `auto_start.py` xử lý toàn bộ: Backend + Tunnel + Webhook + Browser)
 
-**Tính năng V3.0 đang nâng cấp**:
+**Tính năng V3.0 đã hoàn thành — Fix lỗi 2026-06-09**:
+- ✅ **Output Settings** — NotebookLM + n8n integration hoạt động (Folder ID & Notebook ID từ `.worktrees`)
+- ✅ **API Match** — Frontend ↔ Backend endpoints đồng bộ: `/api/workflow/run`, `/api/youtube/analyze`, `/api/save-notion`, DELETE chat/schedules
+- ✅ **Build Fresh** — `npm run build` pass, dist/ 566KB JS + 32KB CSS
+- ✅ **Auto Start v3.1** — `auto-start.bat` start backend + tunnel + frontend dev + mở browser localhost:5173
+- ✅ **Push All v3.2** — Fix `current_branch` scope, kill process guard, 7 bước tự động
+- ✅ **Backend Health** — All 40+ endpoints responding, SQLite 8 tables, port 3004
+
+**Tính năng V3.0 đã hoàn thành (trước fix)**:
 11. ✅ **Report Builder** — Cấu hình mẫu báo cáo tùy chỉnh
 12. ✅ **Data Collection Panel** — Quản lý nguồn dữ liệu
 13. ✅ **Chart Viewer** — Đồ thị 10 chỉ báo
@@ -434,8 +442,9 @@ curl http://localhost:3004/api/sync/status
   3. **Không được xóa source code hẳn**: Chỉ được thay thế sau khi đã backup
   4. **Git commit**: Mỗi lần thay đổi phải commit với message rõ ràng
 - **V3 Design Docs**: `docs/upgrade-v3/` chứa 5 file thiết kế chi tiết (overview, system graph, roadmap, advanced features, master prompt)
-- **V3 Code Status**: Pha 0-1-2-3-4-5-6-9 đã hoàn thành. Pha 7 (NotebookLM), Pha 8 (n8n Bridge), Pha 10 (Build & Deploy) đang chờ.
+- **V3 Code Status**: Pha 0-1-2-3-4-5-6-9 đã hoàn thành. Pha 7 (NotebookLM), Pha 8 (n8n Bridge), Pha 10 (Build & Deploy) đã hoàn thành — Fix lỗi 2026-06-09.
+- **Fix 2026-06-09**: JSX comment, API mismatch frontend↔backend, thiếu endpoints, auto-start tunnel, push_all.py scope, NotebookLM/n8n default values.
 
 ---
 
-*Cập nhật: 2026-06-08. V3.0 đã hoàn thành — 11/11 pha.*
+*Cập nhật: 2026-06-09. V3.0 đã hoàn thành — Fix lỗi 2026-06-09: JSX comment, API mismatch, missing endpoints, auto-start tunnel. Build pass, backend 40+ endpoints responding.*

@@ -117,15 +117,27 @@ IF %ERRORLEVEL% NEQ 0 (
 :: Start frontend dev server
 START "VNStock Frontend" cmd /k "cd /d %~dp0 && "%NPM_CMD%" run dev"
 
+:: Start Cloudflare tunnel (if available)
+SET "TUNNEL_EXE=%~dp0local-backend\cloudflared.exe"
+IF EXIST "%TUNNEL_EXE%" (
+    ECHO [VNStock AI v3.0] Starting Cloudflare tunnel...
+    START "VNStock Tunnel" cmd /k "cd /d %~dp0local-backend && "%TUNNEL_EXE%" tunnel --url http://localhost:3004"
+    ECHO [VNStock AI v3.0] Tunnel starting... URL will appear in tunnel window.
+) ELSE (
+    ECHO [VNStock AI v3.0] cloudflared.exe not found. Tunnel skipped.
+    ECHO   Download from: https://github.com/cloudflare/cloudflared/releases
+)
+
 ECHO.
-ECHO [VNStock AI v3.0] Both services started.
-ECHO   - Backend: http://localhost:3004
-ECHO   - Frontend: http://localhost:5173  (or as shown by Vite)
+ECHO [VNStock AI v3.0] Services started.
+ECHO   - Backend API:  http://localhost:3004
+ECHO   - Frontend Dev: http://localhost:5173
+ECHO   - Tunnel:       Check tunnel window for public URL
 ECHO.
 ECHO Press any key to open browser...
 PAUSE >nul
 
-:: Open browser
-START http://localhost:3004
+:: Open browser to frontend dev server
+START http://localhost:5173
 
 ENDLOCAL
