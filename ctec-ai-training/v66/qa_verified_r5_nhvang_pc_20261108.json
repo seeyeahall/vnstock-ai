@@ -1,0 +1,78 @@
+{
+  "release": "V6.6-R5",
+  "date_local": "2026-11-08",
+  "site": "https://seeyeahall.github.io/vnstock-ai/ctec-ai-training/v66/",
+  "repo": "seeyeahall/vnstock-ai",
+  "source_commit": "0fc1a42abbc3ec8c5788e21669d2f6adb27c974d",
+  "git_blob_sha1": "8ef6883fd7a7524bfec1039498ce6f8646b7baa3",
+  "live_https": {
+    "status": 200,
+    "bytes": 240188,
+    "sha1_git_blob": "8ef6883fd7a7524bfec1039498ce6f8646b7baa3",
+    "matches_source": true
+  },
+  "qa_browser": {
+    "host": "NHVANG-PC",
+    "remote_connector": "Remote Desktop Commander see3",
+    "chrome_installed": true,
+    "headless_local_playwright": true,
+    "viewports": [
+      320,
+      375,
+      414,
+      768,
+      1366
+    ],
+    "stations": 35,
+    "exercises": [
+      "B1",
+      "B2",
+      "B3"
+    ],
+    "roles": [
+      "student",
+      "teacher"
+    ],
+    "station_screens": 1050,
+    "studio_screens": 135,
+    "js_errors": 0,
+    "horizontal_overflow": 0,
+    "forward_back_micro": "PASS",
+    "learner_sections": [
+      "Mục tiêu của lệnh",
+      "Lệnh gửi AI",
+      "Kết quả cần đạt"
+    ],
+    "native_teacher_script": "PRESENT",
+    "student_logging_ui": "HIDDEN",
+    "banner_and_header": "STATIC_NO_OVERLAY",
+    "studio_optional": "PRESENT"
+  },
+  "prompts": {
+    "required_case_stages_per_exercise": [
+      "C1",
+      "C2",
+      "C2_EXPORT",
+      "C3",
+      "C4"
+    ],
+    "required_case_templates": 15,
+    "remaining_unresolved_square_bracket_placeholders": 0,
+    "safe_prefilled_station_templates": 4,
+    "editable_before_send": true
+  },
+  "data_sources": {
+    "qa_sheet": "https://docs.google.com/spreadsheets/d/1SgqwfifYOqCxV4Rh3y3fZ1lqD0vfDMvs3YCphm-vhfI/edit#gid=1009961817",
+    "quota_sheet": "https://docs.google.com/spreadsheets/d/1SgqwfifYOqCxV4Rh3y3fZ1lqD0vfDMvs3YCphm-vhfI/edit#gid=518265459",
+    "prior_ai_real": "Sổ17, nhật ký19, tab23, tab27/29; CTEC Free and Education separated"
+  },
+  "not_tested": [
+    "New C1-C4 AI-native outputs in current session",
+    "A human learner completing 120-minute class",
+    "All 9 Studio on personal Free",
+    "Central online submission and grading"
+  ],
+  "class_pass": "0/35",
+  "go_live_class": "NO",
+  "qualification": "Technical browser tests do not imply AI native file QUALITY PASS, CLASS PASS or accepted LIVE."
+}
