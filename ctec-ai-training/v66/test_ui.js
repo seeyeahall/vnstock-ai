@@ -31,7 +31,7 @@ ok(await page.evaluate(()=>opts.micro)===0,'micro init');
 await page.locator('#simpleMicroNext').click();ok(await page.evaluate(()=>opts.micro)===1,'micro next');
 await page.locator('#simpleMicroPrev').click();ok(await page.evaluate(()=>opts.micro)===0,'micro prev');
 await page.evaluate(()=>{opts.idx=1;opts.role='student';opts.view='lesson';draw()});
-const k2=await page.locator('#content').innerText();ok(k2.includes('3 tệp tải/ngày')&&k2.includes('50 nguồn/sổ')&&k2.includes('Nghiên cứu 1'),'quota/research');
+const k2=await page.locator('#content').textContent();ok(k2.includes('3 lượt tải tệp/ngày')&&k2.includes('50 nguồn/sổ')&&k2.includes('Nghiên cứu 1'),'quota/research');
 await page.screenshot({path:path.join(root,'qa_student_K2.png'),fullPage:true});
 await page.evaluate(()=>{opts.idx=D.findIndex(x=>x.code==='TH-03');opts.micro=2;opts.exercise='B1';draw()});
 await page.screenshot({path:path.join(root,'qa_student_C1.png'),fullPage:true});
