@@ -1,0 +1,54 @@
+{
+  "release": "V6.6-R4",
+  "tested_at_local": "2026-11-08 ~19:30 +07:00",
+  "provenance": "Remote Desktop Commander see3, NHVANG-PC online, Windows Chrome installed; Playwright headless browser on actual user's PC; no AI prompts sent",
+  "source_git_blob": "d94227f6157d74b6ca3cd117dd39317c9d473e76",
+  "source_sha256": "77a207cf2928f060cce1e6dea787f1afd48d078e7987cedaabb2907f9d8f0971",
+  "remote_source_file_sha_verified": true,
+  "qa": {
+    "station_views": 1050,
+    "studio_views": 135,
+    "viewports_px": [
+      320,
+      375,
+      414,
+      768,
+      1366
+    ],
+    "js_errors": 0,
+    "horizontal_overflow": 0,
+    "heading_goal_prompt_result_present": true,
+    "prompt_edit_and_copy_available": true,
+    "teacher_notes_present": true,
+    "micro_next_prev": "PASS",
+    "quota_source_links": "PASS",
+    "site_public_https": "PASS",
+    "http_status": 200
+  },
+  "mobile_visual_fixes": [
+    "replaced sticky status banner with static",
+    "replaced sticky global header with static",
+    "collapsed detailed quota / research links on learner K2",
+    "removed learner footer with JSON self-scoring and logs; teacher notes retained"
+  ],
+  "screenshots": {
+    "student_k2": {
+      "url": "https://raw.githubusercontent.com/seeyeahall/vnstock-ai/gh-pages/ctec-ai-training/v66/qa_student_K2.png",
+      "remote_sha256": "3664cf33a41b6a0b814ee93dac5ecf1781cf7d6dac991825d40e7712e4d7a559"
+    },
+    "student_c1": {
+      "url": "https://raw.githubusercontent.com/seeyeahall/vnstock-ai/gh-pages/ctec-ai-training/v66/qa_student_C1.png",
+      "remote_sha256": "c95d61fcb96dd1fa5e3923b388c21dcebe0efed48fcb6c54b3d9185379f63c75"
+    },
+    "teacher_k2": {
+      "url": "https://raw.githubusercontent.com/seeyeahall/vnstock-ai/gh-pages/ctec-ai-training/v66/qa_teacher_K2.png",
+      "remote_sha256": "a16ae2d93cf1db233f07d4f1b682d1efc3f09306d5256fdfcd2c5cbdf3628983"
+    }
+  },
+  "QA_file_remote": "C:\\Users\\CTEC\\Documents\\CTEC_AI_V5_35_TRAM_20261105\\V66_SIMPLE_UI_REMOTE_QA\\qa_result.json",
+  "QA_file_sha256": "26fe824db863adb7f74e28b7bdc30008c755df4cce24d30bd56915dd73e07df6",
+  "ci_reference": "https://github.com/seeyeahall/vnstock-ai/blob/gh-pages/ctec-ai-training/v66/qa_result.json",
+  "limits": "This is live website/browser testing, not ChatGPT Free/NotebookLM/Gemini Education live-model verification; no actual learner UAT. Existing tab17/19/23/27/29 previous real AI evidence remains in force; 0/35 CLASS_PASS and NO GO-LIVE.",
+  "class_pass": "0/35",
+  "go_live": "NO"
+}
