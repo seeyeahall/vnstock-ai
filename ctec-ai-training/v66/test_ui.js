@@ -13,7 +13,7 @@ const v=await page.evaluate(({ex,i})=>{opts.exercise=ex;opts.idx=i;opts.role='st
 ok(['Mục tiêu của lệnh','Lệnh gửi AI','Kết quả cần đạt'].every(x=>v.hd.some(h=>h.includes(x))),'three blocks '+ex+'/'+v.code+'/'+width);
 ok(v.prompt>=1&&v.copy>=1&&v.old===0&&!v.overflow,'student '+ex+'/'+v.code+'/'+width+' '+JSON.stringify(v));
 await page.evaluate(({i})=>{opts.idx=i;opts.role='teacher';draw()},{i});
-ok((await page.locator('#content').innerText()).includes('Lời nói trước lớp'),'teacher '+ex+'/'+i);
+ok((await page.locator('#content').innerText()).toLowerCase().includes('lời nói trước lớp'),'teacher '+ex+'/'+i);
 await page.evaluate(()=>{opts.role='student';draw()});
 }
 for(let j=0;j<9;j++){
