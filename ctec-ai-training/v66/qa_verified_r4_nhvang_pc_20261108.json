@@ -50,5 +50,19 @@
   "ci_reference": "https://github.com/seeyeahall/vnstock-ai/blob/gh-pages/ctec-ai-training/v66/qa_result.json",
   "limits": "This is live website/browser testing, not ChatGPT Free/NotebookLM/Gemini Education live-model verification; no actual learner UAT. Existing tab17/19/23/27/29 previous real AI evidence remains in force; 0/35 CLASS_PASS and NO GO-LIVE.",
   "class_pass": "0/35",
-  "go_live": "NO"
+  "go_live": "NO",
+  "public_live_R4": {
+    "tested_by": "NHVANG-PC Chrome headless Playwright actual HTTPS",
+    "status": 200,
+    "title": "CTEC AI – Tập huấn trực tuyến · V6.6",
+    "header_position": "static",
+    "ribbon_position": "static",
+    "student_footer_display": "none",
+    "K2_compact": true,
+    "prompt_fields_present": 1,
+    "horizontal_overflow": false,
+    "js_errors": [],
+    "local_screenshot": "C:\\Users\\CTEC\\Documents\\CTEC_AI_V5_35_TRAM_20261105\\V66_SIMPLE_UI_REMOTE_QA\\qa_public_r4_mobile.png",
+    "qualification": "Browser frontend test only; did not sign in to 3 AI accounts or grade learner UAT."
+  }
 }
