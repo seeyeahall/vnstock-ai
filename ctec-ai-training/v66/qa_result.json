@@ -1,0 +1,57 @@
+{
+  "version": "V6.6-R2",
+  "kind": "CI_CHROMIUM_SIMULATION_NO_REAL_AI",
+  "run_id": "42479959767",
+  "at": "2026-11-08T12:23:06.413Z",
+  "checks": [
+    {
+      "viewport": 320,
+      "lesson_views": 210,
+      "studio_views": 27,
+      "js_errors": 0,
+      "overflow": 0
+    },
+    {
+      "viewport": 375,
+      "lesson_views": 210,
+      "studio_views": 27,
+      "js_errors": 0,
+      "overflow": 0
+    },
+    {
+      "viewport": 414,
+      "lesson_views": 210,
+      "studio_views": 27,
+      "js_errors": 0,
+      "overflow": 0
+    },
+    {
+      "viewport": 768,
+      "lesson_views": 210,
+      "studio_views": 27,
+      "js_errors": 0,
+      "overflow": 0
+    },
+    {
+      "viewport": 1366,
+      "lesson_views": 210,
+      "studio_views": 27,
+      "js_errors": 0,
+      "overflow": 0
+    },
+    {
+      "micro_next_prev": "PASS",
+      "teacher_free_sources": "PASS",
+      "screenshots": 3
+    }
+  ],
+  "errors": [],
+  "class_pass": "0/35",
+  "go_live": "NO",
+  "remote_ai_test": false,
+  "public_web": {
+    "http_status": 200,
+    "title": "CTEC AI – Tập huấn trực tuyến · V6.6",
+    "pass": true
+  }
+}
