@@ -1,8 +1,8 @@
 {
   "version": "V6.6-R2",
   "kind": "CI_CHROMIUM_SIMULATION_NO_REAL_AI",
-  "run_id": "42480435821",
-  "at": "2026-11-08T12:29:09.700Z",
+  "run_id": "42481072186",
+  "at": "2026-11-08T12:37:06.590Z",
   "checks": [
     {
       "viewport": 320,
