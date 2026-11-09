@@ -351,7 +351,7 @@ function visible(n){
 }
 function intoLesson(){
  document.body.classList.remove('ctec-orient');
- try{opts.role=teacherMode?'teacher':'student';opts.view='lesson';opts.idx=0;goto(0)}catch(err){location.href='../v66/index.html?role='+(teacherMode?'teacher':'student')+'&station=K1'}
+ try{opts.role=teacherMode?'teacher':'student';if(window.ctecUnifiedStatus){var carried=window.ctecUnifiedStatus();if(carried.job&&CASE_META[carried.job])opts.exercise=carried.job;}opts.view='lesson';opts.idx=0;goto(0)}catch(err){location.href='../v66/index.html?role='+(teacherMode?'teacher':'student')+'&station=K1'}
 }
 async function copyText(key){
  var s=key==='source'?source:prompt;
