@@ -356,6 +356,7 @@ var teacher=[
 ];
 function visible(n){
  introStep=n;
+ if(n===20){window.ctecUnifiedEnd(teacherMode);return}
  if(n>=7){window.ctecUnifiedShow(n,teacherMode);return}
  if(window.ctecUnifiedHide)window.ctecUnifiedHide();
  for(var i=1;i<=6;i++){document.getElementById('ctecStep'+i).hidden=i!==n}
@@ -388,6 +389,7 @@ document.getElementById('ctecOrientation').addEventListener('click',function(e){
  var cp=e.target.closest('[data-copy]');if(cp){copyText(cp.getAttribute('data-copy'))}
 });
 window.ctecBridgeGoto=visible;
+window.ctecBridgeOpen35=intoLesson;
 window.ctecBridgeToggleRole=function(){teacherMode=!teacherMode;visible(introStep)};
 document.getElementById('ctecBack').onclick=function(){visible(Math.max(1,introStep-1))};
 document.getElementById('ctecForward').onclick=function(){
@@ -400,7 +402,7 @@ document.getElementById('ctecForward').onclick=function(){
    }
  }
  if(introStep>=7&&!window.ctecUnifiedCanAdvance(introStep))return;
- if(introStep===19)intoLesson();else visible(introStep+1)
+ if(introStep===19)visible(20);else visible(introStep+1)
 };
 document.getElementById('ctecM5Records').addEventListener('change',function(){
  var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));
@@ -494,7 +496,9 @@ function show(n,teacher){
  $("#ctecHeading").textContent="Bước "+n+". "+lessons[n][0];
  $("#ctecSubtitle").textContent=lessons[n][1];$("#ctecCount").textContent=n;
  $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecPageCount").textContent=n+"/19";
- $("#ctecForward").textContent=n===TOTAL?"ĐI SÂU 35 TRẠM THEO GIÁO ÁN →":"TIẾP THEO →";
+ $("#ctecForward").hidden=false;
+ $("#ctecForward").textContent=n===TOTAL?"XEM TỔNG KẾT BÀI HỌC →":"TIẾP THEO →";
+ $("#ctecEndSummary").hidden=true;
  notes.hidden=!teacher;
  if(teacher){const q=window.CTEC_V75_DETAIL_NOTES[n]||{};
  notes.textContent=["GHI CHÚ GIẢNG VIÊN – BƯỚC "+n+" | "+(q.station||"V7.5"),
@@ -535,6 +539,9 @@ root.addEventListener("click",async e=>{
  const b=e.target.closest("[data-baction]");if(!b)return;
  const a=b.dataset.baction,v=b.dataset.bval||"",n=window.ctecCurrentStep;
  if(a==="role"){window.ctecBridgeToggleRole();return}
+ if(a==="open35"){window.ctecBridgeOpen35();return}
+ if(a==="restart"){window.ctecBridgeGoto(7);return}
+ if(a==="revisit"){window.ctecBridgeGoto(19);return}
  if(a==="job"){composeInit(v)}else if(a==="choice")S.choice=v;
  else if(a==="partprev")S.part=Math.max(0,S.part-1);
  else if(a==="partnext")S.part=Math.min(6,S.part+1);
@@ -562,6 +569,7 @@ root.addEventListener("change",e=>{
 });
 function install(){
  for(let i=START;i<=TOTAL;i++){let x=document.createElement("section");x.id="ctecStep"+i;x.className="ctec-step cb-screen";x.hidden=true;x.innerHTML='<div class="pane cb-main"></div>';root.insertBefore(x,notes)}
+ const ending=document.createElement("section");ending.id="ctecEndSummary";ending.className="ctec-step cb-screen";ending.hidden=true;ending.innerHTML="<div class=\"pane cb-main\"></div>";root.insertBefore(ending,notes);
  const css=document.createElement("style");css.textContent=`
  #ctecOrientation .cb-main{max-width:1200px;margin:13px auto}
  #ctecOrientation .cb-main h2{font-size:clamp(21px,2vw,28px);color:#104b85;margin:5px 0 12px}
@@ -590,7 +598,33 @@ function install(){
  `;document.head.appendChild(css);
 }
 window.ctecUnifiedShow=(n,teacher)=>{window.ctecCurrentStep=n;show(n,teacher)};
-window.ctecUnifiedHide=()=>{for(let i=START;i<=TOTAL;i++){const q=$("#ctecStep"+i);if(q)q.hidden=true}};
+window.ctecUnifiedHide=()=>{for(let i=START;i<=TOTAL;i++){const q=$("#ctecStep"+i);if(q)q.hidden=true};$("#ctecEndSummary").hidden=true};
+function showEnd(teacher){
+ window.ctecCurrentStep=20;
+ for(let i=1;i<=TOTAL;i++){let x=$("#ctecStep"+i);if(x)x.hidden=true}
+ const end=$("#ctecEndSummary");end.hidden=false;
+ for(const cl of [".ban",".aim",".title"]){$("#ctecOrientation "+cl).hidden=false}
+ $("#ctecAim").textContent="Mục tiêu đang thực hiện: Tổng kết và vận dụng sau tập huấn";
+ $("#ctecHeading").textContent="Hoàn thành vòng học – Bạn đã biết tự giao việc cho AI?";
+ $("#ctecSubtitle").textContent="Từ mục tiêu đến bản nháp, kiểm chứng và công việc mới; giảng viên đánh giá sản phẩm thật trước khi chứng nhận.";
+ $("#ctecCount").textContent="✓";
+ $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecForward").hidden=true;$("#ctecPageCount").textContent="TỔNG KẾT";
+ const p=job();
+ end.querySelector(".cb-main").innerHTML='<h2>Nhìn lại năng lực đã luyện</h2>'+
+ '<div class="cb-two">'+
+ '<div class="cb-panel"><b>Việc ban đầu</b><p>'+esc(S.job+" – "+p.name)+'</p><small>'+esc(p.purpose)+'</small></div>'+
+ '<div class="cb-panel"><b>Việc tự chuyển giao</b><p>'+esc(S.transfer||"Chưa chọn")+'</p><small>'+esc(S.own||"Chưa tự viết yêu cầu mới")+'</small></div>'+
+ '<div class="cb-panel"><b>AI và nguồn</b><p>AI: '+esc(S.ai||"Chưa ghi")+' · NotebookLM: '+esc(S.nb||"Chưa ghi")+'</p><small>Studio: '+esc(S.output||"Chưa chọn")+' · Quyền/gói phải kiểm riêng</small></div>'+
+ '<div class="cb-panel"><b>Sản phẩm và an toàn</b><p>Word: '+esc(S.file||"Chưa ghi")+' · 3 bước rà nguồn: '+(S.checks.every(Boolean)?"tự xác nhận":"chưa đủ")+'</p><small>Người học báo đã lưu không phải FILE_PASS.</small></div>'+
+ '</div>'+
+ '<details><summary>Xem câu lệnh 7 phần bạn đã xây</summary><pre>'+esc(prompt())+'</pre></details>'+
+ '<div class="cb-help"><b>Bộ mẹo học tiếp:</b> '+S.tips.map(i=>esc(tipLibrary[i][1])).join(" · ")+'. Tài liệu và video/slide trong NotebookLM là công cụ; người sử dụng phải kiểm nguồn, số, định dạng và thẩm quyền.</div>'+
+ '<div class="cb-actions"><button data-baction="export">TẢI SỔ TAY CÁ NHÂN</button><button data-baction="revisit">QUAY LẠI BÀI TỰ LÀM</button><button data-baction="open35">MỞ 35 TRẠM CHI TIẾT (TỰ CHỌN)</button><button data-baction="restart">CHỌN VIỆC KHÁC</button></div>'+
+ '<p class="cb-help">Đây là kết thúc tuyến hướng dẫn thống nhất. 35 trạm gốc là chế độ xem học sâu có đầy đủ nội dung giáo án, không phải vòng học bắt buộc lặp lại. CLASS_PASS chỉ sau khi giảng viên kiểm tệp, kỹ năng và diễn tập.</p>';
+ notes.hidden=!teacher;if(teacher)notes.textContent="TỔNG KẾT GIẢNG VIÊN: Mời một người học tự giải thích mục tiêu, tên nguồn, lỗi AI, cách sửa và tệp đã mở lại. Chỉ chấm năng lực khi xem sản phẩm Word/PDF thật và học viên làm biến thể. Màn tổng kết không tự phát chứng nhận hoặc thay lịch 35 trạm.";
+ info("");window.scrollTo(0,0);
+}
+window.ctecUnifiedEnd=showEnd;
 window.ctecUnifiedCanAdvance=gate;
 window.ctecUnifiedStatus=()=>({step:window.ctecCurrentStep||1,job:S.job,ai:S.ai,notebook:S.nb,studio:S.output,checks:S.checks.every(Boolean),file:S.file,transfer:S.transfer,tips:S.tips.length,finished:S.finished});
 install();
