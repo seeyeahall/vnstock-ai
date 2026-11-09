@@ -1,0 +1,147 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CTEC AI – Hướng dẫn người mới | Màn 07–12 V7.0</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#173a38;background:#f2f8f5;--p:#0b756a;--ink:#173a38;--bd:#d4e5df;--cream:#fff8e9;line-height:1.5}
+*{box-sizing:border-box}body{margin:0}button,textarea,input{font:inherit}button{cursor:pointer;border:1px solid #b5d7cc;background:white;color:var(--ink);border-radius:13px;min-height:49px;padding:10px 15px;font-weight:750}button:hover{background:#ecf8f3}button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #ffb739;outline-offset:2px}
+header{background:#0b685d;color:white;padding:14px max(18px,calc((100% - 1040px)/2));position:sticky;top:0;z-index:2}
+header strong{font-size:clamp(17px,2.5vw,25px);display:block;letter-spacing:.01em}header small{font-size:12px;opacity:.9}
+main{max-width:1040px;margin:auto;padding:17px}
+.top{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.top a{font-weight:700;color:#076c62;text-decoration:none}.top .mode button{border:0;min-height:36px;font-size:13px;background:#e2efe9;border-radius:10px}.top .mode button.on{background:#0b756a;color:white}
+.objective{background:#e1f2e9;padding:12px 18px;border-radius:13px;border-left:5px solid #1a8d7c;margin:16px 0;color:#145850}
+.objective small{display:block;font-weight:700;color:#4d7669}.objective b{font-size:18px}
+.card{padding:clamp(18px,3vw,32px);border-radius:18px;border:1px solid var(--bd);background:#fff;box-shadow:0 4px 24px #075a3a0b;margin:14px 0}
+.chip{display:inline-block;padding:6px 11px;border-radius:30px;background:#e4f3ef;color:#096b5e;font-weight:800;font-size:12px}h1{font-size:clamp(24px,3.5vw,36px);margin:12px 0 8px;line-height:1.22}h2{font-size:clamp(20px,2.5vw,25px);margin:0 0 12px}h3{font-size:16px;color:#076c62;margin:12px 0 6px}.lead{font-size:17px;color:#496c64;margin:0 0 22px}.flow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}.flow .step{font-size:12px;padding:6px 10px;border-radius:9px;background:#e8efe9;color:#6a7e75;font-weight:800}.flow .step.now{background:#0b756a;color:white}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.choice{text-align:left;display:flex;gap:8px;align-items:center;font-size:16px}.choice.selected{background:#dff3ea;border:2px solid #0a816b}.choice small{display:block;color:#6c827a;font-size:12px;font-weight:500}
+.primary{background:#09766a;color:white;border-color:#09766a}.primary:hover{background:#075e55}.large{font-size:18px;min-height:56px;padding:12px 20px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}.actions button,.actions a{flex:0 1 auto}.secondary{border:1px solid #abcfc4;background:white}
+.ghost{background:transparent;border:0;color:#0c6961;text-decoration:underline;font-weight:700;padding:6px;min-height:30px}
+textarea,input{display:block;width:100%;padding:13px 14px;min-height:48px;border:1px solid #b9d7cd;border-radius:12px;background:#fcfffe;color:#204c43}textarea{min-height:150px;resize:vertical}
+.prompt{background:#eaf7f1;border:1px solid #bee2d1;padding:15px;border-radius:12px;white-space:pre-wrap;line-height:1.65;font-size:15px;max-height:260px;overflow:auto}
+.note{background:#fff8e7;border-left:4px solid #e0ae52;padding:12px 15px;border-radius:9px;font-size:14px;margin:12px 0}
+.result{padding:14px 17px;border:1px solid #b1dfca;background:#e6f6eb;border-radius:13px;margin:12px 0;font-size:16px}
+a.tool{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #8dc4b0;border-radius:12px;min-height:51px;padding:12px 18px;color:white;background:#14786c;font-weight:800;font-size:16px}
+.stephelp{background:#f7fbf9;border:1px solid var(--bd);border-radius:13px;padding:13px 16px;margin:13px 0}
+.stephelp p{margin:5px 0}.stephelp ol{margin:8px 0;padding-left:21px;line-height:1.75}
+.example{background:#f7fbf9;border:1px dashed #91bfb0;border-radius:12px;padding:12px 17px;margin:13px 0}
+.summaryrows{display:grid;grid-template-columns:1fr 1fr;gap:12px}.summaryrows>div{background:#f6faf8;border:1px solid var(--bd);border-radius:12px;padding:14px}.summaryrows ol{margin:4px 0;padding-left:20px}
+details{border:1px solid var(--bd);border-radius:12px;padding:12px 15px;margin-top:17px;background:#fcfffe}summary{font-weight:800;cursor:pointer;color:#205e58}
+#teacherBox{border-top:5px solid #7a97ba;background:#f8faff}#teacherBox p{white-space:pre-wrap;line-height:1.75;font-size:15px}
+#nav{display:flex;align-items:center;justify-content:space-between;gap:10px}#nav button{min-width:145px}#status{font-size:13px;font-weight:750;color:#49796c;text-align:center}
+footer{margin:10px 0 30px;font-size:12px;color:#647e72}
+@media(max-width:650px){main{padding:10px}.choices,.summaryrows{grid-template-columns:1fr}.top{align-items:stretch}.top>a{display:block}.top .mode{display:flex;width:100%}.top .mode button{flex:1}.actions button,.actions a{width:100%;flex:1}.card{padding:18px}#nav button{min-width:90px}h1{font-size:26px}}
+</style></head>
+<body><header><strong>BUỔI TẬP HUẤN SỬ DỤNG AI VĂN PHÒNG</strong><small>CTEC · Bản thiết kế tiếp nối 1–6 · V7.0 CHƯA DUYỆT</small></header>
+<main>
+<div class="top"><a href="https://seeyeahall.github.io/vnstock-ai/ctec-ai-training/v68/">← Mở lại màn 1–6</a><div class="mode"><button id="learner" class="on">HỌC VIÊN</button><button id="instructor">GIẢNG VIÊN</button></div></div>
+<section class="objective"><small>MỤC TIÊU ĐANG THỰC HIỆN</small><b id="objective"></b></section>
+<article class="card"><span id="stepLabel" class="chip"></span><h1 id="title"></h1><p class="lead" id="subtitle"></p><div class="flow" id="flow"></div><section id="scene" aria-live="polite"></section><details><summary>TÔI BỊ KẸT – CẦN HƯỚNG DẪN</summary><div id="help"></div></details></article>
+<aside id="teacherBox" class="card" hidden><h2>Ghi chú riêng cho giảng viên</h2><div id="teacherText"></div><p class="note">Đây là bản đề xuất. Học viên tự báo hoàn thành ≠ AI đã kiểm chứng ≠ lớp đạt. Không hiển thị ghi chú này trong chế độ HỌC VIÊN.</p></aside>
+<div id="nav"><button id="back" class="secondary">← TRƯỚC</button><span id="status"></span><button id="next" class="primary">TIẾP THEO →</button></div>
+<footer>Giáo án 35 trạm/120 phút không đổi. M07–M12 = VD1-01…VD1-06, 05:00–23:00. Các vi-bước nằm bên trong thời gian trạm, không tạo thêm trạm. Không dùng N1–N5. Bản V6.9 cũ chỉ để đối chiếu.</footer>
+</main>
+<script>
+"use strict";
+const META=[{"id":"VD1-01","num":7,"mins":"05:00–07:00","title":"Chọn một việc mình thường làm","objective":"Tìm một công việc lặp lại có thể cải tiến","notes":"0:00–0:25: chỉ vào ba ví dụ gần gũi, nhắc không phải biết AI. 0:25–1:00: cho mỗi người chọn một việc hoặc viết việc riêng. 1:00–1:30: chọn khó khăn lớn nhất. 1:30–2:00: hỏi 1–2 người đọc câu tóm tắt. Nếu không chọn được, dùng ví dụ mẫu ‘Tổng hợp bảng số liệu’. Không bắt học viên khai thông tin nội bộ hoặc chứng minh đã tiết kiệm thời gian. Kiểm: có TÊN VIỆC + MỘT KHÓ KHĂN; không phải đã biết dùng AI."},{"id":"VD1-02","num":8,"mins":"07:00–10:00","title":"Thử nhờ AI đề xuất ba cách làm","objective":"Nhận ý tưởng bằng một câu lệnh cụ thể","notes":"0:00–0:30: giải thích cùng một vấn đề có thể có nhiều cách làm. 0:30–1:00: bấm sao chép; cho lớp nhìn ô chat. 1:00–2:15: mở một AI, dán Ctrl+V/Cmd+V hoặc nhấn giữ → Dán, gửi và đọc. 2:15–3:00: học viên chọn 1–3 ý tưởng hoặc báo bị chặn. Không kết luận có ba phản hồi khi học viên chỉ bấm ‘Đã gửi’; mất quota là ACCESS_BLOCKED. Không bắt sử dụng cả ba AI ở trạm này."},{"id":"VD1-03","num":9,"mins":"10:00–13:00","title":"So sánh cách làm trước và sau","objective":"Nhận ra AI hỗ trợ ở đâu và con người cần làm gì","notes":"0:00–0:45: cho xem 4 bước đang làm; 0:45–1:45: mở mẫu 4 bước sau khi có AI; 1:45–2:30: hỏi ai kiểm nguồn/số liệu và ai được quyền ban hành; 2:30–3:00: chốt AI có thể hỗ trợ đọc/soạn nhưng không thay trách nhiệm con người. Sai chọn A phải cho sửa, không chấm năng lực chỉ vì chọn lần đầu sai."},{"id":"VD1-04","num":10,"mins":"13:00–16:00","title":"Viết yêu cầu rõ để AI biết hỏi lại","objective":"Chỉ rõ mục tiêu, nguồn, điều không được tự bịa và đầu ra","notes":"0:00–0:40: phân biệt yêu cầu ‘giúp tôi làm’ với yêu cầu có mục đích. 0:40–1:40: học viên dùng mẫu từ việc M07, nhấn tạo rồi sao chép. 1:40–2:30: gửi cho AI đang có; xem AI có đặt câu hỏi thiếu dữ liệu không. 2:30–3:00: nếu AI tự suy đoán, chốt câu ‘điểm chưa rõ: ...’ và yêu cầu AI hỏi lại. Không tự đánh dấu KIỂM AI PASS khi chỉ bấm nút."},{"id":"VD1-05","num":11,"mins":"16:00–19:00","title":"Chọn cách dùng AI an toàn","objective":"Không gửi dữ liệu cá nhân/nội bộ trái phép cho AI","notes":"0:00–0:40: nêu tình huống danh sách có họ tên, điện thoại. 0:40–1:20: học viên chọn A/B. 1:20–2:20: giải thích ẩn danh + quyền chia sẻ + kiểm nguồn; dữ liệu giả lập phù hợp thử. 2:20–3:00: hỏi việc nào cần xin phép người phụ trách. Không yêu cầu đưa tệp thật hoặc mật khẩu."},{"id":"VD1-06","num":12,"mins":"19:00–23:00","title":"Chọn một cải tiến và cách đo kết quả","objective":"Có kế hoạch thử nhỏ, chưa tự khẳng định lợi ích","notes":"0:00–0:50: học viên chọn hướng cải tiến vừa khám phá. 0:50–1:50: chọn một chỉ số dễ đo (phút thực tế hoặc số lần phải sửa). 1:50–2:50: kết hợp thành kế hoạch thử; nếu chưa đo ghi CHƯA ĐO. 2:50–4:00: chuyển sang phần nguồn dữ liệu VĐ2. Trạm VĐ1-06 tổng kết ngắn; không biến thành bài báo cáo ba tệp."}];
+const $=x=>document.getElementById(x);
+const names={notice:"Soạn thông báo",list:"Kiểm tra bảng danh sách",report:"Tổng hợp báo cáo",custom:"Công việc riêng của tôi"};
+const troubles={repeat:"Phải làm đi làm lại",missing:"Khó tìm hoặc thiếu dữ liệu",error:"Dễ sai khi kiểm tra",time:"Mất nhiều thời gian"};
+let st={num:7,sub:0,job:"",custom:"",issue:"",method:"",ideas:"",support:false,improvement:"",measure:"",purpose:"",promptSent:false,answer:"",copyMsg:""};
+try{const v=JSON.parse(localStorage.getItem("ctec_v70_ux")||"null");if(v&&typeof v==="object"&&v.num>=7&&v.num<=12)st={...st,...v}}catch{}
+let mode="learner";const data=()=>META.find(x=>x.num===st.num)||META[0];
+const esc=x=>String(x??"").replace(/[&<>"']/g,y=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[y]));
+const job=()=>st.job==="custom"?(st.custom.trim()||"công việc của tôi"):(names[st.job]||"Tổng hợp báo cáo");
+const issue=()=>troubles[st.issue]||"cần làm thuận tiện hơn";
+function save(){try{localStorage.setItem("ctec_v70_ux",JSON.stringify(st))}catch{}}
+function box(arr,key,caption,emoji){return '<div class="choices">'+arr.map(([v,label])=>'<button type="button" class="choice '+(st[key]===v?"selected":"")+'" data-choice="'+key+':'+esc(v)+'"><span>'+esc(emoji||"◯")+'</span><span>'+esc(label)+'</span></button>').join("")+'</div>';}
+const btn=(name,label,primary=true)=>'<button type="button" class="'+(primary?"primary large":"secondary")+'" data-action="'+name+'">'+label+'</button>';
+function promptIdea(){return "Tôi thường làm việc: "+job()+". Khó khăn hiện nay: "+issue()+". Hãy đề xuất 3 cách cải tiến dễ thực hiện bằng AI miễn phí hoặc công cụ sẵn có; mỗi cách nói rõ người dùng phải kiểm gì và cách thử trong thực tế. KHÔNG tự đặt số phút hay tỷ lệ tiết kiệm khi chưa có số liệu.";}
+function promptClear(){return "Tôi cần cải tiến công việc "+job()+" để giảm khó khăn: "+issue()+". Người dùng kết quả: chính tôi và người phụ trách kiểm lại. Nguồn hiện có: chỉ là mô tả công việc này, CHƯA CÓ dữ liệu đo thời gian hay số lỗi. Không được bịa văn bản, số liệu, thẩm quyền. Nếu thiếu thông tin hãy hỏi lại tối đa 3 câu trước khi đề xuất. Kết quả tôi muốn: 2 cách cải tiến, điều kiện thực hiện và phép đo kiểm chứng.";}
+function help(){return {
+7:"Không biết chọn việc? Bấm ‘Tổng hợp báo cáo’, sau đó chọn ‘Khó tìm hoặc thiếu dữ liệu’. Không cần gõ tên riêng, tài liệu nội bộ hoặc mật khẩu.",
+8:"Nếu không có AI: bấm ‘TÔI KHÔNG MỞ ĐƯỢC AI’ để dùng mẫu ví dụ và tiếp bài. Nếu đã mở: quay lại tab tập huấn, không đóng tab AI. Dùng Ctrl+V (Windows) hoặc nhấn giữ → Dán (điện thoại).",
+9:"Đọc bốn dòng theo thứ tự từ trên xuống. Nếu chưa hiểu, giảng viên chỉ ra ở bước thứ tư: con người vẫn phải đối chiếu nguồn.",
+10:"Không biết viết prompt? Dùng câu đã soạn sẵn dựa trên việc màn 7. Nếu AI trả lời luôn, bấm lựa chọn ‘AI không hỏi’ và xem cách sửa, không phải học viên làm sai.",
+11:"Không gửi dữ liệu có tên, số điện thoại, điểm số, hồ sơ nội bộ lên AI nếu chưa được phép. Dùng ví dụ giả lập hoặc hỏi người phụ trách.",
+12:"Nếu chưa đo thời gian hoặc số lỗi, chọn chỉ số muốn đo khi thử và ghi ‘CHƯA ĐO’, không ước lượng ảo."}[st.num];}
+function steps(){return {
+7:["CHỌN VIỆC","CHỌN KHÓ KHĂN","XEM VIỆC ĐÃ CHỌN"],
+8:["SAO CHÉP","MỞ MỘT AI","DÁN VÀ GỬI","XEM PHẢN HỒI"],
+9:["XEM CÁCH CŨ","XEM CÁCH MỚI","AI HỖ TRỢ ĐẾN ĐÂU?"],
+10:["NHÌN LỆNH RÕ","SAO CHÉP / GỬI","PHẢN HỒI CỦA AI"],
+11:["QUYẾT ĐỊNH","XEM GIẢI THÍCH"],
+12:["CHỌN CẢI TIẾN","CHỌN CÁCH ĐO","XEM KẾ HOẠCH"]}[st.num]||[]}
+function allowed(){switch(st.num){case 7:return st.sub===2;case 8:return st.sub===3&&!!st.ideas;case 9:return st.sub===2&&st.answer==="human";case 10:return st.sub===2&&!!st.answer;case 11:return st.sub===1&&st.answer==="safe";case 12:return st.sub===2;default:return false}}
+function render(){
+ const m=data(),a=steps();document.title="Bước "+m.num+" – "+m.title+" | CTEC AI";
+ $("objective").textContent=m.objective;$("stepLabel").textContent="BƯỚC "+st.num+" · "+m.id+" · "+m.mins;
+ $("title").textContent=m.title;$("subtitle").textContent="Chỉ làm bước nhỏ đang sáng màu, rồi xem dấu hiệu hoàn thành.";
+ $("flow").innerHTML=a.map((x,i)=>'<span class="step '+(st.sub===i?"now":"")+'">'+(i+1)+". "+esc(x)+"</span>").join("");
+ $("help").textContent=help();$("teacherText").textContent=m.id+" | "+m.mins+"\n\n"+m.notes;
+ $("teacherBox").hidden=mode!=="teacher";$("learner").classList.toggle("on",mode==="learner");$("instructor").classList.toggle("on",mode==="teacher");
+ let html="";
+ if(st.num===7){
+ if(st.sub===0)html='<h2>Bạn thường làm công việc nào?</h2><p>Chọn một việc quen thuộc. Chưa cần dùng AI.</p>'+box([["notice","Soạn thông báo"],["list","Kiểm tra bảng danh sách"],["report","Tổng hợp báo cáo"],["custom","Việc khác của tôi"]],"job")+(st.job==="custom"?'<label for="custom">Gõ tên công việc (không điền dữ liệu mật)</label><input id="custom" value="'+esc(st.custom)+'" placeholder="Ví dụ: tổng hợp lịch họp">':"")+'<div class="actions">'+btn("m7next","CHỌN XONG – TIẾP TỤC")+'</div>';
+ else if(st.sub===1)html='<h2>Điều gì làm bạn khó nhất?</h2><p>Chọn một câu đúng với công việc vừa chọn.</p>'+box([["repeat","Phải làm đi làm lại"],["missing","Khó tìm hoặc thiếu dữ liệu"],["error","Dễ sai khi kiểm tra"],["time","Mất nhiều thời gian"]],"issue")+'<div class="actions">'+btn("m7issue","ĐÃ CHỌN KHÓ KHĂN")+'</div>';
+ else html='<h2>Đây là vấn đề bạn sẽ nhờ AI hỗ trợ</h2><div class="result"><b>Việc:</b> '+esc(job())+'<p><b>Khó khăn:</b> '+esc(issue())+'</p></div><p>Dấu hiệu hoàn thành: bạn đã có tên việc và một khó khăn rõ ràng. Chưa cần ước lượng tiết kiệm bao nhiêu phút.</p><div class="actions">'+btn("m7edit","SỬA LẠI",false)+'</div>';
+ }
+ if(st.num===8){
+ if(st.sub===0)html='<h2>Hãy dùng đúng câu lệnh này</h2><p>Hệ thống lấy tên việc bạn vừa chọn để viết sẵn yêu cầu.</p><div class="prompt" id="promptText">'+esc(promptIdea())+'</div><div class="actions">'+btn("copyidea","SAO CHÉP CÂU LỆNH")+'</div><p class="result" id="copyStatus">'+esc(st.copyMsg||"Sau khi sao chép, bước tiếp theo sẽ chỉ nơi dán.")+'</p>';
+ else if(st.sub===1)html='<h2>Mở một AI bạn đang dùng</h2><div class="actions"><a class="tool" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">MỞ CHATGPT ↗</a><a class="tool" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">MỞ GEMINI ↗</a></div><div class="stephelp"><b>Hãy nhìn tab mới</b><ol><li>Đăng nhập nếu trang yêu cầu (theo màn 2).</li><li>Tìm ô nhập lời hỏi ở phía dưới cửa sổ trò chuyện.</li><li>Quay lại tab tập huấn sau khi đã nhìn thấy ô nhập.</li></ol></div><div class="actions">'+btn("m8opened","TÔI ĐÃ THẤY Ô NHẬP")+' '+btn("m8blocked","TÔI KHÔNG MỞ ĐƯỢC AI",false)+'</div>';
+ else if(st.sub===2)html='<h2>Dán câu lệnh vào ô chat, rồi gửi</h2><div class="stephelp"><ol><li>Chuyển sang tab ChatGPT hoặc Gemini vừa mở.</li><li>Nhấn vào ô chat. Dán bằng <b>Ctrl+V</b> (máy tính) hoặc <b>nhấn giữ → Dán</b> (điện thoại).</li><li>Nhấn nút <b>Gửi</b> (thường có hình mũi tên).</li><li>Đợi AI trả lời, rồi quay lại tab tập huấn.</li></ol></div><div class="actions">'+btn("m8sent","TÔI ĐÃ GỬI VÀ THẤY PHẢN HỒI")+' '+btn("m8blocked","AI KHÔNG TRẢ LỜI",false)+'</div>';
+ else html='<h2>Bạn đã thấy gì?</h2><p>Đây là tự báo cáo thao tác, không phải hệ thống tự đọc phản hồi của AI.</p>'+box([["three","AI gợi ý được ba cách"],["other","AI trả lời nhưng chưa đủ ba cách"],["blocked","Không truy cập / hết lượt"]],"ideas")+(st.ideas==="blocked"?'<div class="note"><b>Đường dự phòng, không phải phản hồi AI thật:</b> 1. Dùng mẫu yêu cầu rõ hơn. 2. Tách dữ liệu và kết quả thành bảng kiểm. 3. Luôn dành bước người kiểm trước khi gửi.</div>':"")+'<div class="actions">'+btn("m8result","ĐÃ GHI KẾT QUẢ")+'</div>';
+ }
+ if(st.num===9){
+ if(st.sub===0)html='<h2>Cách đang làm: bốn bước quen thuộc</h2><div class="example"><ol><li>Nhận yêu cầu</li><li>Tìm và đọc thông tin</li><li>Soạn hoặc tổng hợp</li><li>Kiểm lại rồi gửi người có trách nhiệm</li></ol></div>'+btn("m9after","XEM CÁCH AI CÓ THỂ HỖ TRỢ");
+ else if(st.sub===1)html='<h2>Đặt hai cách làm cạnh nhau</h2><div class="summaryrows"><div><h3>TRƯỚC</h3><ol><li>Nhận việc</li><li>Tự tìm nguồn</li><li>Tự soạn nháp</li><li>Tự kiểm và gửi</li></ol></div><div><h3>SAU KHI CÓ AI</h3><ol><li>Nêu mục tiêu rõ</li><li>Chọn nguồn được phép</li><li>AI giúp đọc/soạn nháp</li><li>Người đối chiếu nguồn và quyết định</li></ol></div></div><p class="note">AI có thể đổi cách soạn nháp, nhưng không có quyền tự phê duyệt văn bản.</p>'+btn("m9ask","TÔI ĐÃ SO SÁNH BỐN BƯỚC");
+ else html='<h2>Ai phải kiểm trước khi gửi bản cuối?</h2>'+box([["ai","AI tự kiểm và tự ban hành"],["human","Người dùng kiểm, người có thẩm quyền quyết định"]],"answer")+(st.answer==="ai"?'<p class="note">Chưa đúng: AI có thể gợi ý, nhưng người vẫn phải đối chiếu nguồn và đúng thẩm quyền.</p>':"")+(st.answer==="human"?'<p class="result">Đúng. Đây là bước không thể giao toàn bộ trách nhiệm cho AI.</p>':"");
+ }
+ if(st.num===10){
+ if(st.sub===0)html='<h2>Một yêu cầu tốt cần nói rõ điều gì?</h2><div class="example"><b>1. Mục tiêu:</b> cải tiến '+esc(job())+'<p><b>2. Nguồn đã có:</b> mới có tên việc và khó khăn</p><p><b>3. Giới hạn:</b> không tự bịa con số, ngày, người ký</p><p><b>4. Kết quả:</b> hai cách làm và cách đo</p></div>'+btn("m10prompt","TẠO CÂU LỆNH RÕ");
+ else if(st.sub===1)html='<h2>Sao chép yêu cầu, đưa cho AI</h2><div class="prompt">'+esc(promptClear())+'</div><div class="actions">'+btn("copyclear","SAO CHÉP CÂU LỆNH")+' <a class="tool" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">MỞ CHATGPT ↗</a><a class="tool" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">MỞ GEMINI ↗</a></div><p>Ở tab AI: nhấn ô chat → Dán → Gửi → đọc xem AI có hỏi điều chưa rõ không → quay lại.</p><div class="actions">'+btn("m10asked","TÔI ĐÃ THỬ / HOẶC CẦN CỨU TRỢ")+'</div>';
+ else html='<h2>Phản hồi của AI có đặt câu hỏi khi thiếu dữ liệu không?</h2>'+box([["yes","Có, AI hỏi thêm điều còn thiếu"],["no","Không, AI tự đưa kết luận"],["blocked","Tôi không mở được AI"]],"answer")+(st.answer==="no"?'<p class="note">Cách sửa: gửi tiếp “Đừng tự giả định dữ liệu. Hãy hỏi tôi điều còn thiếu trước khi kết luận.”</p>':st.answer==="yes"?'<p class="result">Tốt. Bạn đã biết dùng AI để hỏi ngược trước khi tạo sản phẩm.</p>':st.answer==="blocked"?'<p class="note">Dùng mẫu giấy: ghi ba câu cần hỏi người giao việc. Không đánh dấu AI đã kiểm thử.</p>':"");
+ }
+ if(st.num===11){
+ if(st.sub===0)html='<h2>Đừng gửi nhầm dữ liệu thật</h2><p>Giả sử bạn có danh sách học viên gồm tên, số điện thoại và kết quả học. Muốn nhờ AI sắp xếp theo nhóm, bạn làm gì?</p>'+box([["unsafe","A. Dán cả danh sách thật vào AI cho nhanh"],["safe","B. Kiểm quyền trước; dùng dữ liệu giả hoặc đã ẩn danh nếu phù hợp"]],"answer")+(st.answer==="unsafe"?'<p class="note">Rủi ro: dữ liệu cá nhân/nội bộ không được tự ý chia sẻ. Hãy chọn lại.</p>':"")+'<div class="actions">'+btn("m11explain","XEM GIẢI THÍCH")+'</div>';
+ else html='<h2>Vì sao cách B an toàn hơn?</h2><div class="result">Chỉ đưa dữ liệu được phép chia sẻ. Dữ liệu thử có thể giả lập hoặc bỏ thông tin nhận dạng. Bản cuối vẫn phải được người có trách nhiệm kiểm tra.</div>';
+ }
+ if(st.num===12){
+ if(st.sub===0)html='<h2>Chọn một cải tiến dễ thử ngay</h2>'+box([["clear","Viết yêu cầu rõ để AI hỏi ngược"],["template","Dùng AI tạo nháp, người tự kiểm"],["checklist","Tạo danh sách kiểm trước khi gửi"]],"improvement")+'<div class="actions">'+btn("m12measure","CHỌN XONG – TIẾP TỤC")+'</div>';
+ else if(st.sub===1)html='<h2>Bạn sẽ đo lợi ích bằng cách nào?</h2><p>Không cần số liệu ngay. Chọn thứ sẽ đo trong lần thử tới.</p>'+box([["minutes","Đếm số phút thực tế hoàn thành"],["errors","Đếm số chỗ phải sửa trước khi gửi"]],"measure")+'<div class="actions">'+btn("m12final","XEM KẾ HOẠCH THỬ")+'</div>';
+ else html='<h2>Kế hoạch thử nhỏ của bạn</h2><div class="result"><b>Việc:</b> '+esc(job())+'<p><b>Khó khăn:</b> '+esc(issue())+'</p><p><b>Cải tiến:</b> '+esc(({"clear":"Viết yêu cầu rõ để AI hỏi ngược","template":"Dùng AI tạo bản nháp, người kiểm lại","checklist":"Dùng bảng kiểm trước khi gửi"})[st.improvement])+'</p><p><b>Sẽ đo:</b> '+(st.measure==="minutes"?"Số phút thực tế": "Số chỗ phải sửa")+' – hiện tại: <b>CHƯA ĐO</b></p></div><p>Dấu hiệu hoàn thành: bạn biết mình thử điều gì và cách kiểm cải tiến đó.</p><div class="actions"><a class="tool" href="https://seeyeahall.github.io/vnstock-ai/ctec-ai-training/v69/#m13" target="_blank" rel="noopener noreferrer">XEM TRƯỚC PHẦN KIỂM NGUỒN (BẢN CŨ CHƯA SỬA) ↗</a></div>';
+ }
+ $("scene").innerHTML=html;
+ $("status").textContent=allowed()?"Đủ điều kiện sang màn kế":"Hoàn thành bước nhỏ trước";
+ $("next").disabled=!allowed()||st.num===12;$("next").textContent=st.num===12?"ĐÃ ĐẾN CUỐI CỤM 7–12":"TIẾP THEO →";
+ $("back").disabled=st.num===7&&st.sub===0;
+ save();
+}
+function prev(){if(st.sub>0)st.sub--;else if(st.num>7){st.num--;st.sub=steps().length-1;}render()}
+function next(){if(!allowed())return;if(st.num>=12)return;st.num++;st.sub=0;st.answer="";st.copyMsg="";render()}
+async function copyText(x){try{await navigator.clipboard.writeText(x);st.copyMsg="ĐÃ SAO CHÉP. Hãy mở tab AI ở bước tiếp theo.";return true}catch{st.copyMsg="Không sao chép tự động được: chọn văn bản bằng tay, rồi nhấn Ctrl+C hoặc Sao chép.";return false}}
+document.addEventListener("input",e=>{if(e.target.id==="custom")st.custom=e.target.value;save()});
+document.addEventListener("click",async e=>{
+ const c=e.target.closest("[data-choice]");
+ if(c){const [key,value]=c.dataset.choice.split(":");st[key]=value;render();return}
+ const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;
+ if(a==="m7next"){if(!st.job){alert("Hãy chọn một công việc trước.");return}if(st.job==="custom"&&!st.custom.trim()){alert("Gõ tên công việc của bạn trước.");return}st.sub=1}
+ else if(a==="m7issue"){if(!st.issue){alert("Hãy chọn một khó khăn.");return}st.sub=2}
+ else if(a==="m7edit")st.sub=0;
+ else if(a==="copyidea"){const ok=await copyText(promptIdea());if(ok)st.sub=1;}
+ else if(a==="m8opened")st.sub=2;
+ else if(a==="m8blocked"){st.ideas="blocked";st.sub=3;}
+ else if(a==="m8sent")st.sub=3;
+ else if(a==="m8result"){if(!st.ideas){alert("Chọn kết quả đã thấy hoặc tình trạng bị chặn.");return} /* Ready for next */}
+ else if(a==="m9after")st.sub=1;
+ else if(a==="m9ask")st.sub=2;
+ else if(a==="m10prompt")st.sub=1;
+ else if(a==="copyclear"){const ok=await copyText(promptClear());if(!ok)alert(st.copyMsg);}
+ else if(a==="m10asked")st.sub=2;
+ else if(a==="m11explain"){if(st.answer!=="safe"){alert("Chọn cách B an toàn rồi xem giải thích.");return}st.sub=1;}
+ else if(a==="m12measure"){if(!st.improvement){alert("Chọn một cải tiến trước.");return}st.sub=1;}
+ else if(a==="m12final"){if(!st.measure){alert("Chọn một cách đo.");return}st.sub=2;}
+ render();
+});
+$("back").onclick=prev;$("next").onclick=next;
+$("learner").onclick=()=>{mode="learner";render()};$("instructor").onclick=()=>{mode="teacher";render()};
+const m=location.hash.match(/^#m(7|8|9|10|11|12)$/);if(m){st.num=Number(m[1]);st.sub=0;}render();
+</script></body></html>
