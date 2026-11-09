@@ -1,0 +1,119 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light"><title>CTEC AI – Làm xong một việc văn phòng bằng AI</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--fg:#143a37;--primary:#087469;--bd:#cfe3dc;--muted:#536f69;--surface:#f5faf7;color:var(--fg);background:var(--surface)}
+*{box-sizing:border-box}body{margin:0}button,textarea,input{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer;border:1px solid #bedbd1;background:white;color:var(--fg);border-radius:12px;min-height:48px;padding:11px 16px;font-weight:750}
+button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid #d49b1e;outline-offset:3px}button[disabled]{opacity:.4;cursor:not-allowed}
+header{background:#0a6d62;color:white;padding:16px max(18px,calc((100% - 960px)/2))}header strong{font-size:clamp(19px,3vw,28px);display:block}header small{font-size:13px}
+main{max-width:960px;padding:18px;margin:0 auto}a{color:#0c7165}nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
+nav .mode{display:flex;gap:4px;background:#e4f1eb;border-radius:13px;padding:4px}nav .mode button{min-height:37px;border:0;background:transparent;color:#28665d;font-size:13px}nav .mode button.active{background:white;color:#075c53;box-shadow:0 1px 5px #1234}
+.progress{height:8px;background:#dfede7;border-radius:30px;overflow:hidden;margin:13px 0}.progress>div{height:100%;background:var(--primary);transition:width .2s}
+.card{background:white;border:1px solid var(--bd);border-radius:20px;padding:clamp(19px,3vw,32px);box-shadow:0 5px 25px #0d50320a;margin:16px 0}
+.eyebrow{display:inline-flex;gap:7px;align-items:center;background:#e7f4ef;color:#087066;font-size:12px;font-weight:800;border-radius:20px;padding:6px 12px}h1{font-size:clamp(25px,3.7vw,38px);line-height:1.2;margin:13px 0 6px}h2{font-size:clamp(18px,2.4vw,23px);margin:8px 0 12px}p{line-height:1.55;margin:10px 0}.lead{color:var(--muted);font-size:17px;margin:10px 0 18px}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}.option{display:flex;flex-direction:column;text-align:left;justify-content:center;align-items:flex-start;gap:4px;min-height:110px;background:#f9fcfa;border:2px solid #d6e9e1;font-size:18px}.option small{font-weight:500;color:#536c64;font-size:13px}.option.selected{border-color:#0c8272;background:#e4f7ee}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 6px}.primary{background:var(--primary);color:white;border-color:var(--primary)}.primary:hover{background:#075f57}.actions>*{flex:0 1 auto}a.tool{display:inline-flex;text-decoration:none;border-radius:12px;align-items:center;padding:12px 17px;min-height:50px;background:var(--primary);color:white;font-weight:750}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3fbf7;border-radius:13px;border:1px solid var(--bd);padding:16px;font-size:15px;line-height:1.65;font-family:inherit;max-height:350px;overflow:auto}
+.fact{background:#e8f7ef;border-left:5px solid #0c8272;border-radius:12px;padding:12px 16px;margin:12px 0;white-space:pre-wrap;line-height:1.65}
+.note{background:#fff8e8;border-left:4px solid #deaf5b;padding:12px 16px;border-radius:12px;font-size:14px;margin:13px 0;line-height:1.6}
+.nums{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}.nums>span{font-size:12px;color:#597971;background:#f1f8f4;border-radius:15px;padding:5px 10px}.nums>span.current{background:#0e7a6d;color:white;font-weight:800}
+.choice{display:flex;text-align:left;gap:8px;align-items:center;width:100%;margin:9px 0;padding:13px 15px}
+.choice.selected{background:#def3e8;border:2px solid var(--primary)}
+.checks{display:grid;gap:13px;margin:18px 0}.checks label{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;background:#f6fbf8;cursor:pointer}.checks input{width:21px;height:21px;flex:none;margin-top:2px;accent-color:var(--primary)}
+.mini{font-size:13px;color:var(--muted)}.status{padding:12px;border-radius:10px;background:#edf6f1;font-weight:650}
+details{background:#fcfffd;border:1px solid var(--bd);border-radius:12px;padding:13px 15px;margin:17px 0}summary{cursor:pointer;font-weight:760;color:#0b645a}
+.footerNav{display:flex;justify-content:space-between;align-items:center;gap:12px}.footerNav>*{flex:1}.footerNav button:last-child{text-align:center}
+#teacherBox{border-top:5px solid #7a8faa;background:#f8faff}#teacherBox pre{background:#f1f3ff}
+footer{font-size:12px;color:#55716b;line-height:1.6;margin:12px 0 25px}
+@media(max-width:680px){main{padding:10px}.options{grid-template-columns:1fr}.option{min-height:78px}.actions>*{width:100%;flex:1}.footerNav{gap:8px}.footerNav button{min-width:0}nav .mode{width:100%}nav .mode button{flex:1}pre{max-height:250px}h1{font-size:25px}}
+</style></head><body>
+<header><strong>BUỔI TẬP HUẤN SỬ DỤNG AI VĂN PHÒNG</strong><small>CTEC · Làm xong một việc quen thuộc · V7.1 BẢN ĐỀ XUẤT, CHƯA NGHIỆM THU</small></header>
+<main><nav><a href="https://seeyeahall.github.io/vnstock-ai/ctec-ai-training/v68/">← Phần làm quen với AI (màn 1–6)</a><div class="mode" role="group" aria-label="Chế độ"><button id="learner" class="active" type="button">HỌC VIÊN</button><button id="teacher" type="button">GIẢNG VIÊN</button></div></nav>
+<div class="progress" aria-label="Tiến độ"><div id="bar"></div></div>
+<article class="card"><span class="eyebrow" id="stepLabel">BẮT ĐẦU</span><h1 id="title">Làm xong một việc văn phòng</h1><p class="lead" id="intro"></p><div class="nums" id="milestones"></div><div id="scene" aria-live="polite"></div>
+<details><summary>TÔI CHƯA BIẾT LÀM / BỊ KẸT</summary><p id="helpText"></p></details></article>
+<aside class="card" id="teacherBox" hidden><h2>Ghi chú giảng viên – không hiện ở chế độ học viên</h2><pre id="teacherNotes"></pre></aside>
+<div class="footerNav"><button id="prev" type="button">← QUAY LẠI</button><button id="next" class="primary" type="button" disabled>TIẾP THEO →</button></div>
+<footer>Đây là bản thiết kế theo nhiệm vụ cho người mới. Mục tiêu: một sản phẩm văn phòng được tự kiểm; không phải học đủ 35 trạm. Không gửi dữ liệu bí mật. Nút “hoàn thành” là tự khai, không thay thế kiểm thử AI Free hay nghiệm thu lớp. V6.8 (màn 1–6) giữ nguyên.</footer></main>
+<script>
+"use strict";
+const TASKS={"B1":{"title":"Soạn thông báo","sub":"Có thông tin → có bản nháp để mở Word","time":"Khoảng 20–25 phút","source":"T01 (dữ liệu giả lập)","sourceUrl":"https://drive.google.com/file/d/1UAnSA3NjgfFywing-MJXPCYJ7tWjLC59/view","facts":"Lịch nghỉ: từ ngày 06 đến hết ngày 14/02/2027. Làm việc trở lại ngày 15/02/2027. Chưa cung cấp số văn bản, người ký hay đơn vị ban hành.","prompt":"Hãy giúp tôi soạn BẢN NHÁP thông báo nội bộ, ngắn gọn và dễ hiểu, dựa CHỈ trên dữ liệu giả lập: nghỉ từ 06 đến hết 14/02/2027, làm việc trở lại 15/02/2027. Chưa có tên đơn vị, số văn bản và người ký: hãy ghi [CẦN XÁC NHẬN], tuyệt đối không tự đặt. Đầu ra: tiêu đề, nội dung thông báo khoảng 100–130 từ và 3 điều tôi cần kiểm trước khi gửi.","checks":["Ngày nghỉ 06–14/02/2027 và ngày trở lại 15/02/2027 có đúng không?","Có tự bịa số văn bản, tên người ký hoặc cơ quan không?","Đã ghi rõ là BẢN NHÁP, chờ người phụ trách kiểm chưa?"],"repair":"Hãy kiểm lại bản nháp: đúng ngày nghỉ 06–14/02/2027, trở lại 15/02/2027. Thay mọi tên người ký, đơn vị, số văn bản chưa được cung cấp bằng [CẦN XÁC NHẬN]. Trả lại bản nháp đã sửa.","sample":"BẢN NHÁP – THÔNG BÁO\n[CẦN XÁC NHẬN TÊN ĐƠN VỊ]\nThông báo lịch nghỉ: từ ngày 06/02/2027 đến hết ngày 14/02/2027. Thời gian làm việc trở lại: ngày 15/02/2027.\nĐề nghị các bộ phận chủ động sắp xếp công việc và theo dõi thông tin chính thức của đơn vị.\nSố văn bản: [CẦN XÁC NHẬN]\nNgười ký: [CẦN XÁC NHẬN]\n(Luyện tập với dữ liệu giả lập, không phải thông báo đã ban hành.)"},"B3":{"title":"Viết báo cáo từ số liệu","sub":"Có bảng số → có báo cáo đúng tổng","time":"Khoảng 20–25 phút","source":"L01/B03 (dữ liệu giả lập)","sourceUrl":"https://drive.google.com/file/d/1iSObL9rjYwGzCjpcfMSv9KKXrTypwcfS/view","facts":"Kế toán: 2 lớp, 55 học viên. Công nghệ thông tin: 3 lớp, 90 học viên. Du lịch: 2 lớp, 50 học viên. Chưa có số giảng viên, phòng học, định mức hay công suất.","prompt":"Tôi làm văn phòng, cần BẢN NHÁP báo cáo 120–170 từ từ dữ liệu giả lập sau: Kế toán 2 lớp/55 học viên; Công nghệ thông tin 3 lớp/90 học viên; Du lịch 2 lớp/50 học viên. Hãy tạo bảng 3 dòng, tự cộng tổng số lớp và học viên; nhận xét đúng theo số liệu. Không được suy ra thiếu nhân sự hoặc phòng học vì chưa có dữ liệu. Kết thúc bằng 2 thông tin cần bổ sung để quản lý quyết định.","checks":["Tổng có đúng 7 lớp và 195 học viên không?","Nhận xét có dựa đúng vào ba nhóm số liệu không?","Có khẳng định thiếu nhân sự, phòng hoặc kinh phí khi chưa có căn cứ không?"],"repair":"Hãy sửa báo cáo: 2+3+2=7 lớp; 55+90+50=195 học viên. Chỉ nhận xét từ các số đã cho. Không khẳng định thiếu người hoặc phòng học. Ghi rõ thông tin còn thiếu.","sample":"BẢN NHÁP – BÁO CÁO TỔNG HỢP (DỮ LIỆU GIẢ LẬP)\nKế toán: 2 lớp, 55 học viên.\nCông nghệ thông tin: 3 lớp, 90 học viên.\nDu lịch: 2 lớp, 50 học viên.\nTỔNG: 7 lớp, 195 học viên.\nCông nghệ thông tin có nhiều lớp và học viên nhất trong ba nhóm.\nChưa đủ căn cứ kết luận cần tăng nhân sự hay phòng học. Cần bổ sung: (1) số giảng viên và phân công; (2) sức chứa, lịch sử dụng phòng."},"B2":{"title":"Tạo dự thảo quyết định","sub":"Dùng bản nháp để người có thẩm quyền rà soát","time":"Nhánh nâng cao, khoảng 25 phút","source":"K01/K02 (dữ liệu giả lập)","sourceUrl":"https://drive.google.com/file/d/1SUReutkNI1NZNewlWJ_zPVfkawkL1yav/view","facts":"Đề nghị liên quan lớp CNTT27C, 28 học viên, ngày dự kiến 01/03/2027. Không có căn cứ pháp lý được thẩm định, chức danh người ký, thẩm quyền ban hành hoặc phụ lục được xác nhận.","prompt":"Tôi là nhân viên văn phòng đang chuẩn bị BẢN DỰ THẢO, chưa ban hành. Từ thông tin giả lập: lớp CNTT27C gồm 28 học viên; thời gian dự kiến 01/03/2027. Hãy gợi ý bố cục dự thảo quyết định gồm tên văn bản, căn cứ, các điều và phần ký. Tuyệt đối KHÔNG tự bịa căn cứ pháp lý, số hiệu, thẩm quyền, người ký hoặc chi tiết chưa có; ghi [CẦN XÁC NHẬN] và liệt kê các hồ sơ cần người có thẩm quyền thẩm định.","checks":["Có đúng CNTT27C, 28 học viên, dự kiến 01/03/2027 không?","Có tự tạo căn cứ pháp lý, thẩm quyền, số hiệu hoặc người ký không?","Trên đầu văn bản có ghi BẢN DỰ THẢO và các mục còn thiếu chưa?"],"repair":"Sửa thành BẢN DỰ THẢO. Giữ đúng lớp CNTT27C, 28 học viên, ngày dự kiến 01/03/2027; căn cứ pháp lý, số hiệu, thẩm quyền và người ký thiếu thì ghi [CẦN XÁC NHẬN]. Không đưa ra quyết định ban hành.","sample":"BẢN DỰ THẢO – CHƯA BAN HÀNH\n[CẦN XÁC NHẬN CƠ QUAN/TÊN VĂN BẢN]\nCăn cứ: [CẦN XÁC NHẬN VĂN BẢN PHÁP LÝ]\nĐiều 1. Nội dung dự kiến liên quan lớp CNTT27C, 28 học viên, từ ngày 01/03/2027 (chờ duyệt).\nĐiều 2. Tổ chức thực hiện: [CẦN XÁC NHẬN]\nSố hiệu, thẩm quyền ký, người ký: [CẦN XÁC NHẬN].\nChỉ là mẫu học tập, không có giá trị ban hành."}};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const names=["CHỌN VIỆC","NHỜ AI","MỞ AI","DÁN VÀ GỬI","KIỂM LỖI","LƯU VÀ DÙNG","KẾT THÚC"];
+const help=[
+"Chưa biết chọn? Hãy bắt đầu bằng SOẠN THÔNG BÁO. Bài tập có sẵn dữ liệu, không cần lấy hồ sơ thật.",
+"Không phải tự viết lệnh. Bấm SAO CHÉP YÊU CẦU. Nếu máy chặn sao chép, chọn văn bản trong ô rồi Ctrl+C (hoặc nhấn giữ → Sao chép).",
+"Chỉ mở MỘT AI. Nếu trang hỏi đăng nhập, dùng cách đã học ở màn 1–2. Không phải mua gói trả phí; nếu không vào được, chọn BÀI MẪU DỰ PHÒNG.",
+"Trong cửa sổ AI, nhấp ô hỏi ở dưới → Dán (Ctrl+V) → Gửi (mũi tên) → đọc trả lời. Quay lại tab tập huấn và chọn đúng điều đã xảy ra.",
+"Soát từng dòng như kiểm văn bản bằng tay. Nếu có sai, bấm SAO CHÉP YÊU CẦU SỬA rồi dán vào AI. Nếu bị chặn, dùng bản mẫu để học kiểm lỗi.",
+"Mở Word trên máy hoặc Google Docs. Tại AI, chọn và sao chép nội dung đã kiểm; dán vào Word (Ctrl+V); lưu với tên rõ ràng. Nếu không có AI, sao chép bản mẫu dự phòng.",
+"Giữ bản nháp để dùng lại. Khi làm hồ sơ thật, luôn kiểm nguồn, thẩm quyền và dữ liệu trước khi gửi."];
+const teacherNotes=[
+"CHO HỌC VIÊN: Chỉ một lựa chọn trong ba. B1 và B3 phổ thông; B2 là nhánh văn bản hành chính cần phê duyệt. Nếu bỡ ngỡ, làm mẫu B1. Tránh hỏi học viên ‘muốn tối ưu workflow nào’ khi họ chưa thấy AI làm được gì. Sản phẩm đích: một bản nháp có thể chép vào Word.",
+"BÀI HỌC: Một câu lệnh đủ mục đích + dữ liệu + giới hạn + đầu ra; không giảng thuật ngữ prompt phức tạp trước khi dùng. Cho người học nhìn dữ liệu gốc; tuyệt đối dùng dữ liệu giả lập. B3: 7 lớp,195 học viên. B2: không tạo căn cứ pháp lý giả.",
+"ĐIỀU KIỆN: Chỉ chọn một trong ChatGPT hoặc Gemini nếu đang dùng được. NotebookLM dành cho nguồn tài liệu riêng; không mặc định thay thế chatbot. KHÔNG tự tuyên bố ai đang Free nếu không đọc được trạng thái tài khoản. Nếu đăng nhập lỗi, mẫu dự phòng.",
+"GIÁO VIÊN NÓI: 1) Sang tab AI. 2) Nhấn vào ô câu hỏi. 3) Dán câu lệnh. 4) Bấm Gửi. 5) Quay lại tab học. Yêu cầu học viên tự nêu có phản hồi, đòi login, hết quota. Không chấm sai người bị chặn truy cập.",
+"GIÁO VIÊN: Cho đối chiếu NGUỒN gốc và từng dữ kiện; ấn nút kiểm sau khi người học thấy sản phẩm. Với B3, 2+3+2=7,55+90+50=195; tuyệt đối không suy ra thiếu phòng/giảng viên. B2 và B1 chưa được ký ban hành. Nếu AI sai hãy dùng một câu sửa và so lại, không cần tranh luận dài.",
+"GIÁO VIÊN: Hướng dẫn tạo tệp Word, dán nội dung, đặt tên DRAFT_Bx; phải mở được tệp. Dùng giấy hoặc bản mẫu nếu mất mạng, đánh dấu chưa có phản hồi AI thật. Kiểm sản phẩm thật qua 3 tiêu chí; không chỉ dựa nút tự khai.",
+"KẾT THÚC: Yêu cầu 1–2 người giải thích: việc gì AI hỗ trợ, phần nào con người phải kiểm, nếu AI không vào được thì làm gì. Một sản phẩm dùng được có giá trị hơn hoàn thành nhiều màn không nhớ."];
+let st={step:0,task:"",engine:"",mode:"learner",seen:"",usedFallback:false,checks:[],saved:false,copyHelp:""};
+try{const x=JSON.parse(localStorage.getItem("ctec71-local")||"null");if(x&&Number.isInteger(x.step)&&x.step>=0&&x.step<=6)st={...st,...x}}catch{}
+function save(){try{localStorage.setItem("ctec71-local",JSON.stringify(st))}catch{}}
+function task(){return TASKS[st.task]||TASKS.B1}
+function button(action,label,kind="primary"){return '<button type="button" data-action="'+esc(action)+'" class="'+kind+'">'+esc(label)+'</button>'}
+function hasResponse(){return st.seen==="got"}
+function ready(){return st.step===0?!!st.task:st.step===1?st.copyHelp==="copied"||st.copyHelp==="manual":st.step===2?!!st.engine||st.usedFallback:st.step===3?!!st.seen:st.step===4?st.checks.length===3&&st.checks.every(Boolean):st.step===5?st.saved:false}
+async function copy(s){try{await navigator.clipboard.writeText(s);st.copyHelp="copied"}catch{st.copyHelp="manual";const area=$("fallbackCopy");if(area){area.hidden=false;area.select()}}render()}
+function render(){
+ const t=task();document.title=(st.step+1)+"/7 · "+names[st.step]+" – CTEC AI";
+ $("stepLabel").textContent="LƯỢT "+(st.step+1)+"/7";
+ $("title").textContent=names[st.step]==="CHỌN VIỆC"?"Bằng tay bạn thường làm việc nào?":names[st.step];
+ $("intro").textContent=["Chọn một việc quen thuộc. Cuối bài bạn sẽ có một bản nháp, không cần biết AI từ trước.",
+ "Đây là dữ liệu tập luyện. Sao chép lời nhờ AI đã viết sẵn.",
+ "Chọn một AI đang mở được. Chỉ dùng một, không cần thử cả ba.",
+ "Làm lần lượt bốn thao tác. Nếu không vào được AI, vẫn có bài mẫu để tập.",
+ "Không vội gửi văn bản. Hãy tự soát các thông tin quan trọng.",
+ "Đưa kết quả vào Word hoặc Google Docs để có sản phẩm dùng được.",
+ "Bạn đã thực hành một việc văn phòng. Hãy giữ bản nháp và nhớ cách tự kiểm."][st.step];
+ $("bar").style.width=((st.step+1)/7*100)+"%";
+ $("milestones").innerHTML=names.map((x,i)=>'<span '+(i===st.step?'class="current"':'')+'>'+esc(x)+'</span>').join("");
+ $("helpText").textContent=help[st.step];
+ $("teacherBox").hidden=st.mode!=="teacher";$("teacherNotes").textContent=teacherNotes[st.step];$("learner").classList.toggle("active",st.mode==="learner");$("teacher").classList.toggle("active",st.mode==="teacher");
+ let html="";
+ if(st.step===0)html='<p><b>Chọn một việc bạn hay phải làm bằng tay.</b></p><div class="options">'+[["B1","Soạn thông báo","Dữ liệu → bản nháp thông báo"],["B3","Làm báo cáo","Bảng số → báo cáo ngắn"],["B2","Dự thảo quyết định","Nâng cao · cần người duyệt"]].map(([k,title,desc])=>'<button type="button" class="option '+(st.task===k?'selected':'')+'" data-task="'+k+'"><b>'+esc(title)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div>'+(st.task?'<div class="fact"><b>Bạn đã chọn:</b> '+esc(t.title)+'\n<b>Sản phẩm:</b> '+esc(t.sub)+'</div>':"");
+ if(st.step===1)html='<h2>Thông tin đã có</h2><div class="fact">'+esc(t.facts)+'</div><p class="mini">Nguồn: '+esc(t.source)+' – <a target="_blank" rel="noopener noreferrer" href="'+esc(t.sourceUrl)+'">Xem tài liệu giả lập</a></p><h2>Lời nhờ AI – có sẵn, không phải tự viết</h2><pre>'+esc(t.prompt)+'</pre><div class="actions">'+button("copyPrompt","SAO CHÉP YÊU CẦU")+'</div><textarea id="fallbackCopy" hidden aria-label="Văn bản sao chép thủ công">'+esc(t.prompt)+'</textarea>'+(st.copyHelp?'<p class="status">'+(st.copyHelp==="copied"?"Đã sao chép. Bấm TIẾP THEO để mở AI.":"Máy chặn sao chép tự động. Văn bản đã được chọn: nhấn Ctrl+C, hoặc sao chép bằng tay, rồi tiếp.")+'</p>':"");
+ if(st.step===2)html='<h2>Bạn muốn dùng AI nào?</h2><p>Chỉ cần một công cụ đang hoạt động. Không phải mua gói trả phí.</p><div class="options">'+[["chatgpt","ChatGPT","https://chatgpt.com/"],["gemini","Gemini","https://gemini.google.com/app"]].map(([k,n,u])=>'<a class="tool" href="'+u+'" target="_blank" rel="noopener noreferrer" data-engine="'+k+'">MỞ '+n.toUpperCase()+' ↗</a>').join("")+'</div><div class="note">Đã bấm mở AI nhưng không đăng nhập được? Dùng mẫu để học tiếp; đó là lỗi truy cập, không phải lỗi năng lực.</div><div class="actions">'+button("engineReady","TÔI ĐÃ THẤY Ô HỎI Ở AI")+' '+button("noAI","TÔI KHÔNG VÀO ĐƯỢC AI","")+'</div>';
+ if(st.step===3)html=st.usedFallback?'<h2>Đường dự phòng – chưa có phản hồi AI</h2><p>Hãy xem bản nháp minh họa. Đây là mẫu có sẵn, không phải sản phẩm do AI vừa tạo.</p><pre>'+esc(t.sample)+'</pre><div class="actions">'+button("fallbackRead","TÔI ĐÃ XEM MẪU")+'</div>':'<h2>Ngay trong tab AI, làm 4 việc</h2><div class="fact">1. Nhấn vào ô đặt câu hỏi ở phía dưới.\n2. Dán câu lệnh đã sao chép: Ctrl+V.\n3. Bấm nút Gửi (thường hình mũi tên).\n4. Đọc phản hồi rồi quay lại tab tập huấn.</div><p><b>Điều gì đã xảy ra?</b></p>'+[["got","AI đã trả lời, tôi đọc được"],["login","Trang yêu cầu đăng nhập / tôi chưa vào được"],["quota","Hết lượt hoặc không nhận được phản hồi"]].map(([k,n])=>'<button type="button" class="choice '+(st.seen===k?'selected':'')+'" data-seen="'+k+'">'+esc(n)+'</button>').join("")+(st.seen&&st.seen!=="got"?'<div class="note">Chưa có phản hồi được xác minh. Hãy chuyển sang bài mẫu dự phòng để học cách kiểm lỗi.</div>':"");
+ if(st.step===4)html='<p><b>Soát lần lượt ba điểm dưới đây.</b> Nhìn vào phản hồi AI hoặc bản mẫu, đối chiếu với dữ liệu gốc.</p><div class="fact">'+esc(t.facts)+'</div><div class="checks">'+t.checks.map((x,i)=>'<label><input type="checkbox" data-check="'+i+'" '+(st.checks[i]?'checked':'')+'> '+esc(x)+'</label>').join("")+'</div><p class="note">Nếu thấy sai, dùng câu sửa dưới đây. Phải kiểm lại phản hồi sau khi sửa.</p><details><summary>AI trả lời sai – sao chép câu yêu cầu sửa</summary><pre>'+esc(t.repair)+'</pre><div class="actions">'+button("copyRepair","SAO CHÉP YÊU CẦU SỬA","")+'</div></details><p class="status">'+(st.usedFallback?"Bạn đang kiểm bản mẫu. Chưa được tính là phản hồi AI thật.":"Bạn tự đánh dấu sau khi đã nhìn thấy và kiểm nội dung; hệ thống không đọc hộ kết quả.")+'</p>';
+ if(st.step===5)html='<h2>Lưu lại để sau buổi học dùng được</h2><div class="fact">1. Mở Word hoặc Google Docs.\n2. Ở tab AI, sao chép phần trả lời đã kiểm, rồi dán vào văn bản (Ctrl+V).\n3. Lưu tên: DRAFT_'+esc(st.task)+'_THUC_HANH.docx\n4. Mở lại tệp để chắc chắn đã lưu.</div>'+ (st.usedFallback?'<h2>Không có phản hồi AI?</h2><pre>'+esc(t.sample)+'</pre><div class="actions">'+button("copySample","SAO CHÉP BẢN MẪU","")+'</div>':"")+'<div class="actions"><a class="tool" href="https://docs.google.com/document/u/0/" target="_blank" rel="noopener noreferrer">MỞ GOOGLE DOCS ↗</a></div><label class="choice"><input id="saved" type="checkbox" '+(st.saved?'checked':'')+'> Tôi đã tạo/lưu bản nháp và mở lại được</label><p class="mini">Nếu chưa lưu được, giảng viên có thể hỗ trợ; không bắt buộc dùng Google Docs nếu đã có Word.</p>';
+ if(st.step===6)html='<h2>Việc bạn vừa tập làm</h2><div class="fact"><b>'+esc(t.title)+'</b>\n'+esc(t.sub)+'</div><p class="status">'+(st.usedFallback?"Bạn đã thực hành với mẫu dự phòng, CHƯA thử AI thật.":"Bạn tự báo đã sử dụng AI và lưu bản nháp; cần kiểm lại sản phẩm nếu dùng thật.")+'</p><h2>Ba điều cần nhớ</h2><p>• Nhờ AI viết bản nháp.<br>• Tự kiểm nguồn, số liệu, ngày và thẩm quyền.<br>• Lưu sản phẩm đã kiểm, không gửi nguyên bản chưa rà soát.</p><div class="actions">'+button("restart","TẬP MỘT VIỆC KHÁC")+'</div>';
+ $("scene").innerHTML=html;
+ $("prev").disabled=st.step===0;$("next").disabled=!ready()||st.step===6;$("next").textContent=st.step===6?"ĐÃ KẾT THÚC":"TIẾP THEO →";
+ save();
+}
+document.addEventListener("click",async e=>{
+ const t=e.target.closest("[data-task]");if(t){st.task=t.dataset.task;st.seen="";st.usedFallback=false;st.checks=[];st.saved=false;st.copyHelp="";render();return}
+ const eng=e.target.closest("[data-engine]");if(eng){st.engine=eng.dataset.engine;save();return}
+ const seen=e.target.closest("[data-seen]");if(seen){st.seen=seen.dataset.seen;if(st.seen!=="got")st.usedFallback=true;render();return}
+ const btn=e.target.closest("[data-action]");if(!btn)return;
+ switch(btn.dataset.action){
+  case "copyPrompt":await copy(task().prompt);return;
+  case "engineReady":st.engine=st.engine||"unknown";break;
+  case "noAI":st.engine="";st.usedFallback=true;break;
+  case "fallbackRead":st.seen="fallback";break;
+  case "copyRepair":await copy(task().repair);return;
+  case "copySample":await copy(task().sample);return;
+  case "restart":st={step:0,task:"",engine:"",mode:st.mode,seen:"",usedFallback:false,checks:[],saved:false,copyHelp:""};break;
+ }
+ render();
+});
+document.addEventListener("change",e=>{
+ if(e.target.matches("[data-check]")){st.checks[Number(e.target.dataset.check)]=e.target.checked;render()}
+ if(e.target.id==="saved"){st.saved=e.target.checked;render()}
+});
+$("next").onclick=()=>{if(!ready())return;st.step=Math.min(6,st.step+1);render()};
+$("prev").onclick=()=>{st.step=Math.max(0,st.step-1);render()};
+$("learner").onclick=()=>{st.mode="learner";render()};
+$("teacher").onclick=()=>{st.mode="teacher";render()};
+render();
+</script></body></html>
