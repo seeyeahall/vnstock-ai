@@ -63,7 +63,7 @@ function task(){return TASKS[st.task]||TASKS.B1}
 function button(action,label,kind="primary"){return '<button type="button" data-action="'+esc(action)+'" class="'+kind+'">'+esc(label)+'</button>'}
 function hasResponse(){return st.seen==="got"}
 function ready(){return st.step===0?!!st.task:st.step===1?st.copyHelp==="copied"||st.copyHelp==="manual":st.step===2?!!st.engine||st.usedFallback:st.step===3?!!st.seen:st.step===4?st.checks.length===3&&st.checks.every(Boolean):st.step===5?st.saved:false}
-async function copy(s){try{await navigator.clipboard.writeText(s);st.copyHelp="copied"}catch{st.copyHelp="manual";const area=$("fallbackCopy");if(area){area.hidden=false;area.select()}}render()}
+async function copy(s){try{await navigator.clipboard.writeText(s);st.copyHelp="copied";render()}catch{st.copyHelp="manual";render();let area=$("fallbackCopy");if(!area){area=document.createElement("textarea");area.id="manualCopy";$("scene").appendChild(area)}area.hidden=false;area.value=s;area.focus();area.select()}}
 function render(){
  const t=task();document.title=(st.step+1)+"/7 · "+names[st.step]+" – CTEC AI";
  $("stepLabel").textContent="LƯỢT "+(st.step+1)+"/7";
