@@ -85,7 +85,7 @@ function render(){
  else html='<h2>Đây là vấn đề bạn sẽ nhờ AI hỗ trợ</h2><div class="result"><b>Việc:</b> '+esc(job())+'<p><b>Khó khăn:</b> '+esc(issue())+'</p></div><p>Dấu hiệu hoàn thành: bạn đã có tên việc và một khó khăn rõ ràng. Chưa cần ước lượng tiết kiệm bao nhiêu phút.</p><div class="actions">'+btn("m7edit","SỬA LẠI",false)+'</div>';
  }
  if(st.num===8){
- if(st.sub===0)html='<h2>Hãy dùng đúng câu lệnh này</h2><p>Hệ thống lấy tên việc bạn vừa chọn để viết sẵn yêu cầu.</p><div class="prompt" id="promptText">'+esc(promptIdea())+'</div><div class="actions">'+btn("copyidea","SAO CHÉP CÂU LỆNH")+'</div><p class="result" id="copyStatus">'+esc(st.copyMsg||"Sau khi sao chép, bước tiếp theo sẽ chỉ nơi dán.")+'</p>';
+ if(st.sub===0)html='<h2>Hãy dùng đúng câu lệnh này</h2><p>Hệ thống lấy tên việc bạn vừa chọn để viết sẵn yêu cầu.</p><div class="prompt" id="promptText">'+esc(promptIdea())+'</div><div class="actions">'+btn("copyidea","SAO CHÉP CÂU LỆNH")+(st.copyMsg.startsWith("Không")?btn("m8manual","TÔI ĐÃ SAO CHÉP THỦ CÔNG",false):"")+'</div><p class="result" id="copyStatus">'+esc(st.copyMsg||"Sau khi sao chép, bước tiếp theo sẽ chỉ nơi dán.")+'</p>';
  else if(st.sub===1)html='<h2>Mở một AI bạn đang dùng</h2><div class="actions"><a class="tool" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">MỞ CHATGPT ↗</a><a class="tool" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">MỞ GEMINI ↗</a></div><div class="stephelp"><b>Hãy nhìn tab mới</b><ol><li>Đăng nhập nếu trang yêu cầu (theo màn 2).</li><li>Tìm ô nhập lời hỏi ở phía dưới cửa sổ trò chuyện.</li><li>Quay lại tab tập huấn sau khi đã nhìn thấy ô nhập.</li></ol></div><div class="actions">'+btn("m8opened","TÔI ĐÃ THẤY Ô NHẬP")+' '+btn("m8blocked","TÔI KHÔNG MỞ ĐƯỢC AI",false)+'</div>';
  else if(st.sub===2)html='<h2>Dán câu lệnh vào ô chat, rồi gửi</h2><div class="stephelp"><ol><li>Chuyển sang tab ChatGPT hoặc Gemini vừa mở.</li><li>Nhấn vào ô chat. Dán bằng <b>Ctrl+V</b> (máy tính) hoặc <b>nhấn giữ → Dán</b> (điện thoại).</li><li>Nhấn nút <b>Gửi</b> (thường có hình mũi tên).</li><li>Đợi AI trả lời, rồi quay lại tab tập huấn.</li></ol></div><div class="actions">'+btn("m8sent","TÔI ĐÃ GỬI VÀ THẤY PHẢN HỒI")+' '+btn("m8blocked","AI KHÔNG TRẢ LỜI",false)+'</div>';
  else html='<h2>Bạn đã thấy gì?</h2><p>Đây là tự báo cáo thao tác, không phải hệ thống tự đọc phản hồi của AI.</p>'+box([["three","AI gợi ý được ba cách"],["other","AI trả lời nhưng chưa đủ ba cách"],["blocked","Không truy cập / hết lượt"]],"ideas")+(st.ideas==="blocked"?'<div class="note"><b>Đường dự phòng, không phải phản hồi AI thật:</b> 1. Dùng mẫu yêu cầu rõ hơn. 2. Tách dữ liệu và kết quả thành bảng kiểm. 3. Luôn dành bước người kiểm trước khi gửi.</div>':"")+'<div class="actions">'+btn("m8result","ĐÃ GHI KẾT QUẢ")+'</div>';
@@ -127,6 +127,7 @@ document.addEventListener("click",async e=>{
  else if(a==="m7issue"){if(!st.issue){alert("Hãy chọn một khó khăn.");return}st.sub=2}
  else if(a==="m7edit")st.sub=0;
  else if(a==="copyidea"){const ok=await copyText(promptIdea());if(ok)st.sub=1;}
+ else if(a==="m8manual")st.sub=1;
  else if(a==="m8opened")st.sub=2;
  else if(a==="m8blocked"){st.ideas="blocked";st.sub=3;}
  else if(a==="m8sent")st.sub=3;
