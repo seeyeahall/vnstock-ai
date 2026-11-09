@@ -365,7 +365,7 @@ function visible(n){
  document.getElementById('ctecHeading').textContent=h[1];document.getElementById('ctecSubtitle').textContent=h[2];document.getElementById('ctecCount').textContent=String(n);
  document.getElementById('ctecNav').hidden=n===1||n===2;
  document.getElementById('ctecBack').hidden=n===1;
- document.getElementById('ctecPageCount').textContent=n+'/20';
+ document.getElementById('ctecPageCount').textContent=n+'/19';
  document.getElementById('ctecForward').textContent=n===6?'TIẾP TỤC HỌC GIAO VIỆC CHO AI →':'TIẾP THEO →';
  var notes=document.getElementById('ctecTeacherNotes');notes.hidden=!teacherMode; if(teacherMode)notes.textContent='HƯỚNG DẪN NGƯỜI DẠY: '+teacher[n-1];
  document.getElementById('ctecCopyStatus').textContent='';
@@ -490,7 +490,7 @@ function draw(n){
  }
  const stage=n<=10?"HIỂU VÀ RA LỆNH":n<=14?"NGUỒN – THỬ – LỖI":n<=18?"LÀM – KIỂM – SỬA":"TỰ LÀM VÀ CHUYỂN GIAO";
  const el=$("#ctecStep"+n);
- el.querySelector(".cb-main").innerHTML=`<div class="cb-status"><span>${stage} · VI MÀN ${n}/20</span><button data-baction="role">ĐỔI VAI HỌC VIÊN / GIẢNG VIÊN</button></div><div class="cb-progress">${Array.from({length:13},(_,i)=>`<i class="${i<=n-7?"on":""}"></i>`).join("")}</div>${h}`;
+ el.querySelector(".cb-main").innerHTML=`<div class="cb-status"><span>${stage} · VI MÀN ${n}/19</span><button data-baction="role">ĐỔI VAI HỌC VIÊN / GIẢNG VIÊN</button></div><div class="cb-progress">${Array.from({length:13},(_,i)=>`<i class="${i<=n-7?"on":""}"></i>`).join("")}</div>${h}`;
 }
 function show(n,teacher){
  for(let i=1;i<=TOTAL;i++){let q=$("#ctecStep"+i);if(q)q.hidden=i!==n}
@@ -498,7 +498,7 @@ function show(n,teacher){
  $("#ctecAim").textContent="Mục tiêu đang thực hiện: "+(n<=10?"Biết giao việc rõ ràng":n<=14?"Khai thác nguồn và kiểm lỗi":n<=18?"Tạo sản phẩm văn phòng":"Tự học và chuyển giao");
  $("#ctecHeading").textContent="Bước "+n+". "+lessons[n][0];
  $("#ctecSubtitle").textContent=lessons[n][1];$("#ctecCount").textContent=n;
- $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecPageCount").textContent=n+"/20";
+ $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecPageCount").textContent=n+"/19";
  $("#ctecForward").hidden=false;
  $("#ctecForward").textContent=n===TOTAL?"XEM TỔNG KẾT BÀI HỌC →":"TIẾP THEO →";
  $("#ctecEndSummary").hidden=true;
@@ -612,8 +612,8 @@ function showEnd(teacher){
  $("#ctecAim").textContent="Mục tiêu đang thực hiện: Tổng kết và vận dụng sau tập huấn";
  $("#ctecHeading").textContent="Hoàn thành vòng học – Bạn đã biết tự giao việc cho AI?";
  $("#ctecSubtitle").textContent="Từ mục tiêu đến bản nháp, kiểm chứng và công việc mới; giảng viên đánh giá sản phẩm thật trước khi chứng nhận.";
- $("#ctecCount").textContent="20";
- $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecForward").hidden=true;$("#ctecPageCount").textContent="20/20 – TỔNG KẾT";
+ $("#ctecCount").textContent="✓";
+ $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecForward").hidden=true;$("#ctecPageCount").textContent="KẾT THÚC · KHÔNG TÍNH MÀN";
  const p=job();
  end.querySelector(".cb-main").innerHTML='<h2>Nhìn lại năng lực đã luyện</h2>'+
  '<div class="cb-two">'+
@@ -625,7 +625,7 @@ function showEnd(teacher){
  '<details><summary>Xem câu lệnh 8 phần bạn đã xây</summary><pre>'+esc(prompt())+'</pre></details>'+
  '<div class="cb-help"><b>Bộ mẹo học tiếp:</b> '+S.tips.map(i=>esc(tipLibrary[i][1])).join(" · ")+'. Tài liệu và video/slide trong NotebookLM là công cụ; người sử dụng phải kiểm nguồn, số, định dạng và thẩm quyền.</div>'+
  '<div class="cb-actions"><button data-baction="export">TẢI SỔ TAY CÁ NHÂN</button><button data-baction="revisit">QUAY LẠI BÀI TỰ LÀM</button><button data-baction="open35">TÙY CHỌN: MỞ GIÁO ÁN 35 TRẠM GỐC</button><button data-baction="restart">CHỌN VIỆC KHÁC</button></div>'+
- '<p class="cb-help">Đây là Màn 20 tổng kết chính của tuyến tập huấn. Giáo án 35 trạm gốc nằm trong chế độ xem chuyên sâu riêng, chỉ mở khi người dùng tự chọn. Không tự chạy thêm 35 màn. CLASS_PASS chỉ sau khi giảng viên kiểm tệp, kỹ năng và diễn tập.</p>';
+ '<p class="cb-help">Đây là TRANG TỔNG KẾT sau 19 vi màn, không phải màn số 20 hoặc một trạm có thời lượng mới. Giáo án 35 trạm gốc là nhánh chuyên sâu riêng, chỉ mở khi người dùng tự chọn, không tự nối thêm sau Màn 19. CLASS_PASS chỉ sau khi giảng viên kiểm tệp, kỹ năng và diễn tập.</p>';
  notes.hidden=!teacher;if(teacher)notes.textContent="TỔNG KẾT GIẢNG VIÊN: Mời một người học tự giải thích mục tiêu, tên nguồn, lỗi AI, cách sửa và tệp đã mở lại. Chỉ chấm năng lực khi xem sản phẩm Word/PDF thật và học viên làm biến thể. Màn tổng kết không tự phát chứng nhận hoặc thay lịch 35 trạm.";
  info("");window.scrollTo(0,0);
 }
