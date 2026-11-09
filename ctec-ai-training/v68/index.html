@@ -85,6 +85,12 @@ body.ctec-orient #ctecOrientation{display:block}
 #ctecOrientation .sr{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}
 @media(max-width:900px){#ctecOrientation{padding:6px 9px 22px}#ctecOrientation .aiGrid,#ctecOrientation .whyGrid{grid-template-columns:1fr}#ctecOrientation .count{width:56px;height:56px;font-size:36px}#ctecOrientation .title{gap:10px}#ctecOrientation .two{grid-template-columns:1fr 1fr}#ctecOrientation .pane{padding:12px}#ctecOrientation .bigchoices{grid-template-columns:1fr;gap:12px;margin:16px auto}#ctecOrientation .bigchoices a,#ctecOrientation .bigchoices button{min-height:68px}#ctecOrientation .imageFull{max-height:540px;object-fit:contain;object-position:top}#ctecOrientation .mobileNotes{display:block}#ctecOrientation .promptBox{max-height:320px;font-size:15px}}
 @media(max-width:520px){#ctecOrientation .two{grid-template-columns:1fr}#ctecOrientation .actionRow .blue,#ctecOrientation .actionRow .grey{width:100%;text-align:center}#ctecOrientation .nav .green{font-size:18px;padding:12px 13px}#ctecOrientation .imageFull{max-height:380px}#ctecOrientation h1{font-size:24px}#ctecOrientation .sourceNote{font-size:13px}}
+#ctecOrientation .ctec-m2-image{position:relative;margin:0 auto;max-width:1536px}
+#ctecOrientation .ctec-m2-image img{display:block;width:100%;height:auto}
+#ctecOrientation .ctec-m2-image a,#ctecOrientation .ctec-m2-image button{position:absolute;display:block;background:transparent;border:0;color:transparent;font-size:0;box-shadow:none}
+#ctecOrientation .ctec-m2-image a:focus-visible,#ctecOrientation .ctec-m2-image button:focus-visible{outline:4px solid #e97512;background:#ffffff44}
+#ctecOrientation .ctec-m2-mobile{display:none}
+@media(max-width:700px){#ctecOrientation .ctec-m2-image{display:none}#ctecOrientation .ctec-m2-mobile{display:block}}
 </style></head><body class="ctec-orient"><div id="ctecOrientation" aria-label="Làm quen với AI – sáu màn được thiết kế theo duyệt">
   <div class="ban">BUỔI TẬP HUẤN SỬ DỤNG AI VĂN PHÒNG</div>
   <div class="aim" id="ctecAim">Mục tiêu đang thực hiện: Giới thiệu về AI</div>
@@ -100,7 +106,13 @@ body.ctec-orient #ctecOrientation{display:block}
     </div>
   </section>
   <section id="ctecStep2" class="ctec-step" hidden>
-    <div class="pane"><h2>Mở từng AI bằng tài khoản đã dùng ở Bước 1</h2>
+    <div class="ctec-m2-image"><img src="./man02_user_approved.jpg" alt="Màn 2 do chủ dự án cung cấp: ba cột ChatGPT, Gemini Notebook, Gemini; mỗi cột có nút mở và hướng dẫn tài khoản cũ hoặc mới">
+      <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="Mở ChatGPT" style="left:25%;top:31%;width:10%;height:8%">Mở ChatGPT</a>
+      <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" aria-label="Mở Gemini Notebook" style="left:58%;top:31%;width:10%;height:8%">Mở Gemini Notebook</a>
+      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" aria-label="Mở Gemini" style="left:89%;top:31%;width:10%;height:8%">Mở Gemini</a>
+      <button type="button" data-intro-next="3" aria-label="Đã kiểm tra ba AI, tiếp theo" style="left:81%;top:85%;width:18%;height:12%">Tiếp theo</button>
+    </div>
+    <div class="ctec-m2-mobile pane"><h2>Mở từng AI bằng tài khoản đã dùng ở Bước 1</h2>
     <div class="aiGrid">
       <div class="aiCard"><h3>✺ ChatGPT</h3><a class="blue" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">MỞ CHATGPT</a>
         <div class="two"><div class="mini"><b>Đã có tài khoản</b><ol><li>Chọn Đăng nhập.</li><li>Dùng đúng phương thức đăng nhập trước đây (Google nếu đã liên kết Google).</li><li>Vào ô chat.</li></ol></div><div class="mini"><b>Chưa có tài khoản</b><ol><li>Chọn Đăng ký miễn phí.</li><li>Chọn Tiếp tục với Google.</li><li>Hoàn tất màn yêu cầu để vào chat.</li></ol></div></div>
@@ -113,7 +125,7 @@ body.ctec-orient #ctecOrientation{display:block}
       </div>
     </div>
     <div class="verified"><b>Hoàn thành:</b> ChatGPT có ô chat; NotebookLM có danh sách sổ/Tạo sổ; Gemini có ô chat. Mỗi AI mở ở tab riêng, không nhập mật khẩu/OTP trên website lớp.</div>
-    </div>
+    <button class="green" type="button" data-intro-next="3">TIẾP THEO</button></div>
   </section>
   <section id="ctecStep3" class="ctec-step" hidden>
     <div class="pane"><h2>Ba AI làm được gì – miễn phí và trả phí?</h2>
@@ -142,7 +154,14 @@ body.ctec-orient #ctecOrientation{display:block}
       <div class="actionRow"><button class="blue" type="button" data-copy="prompt">SAO CHÉP CÂU LỆNH</button><a class="grey" href="https://chatgpt.com/" target="_blank" rel="noopener">MỞ CHATGPT</a><a class="grey" href="https://gemini.google.com/" target="_blank" rel="noopener">MỞ GEMINI</a><a class="grey" href="https://notebooklm.google.com/" target="_blank" rel="noopener">MỞ NOTEBOOKLM</a></div>
       <details><summary>Riêng NotebookLM: thêm nguồn bằng văn bản, không tải tệp</summary><p>Trong NotebookLM: Tạo sổ → Thêm nguồn → Văn bản đã sao chép (Copied text) → dán đoạn nguồn ở nút dưới → sau đó dán câu lệnh chung vào Chat trong sổ.</p><div class="actionRow"><button class="blue" type="button" data-copy="source">SAO CHÉP NGUỒN VĂN BẢN</button></div></details>
       <div class="verified"><b>Hoàn thành:</b> Đọc các phản hồi, ghi lại AI nào dùng số liệu dòng tổng, AI nào kiểm được dữ liệu và AI nào thận trọng khi đề nghị thêm nhân sự/phòng. <b>Đáp án nằm ở Bước 6.</b></div>
-      <div class="verified" id="ctecM5Records"><b>Ghi nhận sau khi thử từng AI</b><p>Chọn kết quả quan sát được. Nếu bị chặn, ghi đúng là bị chặn; không chấm AI đúng hoặc sai.</p><div class="aiGrid"><label>ChatGPT<select data-ai-result="chatgpt"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label><label>Gemini Notebook<select data-ai-result="notebook"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label><label>Gemini<select data-ai-result="gemini"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label></div><p id="ctecM5Gate" role="status" aria-live="polite">Đáp án vẫn ẩn. Hãy thử cả ba công cụ.</p></div>
+      <div class="verified" id="ctecM5Records">
+        <b>Ghi nhận sau khi thử từng AI</b><p>Chọn kết quả quan sát được. Nếu bị chặn, ghi đúng là bị chặn; không chấm AI đúng hoặc sai.</p>
+        <div class="aiGrid">
+          <label>ChatGPT<select data-ai-result="chatgpt"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
+          <label>Gemini Notebook<select data-ai-result="notebook"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
+          <label>Gemini<select data-ai-result="gemini"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
+        </div><p id="ctecM5Gate" role="status" aria-live="polite">Đáp án vẫn ẩn. Hãy thử cả ba công cụ.</p>
+      </div>
       <div class="sourceNote">Nếu một AI báo thiếu quyền/quota, dùng các kết quả kiểm thử đã lưu cùng giảng viên; không tự kết luận công cụ đó đã trả lời sai.</div>
     </div>
   </section>
@@ -316,9 +335,10 @@ var teacher=[
 function visible(n){
  introStep=n;
  for(var i=1;i<=6;i++){document.getElementById('ctecStep'+i).hidden=i!==n}
+ document.querySelector('#ctecOrientation .ban').hidden=n===2;document.querySelector('#ctecOrientation .aim').hidden=n===2;document.querySelector('#ctecOrientation .title').hidden=n===2;
  var h=headings[n-1];document.getElementById('ctecAim').textContent='Mục tiêu đang thực hiện: '+h[0];
  document.getElementById('ctecHeading').textContent=h[1];document.getElementById('ctecSubtitle').textContent=h[2];document.getElementById('ctecCount').textContent=String(n);
- document.getElementById('ctecNav').hidden=n===1;
+ document.getElementById('ctecNav').hidden=n===1||n===2;
  document.getElementById('ctecBack').hidden=n===1;
  document.getElementById('ctecPageCount').textContent=n+'/6';
  document.getElementById('ctecForward').textContent=n===6?'VÀO 35 TRẠM THỰC HÀNH →':'TIẾP THEO →';
@@ -344,7 +364,22 @@ document.getElementById('ctecOrientation').addEventListener('click',function(e){
  var cp=e.target.closest('[data-copy]');if(cp){copyText(cp.getAttribute('data-copy'))}
 });
 document.getElementById('ctecBack').onclick=function(){visible(Math.max(1,introStep-1))};
-document.getElementById('ctecForward').onclick=function(){if(introStep===5){var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));if(choices.some(function(c){return !c.value})){document.getElementById('ctecM5Gate').textContent='Chưa đủ ba kết quả. Thử từng AI hoặc ghi đúng công cụ bị chặn rồi mới xem phân tích.';return}}if(introStep===6)intoLesson();else visible(introStep+1)};document.getElementById('ctecM5Records').addEventListener('change',function(){var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));var done=choices.filter(function(c){return !!c.value}).length;document.getElementById('ctecM5Gate').textContent=done===3?'Đã ghi ba trạng thái. Bấm TIẾP THEO để đối chiếu phép tính.':'Đã ghi '+done+'/3 trạng thái; đáp án vẫn ẩn.'});
+document.getElementById('ctecForward').onclick=function(){
+ if(introStep===5){
+   var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));
+   if(choices.some(function(c){return !c.value})){
+     var gate=document.getElementById('ctecM5Gate');
+     gate.textContent='Chưa đủ ba kết quả. Thử từng AI hoặc ghi đúng công cụ bị chặn rồi mới xem phân tích.';
+     gate.focus();return;
+   }
+ }
+ if(introStep===6)intoLesson();else visible(introStep+1)
+};
+document.getElementById('ctecM5Records').addEventListener('change',function(){
+ var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));
+ var done=choices.filter(function(c){return !!c.value}).length;
+ document.getElementById('ctecM5Gate').textContent=done===3?'Đã ghi ba trạng thái. Bấm TIẾP THEO để đối chiếu phép tính.': 'Đã ghi '+done+'/3 trạng thái; đáp án vẫn ẩn.';
+});
 var params=new URLSearchParams(location.search);
 var given=params.get('intro');
 if(params.has('station')||params.get('skipIntro')==='1'){document.body.classList.remove('ctec-orient')}
@@ -357,3 +392,4 @@ if(!document.getElementById('ctecReopenIntro')){
 }
 })();
 </script></body></html>
+
