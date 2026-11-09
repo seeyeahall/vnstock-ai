@@ -98,7 +98,7 @@ document.addEventListener("click",async e=>{
  const btn=e.target.closest("[data-action]");if(!btn)return;
  switch(btn.dataset.action){
   case "copyPrompt":await copy(task().prompt);return;
-  case "engineReady":if(!st.engine){alert("Hãy bấm mở ChatGPT hoặc Gemini ở trên, rồi mới xác nhận đã thấy ô hỏi.");return}st.usedFallback=false;st.seen="";break;
+  case "engineReady":if(!st.engine){$("scene").insertAdjacentHTML("beforeend",'<p role="status" class="note">Hãy bấm MỞ CHATGPT hoặc MỞ GEMINI ở phía trên, rồi quay lại xác nhận đã thấy ô hỏi. Nếu không vào được, chọn nút dự phòng.</p>');return}st.usedFallback=false;st.seen="";break;
   case "noAI":st.engine="";st.usedFallback=true;break;
   case "fallbackRead":st.seen="fallback";break;
   case "retryAI":st.usedFallback=false;st.seen="";st.checks=[];break;
