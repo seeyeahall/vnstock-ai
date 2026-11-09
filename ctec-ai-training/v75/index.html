@@ -430,8 +430,9 @@ B2:{name:"Dự thảo quyết định K01/K02",purpose:"Lập BẢN DỰ THẢO 
 B3:{name:"Báo cáo L01/B03",purpose:"Báo cáo sơ bộ cho Trưởng phòng Đào tạo xem cần đối chiếu thông tin gì trước khi dự kiến bố trí giảng viên/phòng.",src:"Nguồn L01/B03 GIẢ LẬP: Kế toán 2 lớp/55 người; CNTT 3 lớp/90 người; Du lịch 2 lớp/50 người; tổng 7 lớp/195 người.",out:"Bảng ba khoa và tổng, tỷ trọng CNTT, nhận xét và hai điều còn thiếu.",limit:"Không kết luận thiếu giáo viên/phòng khi chưa có số phòng, phân công, lịch và định mức.",check:"2+3+2=7; 55+90+50=195; CNTT 3/7=42,86% số lớp và 90/195=46,15% người.",draft:"BÁO CÁO SƠ BỘ – GIẢ LẬP\nKế toán: 2 lớp/55 người; CNTT: 3 lớp/90 người; Du lịch: 2 lớp/50 người.\nTổng 7 lớp/195 người. CNTT chiếm 42,86% lớp và 46,15% người.\nChưa đủ căn cứ kết luận thiếu nhân sự/phòng, cần kiểm số phòng, lịch, giảng viên và định mức."}
 };
 const parts=[
+["Vai trò chuyên môn và mức kinh nghiệm","AI cần đóng vai ai, ở mức độ nào? Ví dụ: Bạn là chuyên gia văn phòng có hơn 20 năm kinh nghiệm.",()=> "Bạn là chuyên gia văn phòng có hơn 20 năm kinh nghiệm trong soạn thảo và kiểm tra hồ sơ hành chính. Hãy phân tích với tiêu chuẩn nghề nghiệp cao, chỉ rõ điều chưa đủ căn cứ; không tự nhận đã làm nghề hoặc đã kiểm thực tế."],
 ["Mục tiêu/người dùng","Kết quả phục vụ ai, quyết định gì?",q=>q.purpose],
-["Bối cảnh/vai trò","Tình huống công việc gì?",()=> "Tôi là nhân viên văn phòng đang thực hành với dữ liệu GIẢ LẬP."],
+["Bối cảnh thực hiện","Đơn vị, tình huống, dữ liệu thật hay giả lập?",()=> "Tôi là nhân viên văn phòng đang thực hành với dữ liệu GIẢ LẬP."],
 ["Nguồn/đầu vào","Đã có dữ liệu nào? Nguồn nào chưa có?",q=>q.src],
 ["Việc AI thực hiện","AI phải thao tác gì?",()=> "Hãy làm bản nháp và hỏi tôi nếu thiếu dữ kiện thiết yếu."],
 ["Đầu ra/định dạng","Cần nhận sản phẩm hình thức gì?",q=>q.out],
@@ -439,12 +440,12 @@ const parts=[
 ["Hỏi – kiểm – sửa","Hỏi lại, phản biện, kiểm chứng ra sao?",q=> "Hỏi tối đa 3 câu cần thiết, rồi lập nháp; tìm 3 chỗ có thể sai, đối chiếu nguồn. "+q.check]
 ];
 const tipLibrary=window.CTEC_V75_TIPS||[],outputLibrary=window.CTEC_V75_OUTPUTS||[];
-const S={job:"",choice:"",part:0,use:Array(7).fill(true),values:[],edited:false,ai:"",nb:"",output:"",outstate:"",error:"",draft:"",checks:[false,false,false],critic:"",file:"",advanced:"",transfer:"",own:"",tips:[],finished:false};
+const S={job:"",choice:"",part:0,use:Array(8).fill(true),values:[],edited:false,ai:"",nb:"",output:"",outstate:"",error:"",draft:"",checks:[false,false,false],critic:"",file:"",advanced:"",transfer:"",own:"",tips:[],finished:false};
 const lessons={
 7:["Chọn việc văn phòng","Chọn một công việc bạn muốn hoàn thành bằng AI.","Đặt một nhu cầu thật trước công cụ; để người học tự chọn bài. Đối chiếu VĐ1."],
 8:["Lệnh rõ khác lệnh mơ hồ ở đâu?","Nhìn hai cách giao việc và dự đoán cách nào giúp AI hiểu đúng.","Không tiết lộ đáp án trước; cần học viên nhận ra thiếu nguồn/mục đích/giới hạn. Ánh xạ K4/VD1-02."],
-9:["Hiểu cấu trúc câu lệnh đủ 7 phần","Nhìn tổng thể trước khi lắp từng phần.","Không ép học thuộc 7 mục, ưu tiên bốn lõi; có hỏi ngược và kiểm chứng. Ánh xạ VD1-03."],
-10:["Tự xây câu lệnh – từng phần một","Thay ít nhất một câu theo cách của bạn.","Hướng dẫn 7 vi lượt trong cùng màn, rút dần hỗ trợ; bảo vệ PURPOSE_GATE. Ánh xạ VD1-03/04."],
+9:["Hiểu cấu trúc câu lệnh 8 phần","Đầu tiên: AI đóng vai chuyên môn gì, có mức kinh nghiệm nào?","Làm rõ phần 1: vai trò/mức kinh nghiệm được yêu cầu, ví dụ chuyên gia văn phòng hơn 20 năm; sau đó mục tiêu, bối cảnh, nguồn, việc, đầu ra, giới hạn, kiểm chứng. Đây chỉ là vai trò mô phỏng, không bảo đảm AI có kinh nghiệm thật. Ánh xạ VD1-03."],
+10:["Tự xây câu lệnh – từng phần một","Chọn vai trò và kinh nghiệm, sau đó sửa câu lệnh theo việc của bạn.","Hướng dẫn 8 thành phần: đầu tiên chọn vai trò/mức kinh nghiệm, rồi tiếp đến mục tiêu, bối cảnh, nguồn, việc, đầu ra, giới hạn, kiểm chứng. Sửa bằng lời của học viên, không coi chức danh được nhập là chứng nhận năng lực thực của AI. Ánh xạ VD1-03/04."],
 11:["Thử câu lệnh với một AI","Sao chép → mở AI → dán → gửi → quay lại và ghi trạng thái.","Không đồng nhất blocked với sai năng lực; không bắt mọi học viên vào cả ba AI. Ánh xạ VD1."],
 12:["NotebookLM: từ tài liệu đến câu trả lời","Tạo sổ, thêm nguồn, kiểm tên nguồn và trích dẫn.","K02 nhắc K01 không có nghĩa đã nạp K01; Free khác Workspace Education. Ánh xạ VĐ2."],
 13:["NotebookLM Studio: chọn một sản phẩm","Chọn một trong chín đầu ra và tùy chỉnh theo việc của mình.","Kế thừa File62/63; không bắt người học làm cả chín loại. Ánh xạ VĐ2."],
@@ -467,14 +468,14 @@ async function copy(t){
  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);info("Đã sao chép. Mở công cụ, chọn ô nhập rồi dán.");return}}catch{}
  let c=$("#bridgeManual");if(c)c.remove();c=document.createElement("textarea");c.id="bridgeManual";c.className="cb-input";c.value=t;main(window.ctecCurrentStep).appendChild(c);c.focus();c.select();info("Chưa sao chép tự động được. Văn bản đã chọn, hãy bấm Ctrl+C hoặc Sao chép.");
 }
-function composeInit(id){S.job=id;S.values=parts.map(x=>x[2](cases[id]));S.use=Array(7).fill(true);S.part=0;S.edited=false;}
+function composeInit(id){S.job=id;S.values=parts.map(x=>x[2](cases[id]));S.use=Array(8).fill(true);S.part=0;S.edited=false;}
 function draw(n){
  const p=job();let h="";
  switch(n){
  case 7:h=`<h2>Bạn muốn AI giúp hoàn thành việc gì?</h2><p>Chọn <b>một</b> công việc đang quen làm bằng tay. Việc này sẽ theo bạn tới khi kiểm và lưu sản phẩm.</p><div class="cb-actions">${labels.map(x=>b("job",x[0],x[1],S.job===x[0])).join("")}</div>${S.job?card("Đã chọn",p.purpose):'<p class="cb-help">Hãy chọn B1 Thông báo, B3 Báo cáo hoặc B2 Dự thảo quyết định.</p>'}`;break;
  case 8:h=`<h2>Hai câu lệnh, bạn chọn câu nào?</h2><div class="cb-two">${card("A – Mơ hồ",`“Làm một bản ${p.name} thật hay.”`)}${card("B – Rõ mục đích và giới hạn",esc(p.purpose+" "+p.src+" "+p.limit))}</div><div class="cb-actions">${b("choice","A","CHỌN A",S.choice==="A")}${b("choice","B","CHỌN B",S.choice==="B")}</div>${S.choice?`<div class="cb-help">${S.choice==="B"?"Đúng: có mục đích, nguồn và giới hạn.":"Câu A thiếu mục đích, nguồn và điều không được đoán. Chọn câu B trước khi tiếp."}</div>`:""}`;break;
- case 9:h=`<h2>Đủ 7 phần để chọn, không phải học thuộc</h2><p>Nhìn sơ đồ tổng thể. Khi làm việc đơn giản, có thể dùng ít phần hơn.</p><div class="cb-two">${parts.map((x,i)=>card((i+1)+". "+x[0],esc(x[1]))).join("")}</div><div class="cb-help">Trước khi yêu cầu phân tích bảng: hỏi “để ai quyết định việc gì?”. Thiếu nguồn thì AI phải hỏi lại hoặc ghi [CẦN XÁC NHẬN].</div>`;break;
- case 10:{let i=S.part,x=parts[i];h=`<h2>Điền từng phần cho bài ${p.name}</h2><p>Chỉnh ít nhất một câu theo cách bạn hiểu; không cần sửa toàn bộ mẫu.</p><p><b>Phần ${i+1}/7: ${x[0]}</b> – ${x[1]}</p><label><input type="checkbox" data-bcheck="use" ${S.use[i]?"checked":""}/> Giữ phần này trong câu lệnh</label><textarea id="bridgePart" class="cb-input" data-binput="part" ${S.use[i]?"":"disabled"}>${esc(S.values[i])}</textarea><div class="cb-actions">${b("partprev","prev","← PHẦN TRƯỚC")}${b("partnext","next",i===6?"XEM BẢN GHÉP":"PHẦN TIẾP →")}</div><details><summary>Xem câu lệnh đang ghép</summary><pre id="bridgePreview">${esc(prompt())}</pre></details><p class="cb-help">Bài văn phòng này cần ít nhất: mục đích – nguồn – giới hạn – đầu ra.</p>${S.edited?"<p>Đã có chỉnh sửa do bạn tự viết.</p>":""}`;break;}
+ case 9:h=`<h2>Câu lệnh có 8 phần – bắt đầu từ vai trò và mức kinh nghiệm</h2><p><b>Phần 1: AI cần đóng vai ai?</b> Ví dụ: “Bạn là chuyên gia văn phòng có hơn 20 năm kinh nghiệm”. Tiếp đến mới xác định yêu cầu và bằng chứng.</p><p>Không phải bài nào cũng dùng đủ 8 phần; hãy chọn theo nhu cầu.</p><div class="cb-two">${parts.map((x,i)=>card((i+1)+". "+x[0],esc(x[1]))).join("")}</div><div class="cb-help"><b>Lưu ý:</b> “20 năm kinh nghiệm” chỉ định hướng cách AI trả lời, không chứng minh AI có kinh nghiệm thực hay luôn đúng. Trước khi phân tích bảng phải xác định ai dùng kết quả để quyết việc gì, và mọi kết luận phải được đối chiếu nguồn.</div>`;break;
+ case 10:{let i=S.part,x=parts[i];h=`<h2>Điền từng phần cho bài ${p.name}</h2><p>Chỉnh ít nhất một câu theo cách bạn hiểu; không cần sửa toàn bộ mẫu.</p><p><b>Phần ${i+1}/8: ${x[0]}</b> – ${x[1]}</p><label><input type="checkbox" data-bcheck="use" ${S.use[i]?"checked":""}/> Giữ phần này trong câu lệnh</label><textarea id="bridgePart" class="cb-input" data-binput="part" ${S.use[i]?"":"disabled"}>${esc(S.values[i])}</textarea>${i===0?`<p><b>Chọn nhanh mức chuyên môn:</b></p><div class="cb-actions">${b("rolepreset","expert20","Chuyên gia 20+ năm")}${b("rolepreset","expert5","Chuyên viên 5 năm")}${b("rolepreset","guide","Người hướng dẫn cho người mới")}</div><p class="cb-help">Vai trò là cách đặt yêu cầu, không phải thâm niên hoặc chứng chỉ thực của AI.</p>`:""}<div class="cb-actions">${b("partprev","prev","← PHẦN TRƯỚC")}${b("partnext","next",i===7?"XEM BẢN GHÉP":"PHẦN TIẾP →")}</div><details><summary>Xem câu lệnh đang ghép</summary><pre id="bridgePreview">${esc(prompt())}</pre></details><p class="cb-help">Bài văn phòng này cần ít nhất: mục đích – nguồn – giới hạn – đầu ra.</p>${S.edited?"<p>Đã có chỉnh sửa do bạn tự viết.</p>":""}`;break;}
  case 11:h=`<h2>Thử câu lệnh của bạn trên một AI</h2><p>Sao chép → mở ChatGPT/Gemini → dán vào ô hỏi → gửi → quay lại ghi đúng kết quả.</p><pre>${esc(prompt())}</pre><div class="cb-actions"><button data-baction="copyPrompt">SAO CHÉP LỆNH</button><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">MỞ CHATGPT ↗</a><a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">MỞ GEMINI ↗</a></div><div class="cb-actions">${b("ai","response","ĐÃ NHẬN PHẢN HỒI",S.ai==="response")}${b("ai","blocked","BỊ CHẶN / HẾT LƯỢT",S.ai==="blocked")}</div><p class="cb-help">Không truy cập được vẫn có thể dùng mẫu dự phòng; không coi đó là AI đã trả lời.</p>`;break;
  case 12:h=`<h2>NotebookLM cần tài liệu trước khi hỏi</h2><p>Trong NotebookLM: Tạo/mở sổ → Thêm nguồn → xem tên nguồn → hỏi và bấm trích dẫn.</p>${card("Nguồn thực hành GIẢ LẬP",esc(p.src))}<div class="cb-actions"><button data-baction="copySource">SAO CHÉP NGUỒN</button><a target="_blank" rel="noopener noreferrer" href="https://notebook.google.com/">MỞ NOTEBOOKLM ↗</a></div><div class="cb-actions">${b("nb","read","ĐÃ NHÌN THẤY NGUỒN",S.nb==="read")}${b("nb","blocked","CHƯA TRUY CẬP ĐƯỢC",S.nb==="blocked")}</div><p class="cb-help">K02 có nhắc K01 không có nghĩa sổ đã đọc trực tiếp K01; tính năng Education không đồng nghĩa Free cá nhân.</p>`;break;
  case 13:{let x=outputLibrary.find(o=>o[0]===S.output);h=`<h2>Chọn một đầu ra từ Studio</h2><p>Không cần tạo tất cả chín sản phẩm. Bạn cần dùng tài liệu để làm việc gì?</p><div class="cb-outputs">${outputLibrary.map(o=>b("output",o[0],o[1],S.output===o[0])).join("")}</div>${x?`${card(x[2],esc(x[3]))}<pre>${esc(x[4]+"\nNguồn: "+p.src+"\nGiới hạn: "+p.limit)}</pre><button data-baction="copyCustom">SAO CHÉP LỆNH TÙY CHỈNH</button>`:""}<div class="cb-actions">${b("outstate","made","TÔI ĐÃ TẠO / XEM ĐƯỢC",S.outstate==="made")}${b("outstate","blocked","CHƯA DÙNG ĐƯỢC",S.outstate==="blocked")}</div>`;break;}
@@ -515,7 +516,7 @@ function gate(n){
  let m="";
  if(n===7&&!S.job)m="Chọn một việc văn phòng trước.";
  if(n===8&&S.choice!=="B")m="Hãy chọn câu lệnh có mục đích và nguồn.";
- if(n===10&&(!S.edited||![0,2,4,5].every(i=>S.use[i]&&S.values[i]?.trim())))m="Hãy tự sửa một phần và giữ mục tiêu, nguồn, đầu ra, giới hạn.";
+ if(n===10&&(!S.edited||![1,3,5,6].every(i=>S.use[i]&&S.values[i]?.trim())))m="Hãy tự điều chỉnh câu lệnh và giữ mục tiêu, nguồn, đầu ra, giới hạn. Vai trò chuyên môn đặt đầu tiên.";
  if(n===11&&!S.ai)m="Ghi đúng đã nhận phản hồi hay bị chặn.";
  if(n===12&&!S.nb)m="Ghi đã thấy nguồn hay chưa mở được.";
  if(n===13&&(!S.output||!S.outstate))m="Chọn một đầu ra và ghi đúng trạng thái.";
@@ -528,7 +529,7 @@ function gate(n){
  if(m){info(m);return false}return true;
 }
 function exportNote(){
- let lines=["CTEC AI – SỔ TAY CÁ NHÂN (BÀI GIẢ LẬP)","Bài đầu: "+S.job,"Câu lệnh:\n"+prompt(),"AI (tự báo): "+(S.ai||"CHƯA"),"Notebook (tự báo): "+(S.nb||"CHƯA"),"Studio (tự báo): "+S.output,"Word (tự báo): "+S.file,"Việc mới: "+S.transfer,"Tự viết:\n"+S.own,"MẸO ĐÃ CHỌN",...S.tips.map(i=>tipLibrary[i][1]+"\n"+tipLibrary[i][2]),"CHƯA KIỂM BỞI GIẢNG VIÊN; KHÔNG PHẢI FILE_PASS/CLASS_PASS."];
+ let lines=["CTEC AI – SỔ TAY CÁ NHÂN (BÀI GIẢ LẬP)","Bài đầu: "+S.job,"Câu lệnh 8 phần (vai trò chuyên môn đầu tiên):\n"+prompt(),"AI (tự báo): "+(S.ai||"CHƯA"),"Notebook (tự báo): "+(S.nb||"CHƯA"),"Studio (tự báo): "+S.output,"Word (tự báo): "+S.file,"Việc mới: "+S.transfer,"Tự viết:\n"+S.own,"MẸO ĐÃ CHỌN",...S.tips.map(i=>tipLibrary[i][1]+"\n"+tipLibrary[i][2]),"CHƯA KIỂM BỞI GIẢNG VIÊN; KHÔNG PHẢI FILE_PASS/CLASS_PASS."];
  const url=URL.createObjectURL(new Blob([lines.join("\n\n")],{type:"text/plain;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="CTEC_SO_TAY_CA_NHAN.txt";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);info("Đã yêu cầu tải tệp TXT, hãy kiểm tra thư mục Tải xuống.");
 }
 function moreTips(){
@@ -543,8 +544,9 @@ root.addEventListener("click",async e=>{
  if(a==="restart"){window.ctecBridgeGoto(7);return}
  if(a==="revisit"){window.ctecBridgeGoto(19);return}
  if(a==="job"){composeInit(v)}else if(a==="choice")S.choice=v;
+ else if(a==="rolepreset"){const presets={expert20:"Bạn là chuyên gia văn phòng có hơn 20 năm kinh nghiệm trong công tác văn thư, hành chính và rà soát hồ sơ. Hãy nêu rõ căn cứ và giới hạn thông tin.",expert5:"Bạn là chuyên viên hành chính có khoảng 5 năm kinh nghiệm theo vai trò mô phỏng, giỏi soạn và rà soát văn bản.",guide:"Bạn là người hướng dẫn nghiệp vụ văn phòng cho nhân viên mới. Giải thích từng bước đơn giản, nêu rõ lỗi thường gặp."};S.values[0]=presets[v]||S.values[0];S.use[0]=true;S.edited=true;}
  else if(a==="partprev")S.part=Math.max(0,S.part-1);
- else if(a==="partnext")S.part=Math.min(6,S.part+1);
+ else if(a==="partnext")S.part=Math.min(7,S.part+1);
  else if(["ai","nb","output","outstate","error","draft","critic","file","transfer"].includes(a)){S[a]=v;if(a==="output")S.outstate=""}
  else if(a==="copyPrompt"){await copy(prompt());return}
  else if(a==="copySource"){await copy(job().src);return}
