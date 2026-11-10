@@ -365,7 +365,7 @@ function visible(n){
  document.getElementById('ctecHeading').textContent=h[1];document.getElementById('ctecSubtitle').textContent=h[2];document.getElementById('ctecCount').textContent=String(n);
  document.getElementById('ctecNav').hidden=n===1||n===2;
  document.getElementById('ctecBack').hidden=n===1;
- document.getElementById('ctecPageCount').textContent=n+'/19';
+ document.getElementById('ctecPageCount').textContent=n+'/20';
  document.getElementById('ctecForward').textContent=n===6?'TIẾP TỤC HỌC GIAO VIỆC CHO AI →':'TIẾP THEO →';
  var notes=document.getElementById('ctecTeacherNotes');notes.hidden=!teacherMode; if(teacherMode)notes.textContent='HƯỚNG DẪN NGƯỜI DẠY: '+teacher[n-1];
  document.getElementById('ctecCopyStatus').textContent='';
@@ -455,7 +455,7 @@ const lessons={
 16:["Tự kiểm ba điều quan trọng","Rà số/ngày/thẩm quyền trước khi dùng kết quả.","Checkbox tự khai, chưa là kiểm file; B3 7/195, 42,86% ≠46,15%. Ánh xạ VĐ3/TH."],
 17:["Phản biện, sửa và giữ mẹo dùng lại","Nhờ AI tìm lỗi, tự đối chiếu, lưu hai mẹo.","Tự phản biện không là chứng cứ độc lập; 20 mẹo chỉ thư viện. Ánh xạ END."],
 18:["Lưu Word và mở lại tệp","Lưu bản nháp, mở lại, báo đúng tình trạng.","Không chấm FILE_PASS từ nút tự báo; người dạy cần kiểm tệp Word/PDF thật."],
-19:["Nâng cao và tự làm việc mới","Thấy mô hình phối hợp ba AI rồi đổi bài và tự viết yêu cầu.","C1 ChatGPT→C2 Notebook→C3 Gemini→C4 ChatGPT; chỉ Education đã thử liên kết. Kết thúc bằng chuyển giao, tùy chọn 35 trạm gốc."]
+19:["Nâng cao: phối hợp ba AI và tự chuyển giao","Tự viết câu lệnh cho việc mới, sau đó đi đến Màn 20.","Phối hợp ChatGPT – NotebookLM – Gemini khi có quyền; không tự coi đó là quyền trên mọi tài khoản Free. Kết thúc ở Màn 20, không nối trạm học sau."]
 };
 const root=$("#ctecOrientation"),notes=$("#ctecTeacherNotes"),status=$("#ctecCopyStatus");
 const labels=Object.entries(cases).map(([id,q])=>[id,q.name]);
@@ -485,11 +485,11 @@ function draw(n){
  case 16:h=`<h2>Kiểm trước khi tin và sử dụng</h2>${card("Phép kiểm theo bài "+S.job,esc(p.check))}${["Đã tự đối chiếu dữ kiện/số/ngày với nguồn gốc.","Đã tìm những kết luận vượt nguồn hoặc tự suy đoán.","Đã kiểm trạng thái dự thảo, người ký và quyền phê duyệt."].map((x,i)=>`<label class="cb-check"><input type="checkbox" data-bcheck="verify" data-i="${i}" ${S.checks[i]?"checked":""}/>${x}</label>`).join("")}<p class="cb-help">Đánh dấu chỉ là bạn tự xác nhận, chưa phải hệ thống đã kiểm tệp.</p>`;break;
  case 17:h=`<h2>Phản biện rồi tự sửa</h2><p>Dùng câu hỏi ngắn để AI chỉ điểm yếu; đối chiếu lại nguồn, không tin vì AI tự nhận “đã kiểm”.</p><pre>${esc("Hãy phản biện bản nháp "+p.name+": nêu 5 điểm sai/thiếu căn cứ, kiểm nguồn, số và quyền ký; viết bảng lỗi → cách sửa → còn cần ai duyệt. "+p.check)}</pre><div class="cb-actions"><button data-baction="copyCritic">SAO CHÉP LỆNH PHẢN BIỆN</button><button data-baction="moreTips">MỞ 20 MẸO DÙNG LẠI</button></div><div id="bridgeTips" hidden></div><div class="cb-actions">${b("critic","reviewed","ĐÃ SOÁT VÀ SỬA",S.critic==="reviewed")}${b("critic","pending","CHƯA XONG / CẦN GIÚP",S.critic==="pending")}</div>`;break;
  case 18:h=`<h2>Lưu và mở lại tệp Word</h2><p>Dán bản nháp đã soát vào Word/Docs → lưu <b>DRAFT_${S.job}_CTEC.docx</b> → mở lại để xem chữ/bảng có thể sửa.</p><div class="cb-actions"><a href="https://docs.google.com/document/" target="_blank" rel="noopener noreferrer">MỞ GOOGLE DOCS ↗</a><button data-baction="copyDraft">LẤY MẪU DỰ PHÒNG</button></div><div class="cb-actions">${b("file","opened","ĐÃ LƯU VÀ TỰ MỞ LẠI",S.file==="opened")}${b("file","pending","CHƯA LƯU ĐƯỢC",S.file==="pending")}</div><p class="cb-help">Nút này chỉ ghi nhận tự báo; cần giáo viên kiểm file thực trước khi đạt FILE_PASS.</p>`;break;
- case 19:h=`<h2>Nâng cao: phối hợp ba AI và tự chuyển giao</h2><div class="cb-two">${card("C1 · ChatGPT","Hiểu việc, hỏi lại, lập kế hoạch.")}${card("C2 · NotebookLM","Đọc nguồn, trích dẫn, tạo sản phẩm Studio.")}${card("C3 · Gemini ↔ Notebook","Phản biện theo nguồn khi tài khoản có quyền.")}${card("C4 · ChatGPT","Kiểm lại, sửa nháp, bàn giao con người duyệt.")}</div><p>Đổi sang một <b>bài khác</b> và tự viết câu lệnh mới. Đây là kiểm tra chuyển giao, không phải chép lại câu mẫu.</p><div class="cb-actions">${labels.filter(x=>x[0]!==S.job).map(x=>b("transfer",x[0],x[1],S.transfer===x[0])).join("")}</div><textarea id="bridgeOwn" class="cb-input" data-binput="own" placeholder="Tôi muốn ... để ai dùng ... dựa trên nguồn ... không được tự đoán ... và xuất ra ...">${esc(S.own)}</textarea><p><b>Chọn ít nhất hai mẹo để ghi vào sổ tay:</b></p><div class="cb-two">${[0,3,6,10,12,14,16,19].map(i=>`<label class="cb-check"><input type="checkbox" data-bcheck="tip" data-i="${i}" ${S.tips.includes(i)?"checked":""}/>${esc(tipLibrary[i][1])}</label>`).join("")}</div><div class="cb-actions"><button data-baction="export">TẢI SỔ TAY & NHẬT KÝ</button><button data-baction="finish">TÔI ĐÃ TỰ KIỂM TRA</button></div><div class="cb-help">Sau đây có thể chọn tiếp 35 trạm giáo án V5 để học sâu. Không gộp vi màn với trạm hoặc tự tuyên bố lớp đã nghiệm thu.</div>${S.finished?"<p>Đã hoàn thành phiếu tự đánh giá; kết quả thực phải được người dạy kiểm.</p>":""}`;break;
+ case 19:h=`<h2>Nâng cao: phối hợp ba AI và tự chuyển giao</h2><div class="cb-two">${card("C1 · ChatGPT","Hiểu việc, hỏi lại, lập kế hoạch.")}${card("C2 · NotebookLM","Đọc nguồn, trích dẫn, tạo sản phẩm Studio.")}${card("C3 · Gemini ↔ Notebook","Phản biện theo nguồn khi tài khoản có quyền.")}${card("C4 · ChatGPT","Kiểm lại, sửa nháp, bàn giao con người duyệt.")}</div><p>Đổi sang một <b>bài khác</b> và tự viết câu lệnh mới. Đây là kiểm tra chuyển giao, không phải chép lại câu mẫu.</p><div class="cb-actions">${labels.filter(x=>x[0]!==S.job).map(x=>b("transfer",x[0],x[1],S.transfer===x[0])).join("")}</div><textarea id="bridgeOwn" class="cb-input" data-binput="own" placeholder="Tôi muốn ... để ai dùng ... dựa trên nguồn ... không được tự đoán ... và xuất ra ...">${esc(S.own)}</textarea><p><b>Chọn ít nhất hai mẹo để ghi vào sổ tay:</b></p><div class="cb-two">${[0,3,6,10,12,14,16,19].map(i=>`<label class="cb-check"><input type="checkbox" data-bcheck="tip" data-i="${i}" ${S.tips.includes(i)?"checked":""}/>${esc(tipLibrary[i][1])}</label>`).join("")}</div><div class="cb-actions"><button data-baction="export">TẢI SỔ TAY & NHẬT KÝ</button><button data-baction="finish">TÔI ĐÃ TỰ KIỂM TRA</button></div><div class="cb-help">Hoàn thành việc mới và chọn hai mẹo rồi chuyển đến Màn 20; không còn bài học phía sau.</div>${S.finished?"<p>Đã hoàn thành phiếu tự đánh giá; kết quả thực phải được người dạy kiểm.</p>":""}`;break;
  }
  const stage=n<=10?"HIỂU VÀ RA LỆNH":n<=14?"NGUỒN – THỬ – LỖI":n<=18?"LÀM – KIỂM – SỬA":"TỰ LÀM VÀ CHUYỂN GIAO";
  const el=$("#ctecStep"+n);
- el.querySelector(".cb-main").innerHTML=`<div class="cb-status"><span>${stage} · VI MÀN ${n}/19</span><button data-baction="role">ĐỔI VAI HỌC VIÊN / GIẢNG VIÊN</button></div><div class="cb-progress">${Array.from({length:13},(_,i)=>`<i class="${i<=n-7?"on":""}"></i>`).join("")}</div>${h}`;
+ el.querySelector(".cb-main").innerHTML=`<div class="cb-status"><span>${stage} · MÀN ${n}/20</span><button data-baction="role">ĐỔI VAI HỌC VIÊN / GIẢNG VIÊN</button></div><div class="cb-progress">${Array.from({length:13},(_,i)=>`<i class="${i<=n-7?"on":""}"></i>`).join("")}</div>${h}`;
 }
 function show(n,teacher){
  for(let i=1;i<=TOTAL;i++){let q=$("#ctecStep"+i);if(q)q.hidden=i!==n}
@@ -497,9 +497,9 @@ function show(n,teacher){
  $("#ctecAim").textContent="Mục tiêu đang thực hiện: "+(n<=10?"Biết giao việc rõ ràng":n<=14?"Khai thác nguồn và kiểm lỗi":n<=18?"Tạo sản phẩm văn phòng":"Tự học và chuyển giao");
  $("#ctecHeading").textContent="Bước "+n+". "+lessons[n][0];
  $("#ctecSubtitle").textContent=lessons[n][1];$("#ctecCount").textContent=n;
- $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecPageCount").textContent=n+"/19";
+ $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecPageCount").textContent=n+"/20";
  $("#ctecForward").hidden=false;
- $("#ctecForward").textContent=n===TOTAL?"XEM TỔNG KẾT BÀI HỌC →":"TIẾP THEO →";
+ $("#ctecForward").textContent=n===TOTAL?"ĐẾN MÀN 20 – HOÀN THÀNH →":"TIẾP THEO →";
  $("#ctecEndSummary").hidden=true;
  notes.hidden=!teacher;
  if(teacher){const q=window.CTEC_V75_DETAIL_NOTES[n]||{};
@@ -541,9 +541,6 @@ root.addEventListener("click",async e=>{
  const b=e.target.closest("[data-baction]");if(!b)return;
  const a=b.dataset.baction,v=b.dataset.bval||"",n=window.ctecCurrentStep;
  if(a==="role"){window.ctecBridgeToggleRole();return}
- if(a==="open35"){window.ctecBridgeOpen35();return}
- if(a==="restart"){window.ctecBridgeGoto(7);return}
- if(a==="revisit"){window.ctecBridgeGoto(19);return}
  if(a==="job"){composeInit(v)}else if(a==="choice")S.choice=v;
  else if(a==="rolepreset"){const presets={expert20:"Bạn là chuyên gia văn phòng có hơn 20 năm kinh nghiệm trong công tác văn thư, hành chính và rà soát hồ sơ. Hãy nêu rõ căn cứ và giới hạn thông tin.",expert5:"Bạn là chuyên viên hành chính có khoảng 5 năm kinh nghiệm theo vai trò mô phỏng, giỏi soạn và rà soát văn bản.",guide:"Bạn là người hướng dẫn nghiệp vụ văn phòng cho nhân viên mới. Giải thích từng bước đơn giản, nêu rõ lỗi thường gặp."};S.values[0]=presets[v]||S.values[0];S.use[0]=true;S.edited=true;}
  else if(a==="partgo")S.part=Math.max(0,Math.min(6,Number(v)));
@@ -609,10 +606,10 @@ function showEnd(teacher){
  const end=$("#ctecEndSummary");end.hidden=false;
  for(const cl of [".ban",".aim",".title"]){$("#ctecOrientation "+cl).hidden=false}
  $("#ctecAim").textContent="Mục tiêu đang thực hiện: Tổng kết và vận dụng sau tập huấn";
- $("#ctecHeading").textContent="Hoàn thành vòng học – Bạn đã biết tự giao việc cho AI?";
+ $("#ctecHeading").textContent="Màn 20. Hoàn thành – Tôi có thể tự giao việc cho AI";
  $("#ctecSubtitle").textContent="Từ mục tiêu đến bản nháp, kiểm chứng và công việc mới; giảng viên đánh giá sản phẩm thật trước khi chứng nhận.";
- $("#ctecCount").textContent="✓";
- $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecForward").hidden=true;$("#ctecPageCount").textContent="KẾT THÚC · KHÔNG TÍNH MÀN";
+ $("#ctecCount").textContent="20";
+ $("#ctecNav").hidden=false;$("#ctecBack").hidden=false;$("#ctecForward").hidden=true;$("#ctecPageCount").textContent="20/20 · KẾT THÚC";
  const p=job();
  end.querySelector(".cb-main").innerHTML='<h2>Nhìn lại năng lực đã luyện</h2>'+
  '<div class="cb-two">'+
@@ -623,15 +620,15 @@ function showEnd(teacher){
  '</div>'+
  '<details><summary>Xem câu lệnh 7 phần bạn đã xây</summary><pre>'+esc(prompt())+'</pre></details>'+
  '<div class="cb-help"><b>Bộ mẹo học tiếp:</b> '+S.tips.map(i=>esc(tipLibrary[i][1])).join(" · ")+'. Tài liệu và video/slide trong NotebookLM là công cụ; người sử dụng phải kiểm nguồn, số, định dạng và thẩm quyền.</div>'+
- '<div class="cb-actions"><button data-baction="export">TẢI SỔ TAY CÁ NHÂN</button><button data-baction="revisit">QUAY LẠI BÀI TỰ LÀM</button><button data-baction="open35">TÙY CHỌN: MỞ GIÁO ÁN 35 TRẠM GỐC</button><button data-baction="restart">CHỌN VIỆC KHÁC</button></div>'+
- '<p class="cb-help">Đây là TRANG TỔNG KẾT sau 19 vi màn, không phải màn số 20 hoặc một trạm có thời lượng mới. Giáo án 35 trạm gốc là nhánh chuyên sâu riêng, chỉ mở khi người dùng tự chọn, không tự nối thêm sau Màn 19. CLASS_PASS chỉ sau khi giảng viên kiểm tệp, kỹ năng và diễn tập.</p>';
- notes.hidden=!teacher;if(teacher)notes.textContent="TỔNG KẾT GIẢNG VIÊN: Mời một người học tự giải thích mục tiêu, tên nguồn, lỗi AI, cách sửa và tệp đã mở lại. Chỉ chấm năng lực khi xem sản phẩm Word/PDF thật và học viên làm biến thể. Màn tổng kết không tự phát chứng nhận hoặc thay lịch 35 trạm.";
+ '<div class="cb-actions"><button data-baction="export">TẢI SỔ TAY CÁ NHÂN</button></div>'+
+ '<p class="cb-help">Đây là MÀN 20/20 cuối cùng dành cho học viên. Sau khi xem lại kết quả và tải sổ tay, bài học kết thúc; không nối thêm màn hoặc nhánh 35 trạm. CLASS_PASS chỉ khi giảng viên kiểm tệp và kỹ năng thật.</p>';
+ notes.hidden=!teacher;if(teacher)notes.textContent="MÀN 20/20 – GIẢNG VIÊN: Mời người học tự giải thích mục tiêu, nguồn, lỗi AI và mở tệp Word/PDF thật. Chỉ chấm năng lực khi kiểm sản phẩm và học viên làm biến thể.";
  info("");window.scrollTo(0,0);
 }
 window.ctecUnifiedEnd=showEnd;
 window.ctecUnifiedCanAdvance=gate;
 window.ctecUnifiedStatus=()=>({step:window.ctecCurrentStep||1,job:S.job,ai:S.ai,notebook:S.nb,studio:S.output,checks:S.checks.every(Boolean),file:S.file,transfer:S.transfer,tips:S.tips.length,finished:S.finished});
 install();
-const u=new URLSearchParams(location.search),n=Number(u.get("intro")||"1");if(n>=START&&n<=TOTAL)window.ctecBridgeGoto(n);
+const u=new URLSearchParams(location.search),n=Number(u.get("intro")||"1");if(n>=START&&n<=TOTAL+1)window.ctecBridgeGoto(n);
 })();</script></body></html>
 
