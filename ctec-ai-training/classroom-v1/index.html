@@ -34,7 +34,7 @@ a{color:#006960}.note{font-size:13px;color:#536c6c!important}.hide{display:none}
 <input type="hidden" name="username" id="username" value="HOCVIEN">
 <div id="studentHelp"><p>Đăng nhập bằng tài khoản HOCVIEN đã được cung cấp.</p></div>
 <div id="teacherHelp" class="hide"><p>Tài khoản ADMIN chỉ dùng trên máy <b>Admin-PC</b>. Ghi chú người dạy không được gửi ra website học viên.</p></div>
-<label for="password">Mật khẩu</label><input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Nhập mật khẩu được cấp">
+<label for="password" id="passwordLabel">Mật khẩu</label><input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Nhập mật khẩu được cấp">
 <button class="submit" id="submitBtn" type="submit">VÀO LỚP HỌC</button>
 </form>
 <p class="note">Giảng viên sử dụng <b>Windows + P → Mở rộng</b> khi trình chiếu HDMI để màn TV không hiển thị ghi chú điều khiển.</p>
@@ -49,7 +49,7 @@ function set(roleName){
  document.getElementById("username").value=role;
  document.getElementById("studentHelp").classList.toggle("hide",role!=="HOCVIEN");
  document.getElementById("teacherHelp").classList.toggle("hide",role!=="ADMIN");
- document.getElementById("submitBtn").textContent=role==="HOCVIEN"?"VÀO LỚP HỌC":"MỞ ĐIỀU KHIỂN TRÊN ADMIN-PC";
+ var pw=document.getElementById("password");pw.hidden=role==="ADMIN";pw.required=role==="HOCVIEN";document.getElementById("passwordLabel").hidden=role==="ADMIN";if(role==="ADMIN")pw.value="";document.getElementById("submitBtn").textContent=role==="HOCVIEN"?"VÀO LỚP HỌC":"MỞ ĐĂNG NHẬP ADMIN-PC";
 }
 student.addEventListener("click",function(){set("HOCVIEN")});
 teacher.addEventListener("click",function(){set("ADMIN")});
