@@ -169,35 +169,35 @@ body:not(.ctec-orient) .mini,body:not(.ctec-orient) .tools .tile{border-color:#c
       <div class="mobileNotes verified"><b>Dễ nhớ:</b> xác định yêu cầu → NotebookLM đọc nguồn → ChatGPT phân tích/soạn → Gemini phản biện/trình bày → con người kiểm chứng.<p><b>Điểm nối:</b> Trong Gemini, khi có quyền, dùng Thêm tệp → Sổ tay → chọn sổ NotebookLM. Các sản phẩm Studio không mặc định tự chuyển hết; cần xuất hoặc đưa lại thành nguồn phù hợp.</p></div>
     </div>
   </section>
-  <section id="ctecStep5" class="ctec-step" hidden>
-    <div class="pane"><h2>Một câu lệnh – thử cả 3 AI, không đính kèm tệp</h2>
-      <p><b>Mục tiêu:</b> Gửi cùng câu lệnh và quan sát AI có biết kiểm tra dữ liệu trước khi nhận xét hay không.</p>
-      <div class="promptBox" id="ctecM5Prompt"></div>
-      <div class="actionRow"><button class="blue" type="button" data-copy="prompt">SAO CHÉP CÂU LỆNH</button><a class="grey" href="https://chatgpt.com/" target="_blank" rel="noopener">MỞ CHATGPT</a><a class="grey" href="https://gemini.google.com/" target="_blank" rel="noopener">MỞ GEMINI</a><a class="grey" href="https://notebooklm.google.com/" target="_blank" rel="noopener">MỞ NOTEBOOKLM</a></div>
-      <details><summary>Riêng NotebookLM: thêm nguồn bằng văn bản, không tải tệp</summary><p>Trong NotebookLM: Tạo sổ → Thêm nguồn → Văn bản đã sao chép (Copied text) → dán đoạn nguồn ở nút dưới → sau đó dán câu lệnh chung vào Chat trong sổ.</p><div class="actionRow"><button class="blue" type="button" data-copy="source">SAO CHÉP NGUỒN VĂN BẢN</button></div></details>
-      <div class="verified"><b>Hoàn thành:</b> Đọc các phản hồi, ghi lại AI nào dùng số liệu dòng tổng, AI nào kiểm được dữ liệu và AI nào thận trọng khi đề nghị thêm nhân sự/phòng. <b>Đáp án nằm ở Bước 6.</b></div>
-      <div class="verified" id="ctecM5Records">
-        <b>Ghi nhận sau khi thử từng AI</b><p>Chọn kết quả quan sát được. Nếu bị chặn, ghi đúng là bị chặn; không chấm AI đúng hoặc sai.</p>
-        <div class="aiGrid">
-          <label>ChatGPT<select data-ai-result="chatgpt"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
-          <label>Gemini Notebook<select data-ai-result="notebook"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
-          <label>Gemini<select data-ai-result="gemini"><option value="">Chưa thử</option><option value="response">Đã nhận phản hồi</option><option value="blocked">Bị chặn / hết hạn mức</option></select></label>
-        </div><p id="ctecM5Gate" role="status" aria-live="polite">Đáp án vẫn ẩn. Hãy thử cả ba công cụ.</p>
-      </div>
-      <div class="sourceNote">Nếu một AI báo thiếu quyền/quota, dùng các kết quả kiểm thử đã lưu cùng giảng viên; không tự kết luận công cụ đó đã trả lời sai.</div>
-    </div>
-  </section>
-  <section id="ctecStep6" class="ctec-step" hidden>
-    <div class="pane"><h2>Giải thích lỗi từ Bước 5 và cách tránh</h2>
-      <div class="math"><div><strong>70%</strong>01/11: 14 trên 20</div><div><strong>70%</strong>02/11: 21 trên 30</div><div><strong>92%</strong>03/11: 46 trên 50</div><div><strong>81%</strong>Toàn kỳ: 81 trên 100</div></div>
-      <div class="verified"><b>Đáp án đã kiểm:</b> 14 + 21 + 46 = <b>81</b>, không phải 91. Dòng tổng nguồn thử nghiệm bị sai 10 yêu cầu. Không thể kết luận cần tuyển thêm nhân sự/phòng từ ba ngày nếu thiếu thông tin biên chế, định mức và nơi làm việc hiện có.</div>
-      <p><b>AI đã kiểm thử thật:</b> Gemini 3.5 Flash-Lite không đăng nhập từng dùng 91% sai; khi câu lệnh buộc cộng lại, cùng Gemini sửa thành 81%. ChatGPT Plus trong lần thử khác phát hiện 81% đúng. ChatGPT Free và NotebookLM với câu lệnh này chưa đủ bằng chứng để kết luận.</p>
-      <h3>Vì sao AI có thể sai? Sáu nhóm nguy cơ</h3>
-      <div class="whyGrid" id="ctecWhyGrid"></div>
-      <p class="verified"><b>Nguyên tắc:</b> Đúng nguồn → kiểm phép tính → đủ căn cứ → người dùng quyết định. Giới hạn gói Free có thể ảnh hưởng công cụ/hạn mức, nhưng chưa chứng minh gây lỗi 91% trong phép thử.</p>
-    </div>
-  </section>
-  <div class="teacherBox" id="ctecTeacherNotes" hidden></div>
+  <section id="ctecStep5" class="ctec-step" hidden><div class="pane">
+<h2>Một câu hỏi ngắn – đủ điều kiện chưa?</h2>
+<p>Gửi <b>cùng một câu</b> cho ChatGPT, Gemini và NotebookLM. <b>Đừng cho biết tháng, năm, lịch làm việc</b> trước khi xem phản hồi.</p>
+<div class="promptBox" id="ctecM5Prompt"></div>
+<div class="actionRow"><button class="blue" type="button" data-copy="prompt">SAO CHÉP CÂU HỎI</button><a class="grey" href="https://chatgpt.com/" target="_blank" rel="noopener">MỞ CHATGPT</a><a class="grey" href="https://gemini.google.com/app" target="_blank" rel="noopener">MỞ GEMINI</a><a class="grey" href="https://notebooklm.google.com/" target="_blank" rel="noopener">MỞ NOTEBOOKLM</a></div>
+<details><summary>Nếu NotebookLM chưa có nguồn</summary><p>AI có thể cho biết thiếu dữ liệu và đề nghị tìm nguồn. Đó là phản hồi thận trọng, <b>không phải lỗi</b>. Không cần tải tài liệu thật ở màn này.</p></details>
+<div class="verified"><b>Quan sát:</b> AI có đưa một số ngày cố định? Có hỏi tháng/năm? Có phân biệt tuần làm 5 hay 6 ngày và nghỉ lễ, lịch riêng của cơ quan?</div>
+<div class="verified" id="ctecM5Records"><b>Ghi lại tình trạng từng AI</b><p>Có phản hồi không đồng nghĩa đúng hoặc sai.</p><div class="aiGrid">
+<label>ChatGPT<select data-ai-result="chatgpt"><option value="">Chưa thử</option><option value="response">Có phản hồi</option><option value="blocked">Bị chặn / hết lượt</option></select></label>
+<label>NotebookLM / Gemini Notebook<select data-ai-result="notebook"><option value="">Chưa thử</option><option value="response">Có phản hồi</option><option value="blocked">Bị chặn / hết lượt</option></select></label>
+<label>Gemini<select data-ai-result="gemini"><option value="">Chưa thử</option><option value="response">Có phản hồi</option><option value="blocked">Bị chặn / hết lượt</option></select></label></div>
+<p id="ctecM5Gate" role="status" aria-live="polite">Đáp án vẫn ẩn. Hãy ghi cả ba trạng thái.</p></div>
+<div class="sourceNote">Mục tiêu là nhận ra <b>câu hỏi thiếu điều kiện</b>, không cố làm ba AI trả lời sai.</div></div></section>
+<section id="ctecStep6" class="ctec-step" hidden><div class="pane">
+<h2>Cùng một tháng, hai kết quả có thể đều đúng</h2>
+<p><b>Quan sát trên Chrome Admin-PC ngày 10/11/2026</b> với các câu hỏi ngắn tương đương về số ngày làm việc:</p>
+<div class="whyGrid">
+<div class="verified"><b>ChatGPT: nêu hai lịch</b><p>Phân biệt lịch thứ Hai–thứ Sáu với thứ Hai–thứ Bảy, đưa khoảng ước tính rồi hỏi người dùng chọn lịch nào.</p></div>
+<div class="verified"><b>Gemini: đề nghị xác định tháng/năm</b><p>Hướng dẫn trừ cuối tuần và nghỉ lễ, đưa ví dụ có điều kiện rồi hỏi muốn tính tháng nào, năm nào.</p></div>
+<div class="verified"><b>Gemini Notebook: nhận thiếu nguồn</b><p>Sổ có <b>0 nguồn</b>, AI cho biết chưa có tài liệu về quy định và đề nghị tìm thêm thông tin; không kết luận một số chung cho mọi cơ quan.</p></div></div>
+<p class="verified"><b>Không thể kết luận cả ba AI sai.</b> AI hỏi lại hoặc nêu giả định rõ là xử lý tốt. Sai là khẳng định một số cho mọi nơi khi chưa có dữ kiện.</p>
+<h3>Ví dụ: tháng 11 năm 2026</h3>
+<div class="math"><div><strong>21 ngày</strong>Làm thứ Hai đến thứ Sáu</div><div><strong>25 ngày</strong>Làm thứ Hai đến thứ Bảy</div></div>
+<p>Đây là số ngày <b>theo lịch</b>, chưa trừ ngày lễ, nghỉ bù hay nghỉ riêng. Chênh lệch 4 ngày là do lịch làm việc khác nhau.</p>
+<h3>Sửa câu hỏi để có thể kiểm kết quả</h3><div class="promptBox" id="ctecM6FixedPrompt"></div>
+<div class="actionRow"><button class="blue" type="button" data-copy="fixed">SAO CHÉP CÂU ĐÃ SỬA</button></div>
+<details><summary>Xem thêm 6 nhóm rủi ro khi dùng AI</summary><div class="whyGrid" id="ctecWhyGrid"></div></details>
+<p class="verified"><b>Nhớ 4 điều:</b> tháng/năm → làm mấy ngày mỗi tuần → nghỉ lễ/nghỉ bù → lịch nghỉ riêng. Thiếu điều kiện thì hỏi, đừng đoán.</p></div></section>
+<div class="teacherBox" id="ctecTeacherNotes" hidden></div>
   <div id="ctecCopyStatus" class="sourceNote" role="status" aria-live="polite"></div>
   <div class="nav" id="ctecNav"><button id="ctecBack" class="grey" type="button">← TRƯỚC</button><span class="sourceNote" id="ctecPageCount"></span><button id="ctecForward" class="green" type="button">TIẾP THEO →</button></div>
   <p class="sourceNote">Giáo án tương tác 20 màn cho người học. Kết thúc tại Màn 20, không có bài học tiếp theo. Website không yêu cầu mật khẩu/OTP và không tự xác nhận đăng nhập AI; năng lực thực tế cần người dạy kiểm chứng.</p>
@@ -341,18 +341,19 @@ var headings=[
  ['Giới thiệu về AI','Bước 2. Mở và đăng nhập 3 AI','Thực hiện từng nút MỞ, làm theo hướng dẫn đã có/chưa có tài khoản.'],
  ['Giới thiệu về AI','Bước 3. Ba AI làm được gì với gói miễn phí?','Xem giao diện, công dụng, giới hạn Free và gói trả phí của ba AI.'],
  ['Giới thiệu về AI','Bước 4. Phối hợp 3 AI để giải quyết công việc thực tế','Dùng đúng công cụ, đúng lúc và kiểm kết quả.'],
- ['Trải nghiệm thực tế với AI','Bước 5. Một câu lệnh – thử cả 3 AI','Gửi cùng một câu lệnh, không tải tệp; chỉ so sánh phản hồi.'],
- ['Kiểm chứng và sử dụng AI có trách nhiệm','Bước 6. Vì sao AI có thể sai?','Phân tích số liệu đúng và các nguyên nhân để tránh dùng kết quả sai.']
+ ['Trải nghiệm thực tế với AI','Bước 5. Một câu hỏi ngắn – đủ điều kiện chưa?','So phản hồi ba AI với câu hỏi về ngày làm việc.'],
+ ['Kiểm chứng và sử dụng AI có trách nhiệm','Bước 6. Một tháng có thể có hai số ngày làm việc','Biết xác định lịch làm việc trước khi tính.']
 ];
-var source="Ngày 01/11: tiếp nhận 20, giải quyết 14 yêu cầu.\nNgày 02/11: tiếp nhận 30, giải quyết 21 yêu cầu.\nNgày 03/11: tiếp nhận 50, giải quyết 46 yêu cầu.\nDòng tổng kết của tài liệu ghi: tiếp nhận 100, giải quyết 91, tỷ lệ 91%.";
-var prompt="Anh/chị là trợ lý văn phòng. Hãy dựa vào bảng số liệu trong nguồn thử nghiệm: ngày 01/11 nhận 20 và đã giải quyết 14 yêu cầu; ngày 02/11 nhận 30 và đã giải quyết 21; ngày 03/11 nhận 50 và đã giải quyết 46. Dòng tổng kết trong tài liệu ghi 100 yêu cầu được tiếp nhận, 91 yêu cầu đã giải quyết, tỷ lệ 91%.\n\nViết một báo cáo ngắn cho người quản lý gồm: (1) bảng số liệu 3 ngày và tổng toàn kỳ; (2) tỷ lệ giải quyết từng ngày và toàn kỳ; (3) nhận xét mức độ hiệu quả; (4) đánh giá có cần bổ sung nhân sự và nơi làm việc tháng tới không, kèm lý do; (5) đề xuất hai việc ưu tiên. Trình bày mạch lạc, có số liệu và kết luận.";
+var source="Ngày làm việc phụ thuộc tháng/năm, tuần làm việc và nghỉ lễ riêng.";
+var prompt="Một tháng có bao nhiêu ngày làm việc?";
+var fixedPrompt="Hãy đếm số ngày làm việc theo lịch trong tháng 11/2026 với lịch thứ Hai đến thứ Sáu, nghỉ thứ Bảy và Chủ Nhật. Chưa trừ ngày lễ, nghỉ bù hay nghỉ riêng. Nêu cách đếm; nếu cần số ngày thực tế thì hãy hỏi thêm lịch nghỉ của cơ quan.";
 var teacher=[
  'Hướng dẫn trước giờ lớp học: người học tự mở Google, không chiếu OTP hay mật khẩu. Hai nút bắt buộc: CHƯA ĐĂNG NHẬP mở tab, ĐÃ ĐĂNG NHẬP chuyển tiếp. Nếu đăng nhập Google nhưng dịch vụ AI hỏi lại, giải thích tài khoản Google không thay quyền đăng nhập từng dịch vụ.',
  'Kiểm từng tab thật. ChatGPT nếu đã có tài khoản phải dùng phương thức trước đó; không tạo tài khoản mới khiến lịch sử bị chia. NotebookLM cần thấy danh sách sổ hoặc nút Tạo sổ. Gemini cần thấy ô chat. Nếu lỗi, chỉ dẫn từng bước mà không thu thông tin đăng nhập.',
  'Giới thiệu đúng nhãn trong ảnh được duyệt và giải thích 3 loại bằng chứng: công bố của hãng / nghiên cứu A-B / thực nghiệm CTEC. Quota là thời điểm và thay đổi theo gói. Nêu ví dụ chức năng miễn phí, hạn chế tệp và Studio; không mặc định Education là Free cá nhân.',
  'Dùng đúng ảnh 93D chủ dự án đã duyệt. Chỉ ngón tay vào luồng NotebookLM → Gemini, giải thích các nguồn đã đưa vào sổ khác với mọi sản phẩm Studio và phản hồi chat. Không khẳng định Gemini tự truy cập tất cả dữ liệu Studio.',
- 'Để người học gửi cùng prompt trong 3 AI, không tiết lộ đáp án. Với NotebookLM, phải dán nguồn văn bản vào sổ, không upload file. Quan sát: AI có tự kiểm tổng hay tin số 91? Khi hết quota, dùng ảnh/đáp án đã thử, không chấm kỹ thuật PASS từ bản ghi.',
- 'Chốt lỗi thật: 14+21+46=81. Gemini anonymous đã dùng 91 sai, sửa thành 81 khi yêu cầu đối chiếu; đó là một thí nghiệm, không chứng minh mọi lượt AI giống nhau. Phân tầng học viên: mới học tính tổng; khá đánh giá khuyến nghị nhân sự; giỏi đề nghị phép kiểm & nguồn cần bổ sung. Không tuyên bố đã đủ thẩm quyền ban hành. 31 nguy cơ là ví dụ không phải đều đã xảy ra.'
+ "Màn 5 dùng đúng câu ngắn: Một tháng có bao nhiêu ngày làm việc? Mục tiêu tìm điều kiện còn thiếu, không buộc AI sai. Kiểm trên Admin-PC: ChatGPT với câu tương đương phân biệt 5/6 ngày/tuần; Gemini hướng dẫn đếm và hỏi tháng năm; Gemini Notebook 0 nguồn xin thêm thông tin. Giữ riêng từng bằng chứng; học viên ghi trạng thái ba AI.",
+ "Màn 6: phân biệt lỗi AI với thiếu dữ liệu trong yêu cầu. Minh họa tháng 11/2026: thứ Hai–thứ Sáu 21 ngày, thứ Hai–thứ Bảy 25 ngày, chưa trừ nghỉ lễ/nghỉ riêng. Hỏi về tháng/năm, lịch tuần, nghỉ lễ/nghỉ bù, lịch đơn vị. Không kết luận ba AI sai khi biết hỏi lại hoặc nêu giả định. Học viên thử sửa câu hỏi để tính được."
 ];
 function visible(n){
  introStep=n;
@@ -376,12 +377,13 @@ function intoLesson(){
  try{opts.role=teacherMode?'teacher':'student';if(window.ctecUnifiedStatus){var carried=window.ctecUnifiedStatus();if(carried.job&&['B1','B2','B3'].includes(carried.job))opts.exercise=carried.job;}opts.view='lesson';opts.idx=0;goto(0)}catch(err){location.href='../v66/index.html?role='+(teacherMode?'teacher':'student')+'&station=K1'}
 }
 async function copyText(key){
- var s=key==='source'?source:prompt;
+ var s=key==='source'?source:key==='fixed'?fixedPrompt:prompt;
  try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(s);else throw Error('fallback')}
  catch(err){var t=document.createElement('textarea');t.value=s;t.style.position='fixed';t.style.top='0';document.body.appendChild(t);t.select();var ok=document.execCommand('copy');t.remove();if(!ok){var host=document.querySelector('#ctecStep5 .pane');var box=document.getElementById('ctecCopyFallback');if(!box){box=document.createElement('textarea');box.id='ctecCopyFallback';box.setAttribute('aria-label','Văn bản sao chép dự phòng');box.style.cssText='display:block;width:100%;min-height:150px;margin:12px 0;border:2px solid #78b4f2;border-radius:12px;padding:10px;font-size:15px';host.appendChild(box)}box.value=s;box.hidden=false;box.focus();box.select();document.getElementById('ctecCopyStatus').textContent='Trình duyệt chặn sao chép tự động. Nội dung đã chọn sẵn ở cuối màn: nhấn Ctrl+C (điện thoại: chạm giữ rồi Sao chép).';return}}
- document.getElementById('ctecCopyStatus').textContent=key==='source'?'Đã sao chép nguồn. Dán vào mục Văn bản đã sao chép trong NotebookLM.':'Đã sao chép câu lệnh. Dán vào ô chat của từng AI và nhấn Gửi.';
+ document.getElementById('ctecCopyStatus').textContent=key==='source'?'Đã sao chép nguồn tham khảo.':key==='fixed'?'Đã sao chép câu hỏi có đủ điều kiện.':'Đã sao chép câu hỏi thử nghiệm; dán vào ba AI để so sánh.';
 }
 document.getElementById('ctecM5Prompt').textContent=prompt;
+document.getElementById('ctecM6FixedPrompt').textContent=fixedPrompt;
 var grid=document.getElementById('ctecWhyGrid');
 topics.forEach(function(z,i){var d=document.createElement('details');var sum=document.createElement('summary');sum.textContent=(i+1)+'. '+z[0];var p=document.createElement('p');p.textContent=z[1];d.appendChild(sum);d.appendChild(p);grid.appendChild(d)});
 document.getElementById('ctecOrientation').addEventListener('click',function(e){
@@ -397,7 +399,7 @@ document.getElementById('ctecForward').onclick=function(){
    var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));
    if(choices.some(function(c){return !c.value})){
      var gate=document.getElementById('ctecM5Gate');
-     gate.textContent='Chưa đủ ba kết quả. Thử từng AI hoặc ghi đúng công cụ bị chặn rồi mới xem phân tích.';
+     gate.textContent='Chưa đủ ba trạng thái. Thử từng AI hoặc ghi bị chặn để xem phân tích.';
      gate.focus();return;
    }
  }
@@ -407,7 +409,7 @@ document.getElementById('ctecForward').onclick=function(){
 document.getElementById('ctecM5Records').addEventListener('change',function(){
  var choices=Array.from(document.querySelectorAll('#ctecM5Records [data-ai-result]'));
  var done=choices.filter(function(c){return !!c.value}).length;
- document.getElementById('ctecM5Gate').textContent=done===3?'Đã ghi ba trạng thái. Bấm TIẾP THEO để đối chiếu phép tính.': 'Đã ghi '+done+'/3 trạng thái; đáp án vẫn ẩn.';
+ document.getElementById('ctecM5Gate').textContent=done===3?'Đã ghi ba trạng thái. Bấm TIẾP THEO để xem điều kiện còn thiếu.': 'Đã ghi '+done+'/3 trạng thái; đáp án vẫn ẩn.';
 });
 var params=new URLSearchParams(location.search);
 var given=params.get('intro');
