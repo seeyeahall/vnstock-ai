@@ -631,7 +631,7 @@ function install(){
 }
 window.ctecUnifiedShow=(n,teacher)=>{window.ctecCurrentStep=n;show(n,false)};
 window.ctecUnifiedHide=()=>{for(let i=START;i<=TOTAL;i++){const q=$("#ctecStep"+i);if(q)q.hidden=true};$("#ctecEndSummary").hidden=true};
-function showEnd(teacher){
+function showEnd(){
  window.ctecCurrentStep=20;
  for(let i=1;i<=TOTAL;i++){let x=$("#ctecStep"+i);if(x)x.hidden=true}
  const end=$("#ctecEndSummary");end.hidden=false;
@@ -653,7 +653,7 @@ function showEnd(teacher){
  '<div class="cb-help"><b>Bộ mẹo học tiếp:</b> '+S.tips.map(i=>esc(tipLibrary[i][1])).join(" · ")+'. Tài liệu và video/slide trong NotebookLM là công cụ; người sử dụng phải kiểm nguồn, số, định dạng và thẩm quyền.</div>'+
  '<div class="cb-actions"><button data-baction="export">TẢI SỔ TAY CÁ NHÂN</button></div>'+
  '<p class="cb-help">Đây là màn cuối. Hãy lưu sổ tay và kiểm nguồn, số liệu, thẩm quyền trước khi dùng kết quả.</p>';
- notes.hidden=!teacher;if(teacher)notes.textContent="MÀN 20 – GIẢNG VIÊN: xem sản phẩm B1/B2/B3, nguồn và ba phép kiểm, so mẫu rồi chỉ lỗi cần sửa. Chỉ đánh giá sau khi xem sản phẩm thật.";
+ notes.hidden=true;notes.textContent='';
  info("");window.scrollTo(0,0);
 }
 window.ctecUnifiedEnd=showEnd;
